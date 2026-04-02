@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-nova-navy: #0f172a;
+  --color-nova-navy-light: #1e293b;
+  --color-nova-gold: #c9a227;
+  --color-nova-gold-hover: #d4af37;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}

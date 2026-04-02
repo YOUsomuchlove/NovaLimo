@@ -1,0 +1,19 @@
+{
+  "name": "utils-map",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/utils-map/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/utils-map",
+        "main": "libs/utils-map/src/index.ts",
+        "tsConfig": "libs/utils-map/tsconfig.lib.json",
+        "assets": ["libs/utils-map/*.md"]
+      }
+    }
+  }
+}

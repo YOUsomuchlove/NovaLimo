@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: novalimo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: novalimo
+      POSTGRES_PASSWORD: novalimo
+      POSTGRES_DB: novalimo
+    ports:
+      - '5432:5432'
+    volumes:
+      - novalimo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U novalimo -d novalimo']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # OSRM cần file dữ liệu .osrm (extract từ OSM). Mount thư mục chứa file vào /data.
+  # Xem: https://github.com/Project-OSRM/osrm-backend/wiki/Running-OSRM
+  # Bật khi đã có map: docker compose --profile osrm up -d
+  osrm:
+    image: osrm/osrm-backend:latest
+    container_name: novalimo-osrm
+    profiles:
+      - osrm
+    restart: unless-stopped
+    command: >
+      osrm-routed
+      --algorithm mld
+      /data/map.osrm
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./tools/osrm-data:/data:ro
+
+volumes:
+  novalimo_pgdata:
