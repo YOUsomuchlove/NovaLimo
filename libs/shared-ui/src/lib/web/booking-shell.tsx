@@ -1,5 +1,6 @@
 'use client';
 
+import { NOVA_BRAND } from '@limousine-workspace/utils-core';
 import React from 'react';
 import Link from 'next/link';
 import { Layout, Typography } from 'antd';
@@ -13,17 +14,14 @@ export function BookingShell({ children }: { children: React.ReactNode }) {
       <Header
         className="flex items-center justify-between px-4 md:px-8"
         style={{
-          background: '#0f172a',
+          background: NOVA_BRAND.navy,
           lineHeight: '64px',
           height: 'auto',
           paddingBlock: 12,
         }}
       >
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-white no-underline hover:text-[#c9a227]"
-        >
-          <CarOutlined className="text-xl text-[#c9a227]" />
+        <Link href="/" className="flex items-center gap-2 text-white no-underline">
+          <CarOutlined className="text-xl" style={{ color: NOVA_BRAND.gold }} />
           <span className="text-lg font-semibold tracking-wide">NovaLimo</span>
         </Link>
         <nav className="flex flex-wrap items-center gap-3 md:gap-6 text-sm">
@@ -47,7 +45,7 @@ export function BookingShell({ children }: { children: React.ReactNode }) {
       <Footer className="border-t border-slate-200 bg-white text-center text-slate-500">
         <Typography.Text type="secondary">
           NovaLimo — Đặt vé limousine · Hotline{' '}
-          <a href="tel:1900xxxx" className="text-[#c9a227]">
+          <a href="tel:19003528" style={{ color: NOVA_BRAND.gold }}>
             1900 xxxx
           </a>
         </Typography.Text>

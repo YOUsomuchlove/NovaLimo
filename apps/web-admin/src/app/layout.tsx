@@ -1,20 +1,33 @@
 import './global.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 import { AppProviders } from './providers';
 
-export const metadata: Metadata = {
-  title: 'NovaLimo Admin',
-  description: 'Quản trị và điều hành NovaLimo',
+const inter = Inter({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#050814',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const metadata: Metadata = {
+  title: {
+    default: 'NovaLimo Admin',
+    template: '%s | NovaLimo Admin',
+  },
+  description: 'Quản trị và điều hành NovaLimo — điều phối, chuyến, đơn hàng.',
+  robots: { index: false, follow: false },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="vi">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <html lang="vi" className={inter.variable}>
+      <body className={`${inter.className} min-h-screen bg-[#f1f5f9] text-slate-900 antialiased`}>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

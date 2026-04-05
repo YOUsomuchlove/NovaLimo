@@ -28,7 +28,13 @@ export class DriversService {
       started_at: new Date(),
       ended_at: null,
     });
-    return this.shifts.save(row);
+    const saved = await this.shifts.save(row);
+    this.events.emitShiftStarted({
+      driver_id: driverId,
+      shift_id: saved.id,
+      at: saved.started_at.toISOString(),
+    });
+    return saved;
   }
 
   async endShift(driverId: string): Promise<{
@@ -47,6 +53,12 @@ export class DriversService {
         driver_id: driverId,
         recorded_at: Between(open.started_at, end),
       },
+    });
+    this.events.emitShiftEnded({
+      driver_id: driverId,
+      shift_id: open.id,
+      at: end.toISOString(),
+      location_pings,
     });
     return { shift: open, location_pings };
   }
@@ -88,6 +100,26 @@ export class DriversService {
       message,
       at,
     });
+  }
+
+  async listRecentLocations(limit: number): Promise<
+    Array<{
+      driver_id: string;
+      lat: number;
+      lng: number;
+      recorded_at: Date;
+    }>
+  > {
+    const rows = await this.locations.find({
+      order: { recorded_at: 'DESC' },
+      take: limit,
+    });
+    return rows.map((r) => ({
+      driver_id: r.driver_id,
+      lat: r.lat,
+      lng: r.lng,
+      recorded_at: r.recorded_at,
+    }));
   }
 
   async getShiftSummary(driverId: string): Promise<{

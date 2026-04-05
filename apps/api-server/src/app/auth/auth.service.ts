@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity, UserRoleDb } from '../entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -13,26 +13,25 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  async loginByDriverPhone(
+  async validateLogin(
     phone: string,
-    password?: string,
-  ): Promise<{ access_token: string }> {
-    const user = await this.users.findOne({
-      where: { phone, role: 'DRIVER', status: 'ACTIVE' },
-    });
-    if (!user) throw new UnauthorizedException('Driver not found');
-    if (user.password_hash) {
-      if (
-        !password ||
-        !(await bcrypt.compare(password, user.password_hash))
-      ) {
-        throw new UnauthorizedException('Invalid credentials');
-      }
+    password: string,
+    role: UserRoleDb,
+  ): Promise<UserEntity> {
+    const user = await this.users.findOne({ where: { phone, role } });
+    if (!user || user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Invalid credentials');
     }
-    const access_token = await this.jwt.signAsync({
+    if (!bcrypt.compareSync(password, user.password_hash)) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return user;
+  }
+
+  signAccessToken(user: UserEntity): string {
+    return this.jwt.sign({
       sub: user.id,
       role: user.role,
     });
-    return { access_token };
   }
 }

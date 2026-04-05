@@ -1,109 +1,90 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useMemo } from 'react';
-import { Button, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { patchTripRunStatus } from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import type { RootStackParamList } from '../navigation/types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ListCard } from '../components/ListCard';
+import { ScreenShell } from '../components/ScreenShell';
+import type { TripsStackParamList } from '../navigation/types';
+import { C, FONT } from '../theme/tokens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'TripDetail'>;
+type Props = NativeStackScreenProps<TripsStackParamList, 'TripDetail'>;
 
+/** mbDrvTripDetail — phơi lệnh + CTA đáy */
 export function TripDetailScreen({ navigation, route }: Props) {
   const { run } = route.params;
-  const { token } = useAuth();
-
-  const pickups = useMemo(
-    () =>
-      [...run.bookings].sort(
-        (a, b) => (a.pickup_order ?? 0) - (b.pickup_order ?? 0),
-      ),
-    [run.bookings],
-  );
-
-  const dropoffs = useMemo(
-    () =>
-      [...run.bookings].sort(
-        (a, b) => (a.dropoff_order ?? 0) - (b.dropoff_order ?? 0),
-      ),
-    [run.bookings],
-  );
-
-  const startJourney = async () => {
-    if (!token) return;
-    await patchTripRunStatus(token, run.id, 'IN_PROGRESS');
-    navigation.navigate('ActiveNav', { runId: run.id });
-  };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Phơi lệnh điện tử</Text>
-      <Text style={styles.sub}>{run.route_name}</Text>
-      <Text style={styles.muted}>Chuyến: {run.id.slice(0, 8)}…</Text>
+    <ScreenShell underStackHeader style={styles.shell}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Text style={styles.route}>{run.route_name || 'Chuyến'}</Text>
+        <Text style={styles.meta}>
+          {run.license_plate} · {run.status}
+        </Text>
 
-      <Text style={styles.section}>Thứ tự đón</Text>
-      {pickups.map((b) => (
-        <View key={b.id} style={styles.row}>
-          <Text style={styles.name}>
-            #{b.pickup_order ?? '—'} {b.passenger_name}
-          </Text>
-          <Text style={styles.muted}>{b.pickup_address}</Text>
-          {b.note ? <Text style={styles.note}>Ghi chú: {b.note}</Text> : null}
-          <Text style={styles.muted}>Trạng thái: {b.status}</Text>
-        </View>
-      ))}
+        {run.bookings?.map((b) => (
+          <ListCard
+            key={b.id}
+            title={b.passenger_name}
+            subtitle={`${b.pickup_address} → ${b.dropoff_address}`}
+          >
+            <Text style={styles.small}>Ghế: {b.seat_label || '—'} · {b.status}</Text>
+          </ListCard>
+        ))}
+      </ScrollView>
 
-      <Text style={styles.section}>Thứ tự trả</Text>
-      {dropoffs.map((b) => (
-        <View key={`d-${b.id}`} style={styles.row}>
-          <Text style={styles.name}>
-            #{b.dropoff_order ?? '—'} {b.passenger_name}
-          </Text>
-          <Text style={styles.muted}>{b.dropoff_address}</Text>
+      <View style={styles.cta}>
+        <Pressable
+          style={styles.btnPrimary}
+          onPress={() => navigation.navigate('ActiveNav', { runId: run.id })}
+        >
+          <Text style={styles.btnPrimaryTxt}>Điều hướng & đón</Text>
+        </Pressable>
+        <View style={styles.row}>
+          <Pressable
+            style={styles.btnGhost}
+            onPress={() => navigation.navigate('Passengers', { runId: run.id })}
+          >
+            <Text style={styles.btnGhostTxt}>Khách / check-in</Text>
+          </Pressable>
+          <Pressable
+            style={styles.btnGhost}
+            onPress={() =>
+              navigation.getParent()?.getParent()?.navigate('Cargo', {
+                screen: 'Cargo',
+                params: { runId: run.id },
+              })
+            }
+          >
+            <Text style={styles.btnGhostTxt}>Hàng hóa</Text>
+          </Pressable>
         </View>
-      ))}
-
-      <View style={styles.actions}>
-        <View style={styles.btnWrap}>
-          <Button
-            title="Hàng hóa ký gửi"
-            onPress={() => navigation.navigate('Cargo', { runId: run.id })}
-          />
-        </View>
-        <View style={styles.btnWrap}>
-          <Button
-            title="Điều hướng & đón/trả"
-            onPress={() => navigation.navigate('ActiveNav', { runId: run.id })}
-          />
-        </View>
-        {run.status === 'PENDING' ? (
-          <View style={styles.btnWrap}>
-            <Button
-              title="Bắt đầu hành trình"
-              onPress={() => void startJourney()}
-            />
-          </View>
-        ) : null}
       </View>
-    </ScrollView>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingBottom: 32 },
-  title: { fontSize: 18, fontWeight: '600' },
-  sub: { fontSize: 20, marginTop: 4 },
-  muted: { color: '#666', marginTop: 2 },
-  section: { marginTop: 16, fontWeight: '600', fontSize: 16 },
-  row: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
+  shell: { flex: 1 },
+  scroll: { paddingBottom: 16 },
+  route: { fontFamily: FONT.bold, fontSize: 20, color: C.text, marginBottom: 4 },
+  meta: { fontFamily: FONT.regular, color: C.muted, marginBottom: 16 },
+  small: { fontFamily: FONT.regular, fontSize: 12, color: C.muted },
+  cta: { paddingTop: 8, gap: 10, borderTopWidth: 1, borderTopColor: C.stroke },
+  btnPrimary: {
+    backgroundColor: C.ctaBlue,
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
   },
-  name: { fontWeight: '500' },
-  note: { color: '#ad6800', marginTop: 4 },
-  actions: { marginTop: 20 },
-  btnWrap: { marginBottom: 10 },
+  btnPrimaryTxt: { fontFamily: FONT.semibold, color: '#fff', fontSize: 16 },
+  row: { flexDirection: 'row', gap: 10 },
+  btnGhost: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: C.stroke,
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: C.card,
+  },
+  btnGhostTxt: { color: C.gold, fontFamily: FONT.semibold, fontSize: 13 },
 });

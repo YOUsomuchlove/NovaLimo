@@ -1,60 +1,72 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
-  Req,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import type { Booking } from '@limousine-workspace/shared-types';
-import type { Request } from 'express';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { BookingsService, type CreateBookingInput } from './bookings.service';
+import { AdminJwtGuard } from '../auth/admin-jwt.guard';
+import { BookingsService } from './bookings.service';
+import { CreateBookingDto } from './dto/create-booking.dto';
+import { PatchBookingDto } from './dto/patch-booking.dto';
 
 @Controller('bookings')
 export class BookingsController {
   constructor(private readonly bookings: BookingsService) {}
 
   @Get('taken-seats')
-  takenSeats(
-    @Query('trip_batch_id') trip_batch_id: string,
-  ): Promise<string[]> {
-    return this.bookings.findOccupiedSeatLabels(trip_batch_id ?? '');
+  takenSeats(@Query('trip_batch_id', ParseUUIDPipe) trip_batch_id: string) {
+    return this.bookings.takenSeats(trip_batch_id);
+  }
+
+  @Get('all')
+  @UseGuards(AdminJwtGuard)
+  listAdmin() {
+    return this.bookings.listAdmin();
   }
 
   @Get()
-  list(
-    @Query('passenger_phone') passenger_phone?: string,
-    @Query('trip_batch_id') trip_batch_id?: string,
-    @Query('status') status?: string,
-  ): Promise<Booking[]> {
-    if (passenger_phone?.trim()) {
-      return this.bookings.findByPassengerPhone(passenger_phone);
-    }
-    return this.bookings.listAdmin({
-      trip_batch_id: trip_batch_id,
-      status: status as Booking['status'] | undefined,
-    });
+  listByPhone(@Query('passenger_phone') phone: string) {
+    if (!phone?.trim()) return [];
+    return this.bookings.listByPhone(phone.trim());
   }
 
   @Post()
-  create(@Body() body: CreateBookingInput): Promise<Booking> {
-    return this.bookings.create(body);
+  create(@Body() dto: CreateBookingDto) {
+    return this.bookings.create(dto);
   }
 
-  @Patch(':id/status')
-  @UseGuards(JwtAuthGuard)
-  patchStatusByDriver(
-    @Req() req: Request & { user?: { sub: string } },
-    @Param('id') id: string,
-    @Body() body: { status: Booking['status'] },
-  ): Promise<Booking> {
-    const driverId = req.user?.sub;
-    if (!driverId) throw new UnauthorizedException();
-    return this.bookings.patchStatusByDriver(id, driverId, body.status);
+  @Get(':id')
+  @UseGuards(AdminJwtGuard)
+  one(@Param('id', ParseUUIDPipe) id: string) {
+    return this.bookings.findOne(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(AdminJwtGuard)
+  patch(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: PatchBookingDto,
+  ) {
+    return this.bookings.updateAdmin(id, {
+      trip_run_id: dto.trip_run_id,
+      status: dto.status,
+      payment_method: dto.payment_method,
+      payment_status: dto.payment_status,
+      pickup_order: dto.pickup_order,
+      dropoff_order: dto.dropoff_order,
+    });
+  }
+
+  @Delete(':id')
+  @UseGuards(AdminJwtGuard)
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.bookings.remove(id);
+    return { ok: true };
   }
 }

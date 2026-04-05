@@ -1,4 +1,11 @@
 @import 'tailwindcss';
+@import '../../../../libs/shared-ui/src/lib/tokens/nova-limo-css-variables.css';
+
+@theme {
+  --color-nova-navy: #0b1020;
+  --color-nova-gold: #d4af37;
+  --color-nova-muted: #9ca6c4;
+}
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -7,6 +14,7 @@ html {
 body {
   margin: 0;
   font-family:
+    var(--font-inter),
     ui-sans-serif,
     system-ui,
     -apple-system,

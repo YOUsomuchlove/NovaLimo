@@ -1,141 +1,63 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Button,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
-import type { Cargo } from '@limousine-workspace/shared-types';
-import {
-  fetchCargosForRun,
-  patchCargoDriverStatus,
-} from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import type { RootStackParamList } from '../navigation/types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScreenShell } from '../components/ScreenShell';
+import type { CargoTabStackParamList } from '../navigation/types';
+import { C, FONT } from '../theme/tokens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Cargo'>;
+type Props = NativeStackScreenProps<CargoTabStackParamList, 'Cargo'>;
 
-export function CargoScreen({ route }: Props) {
-  const { runId } = route.params;
-  const { token } = useAuth();
-  const [list, setList] = useState<Cargo[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [manualCode, setManualCode] = useState('');
-
-  const load = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    try {
-      const data = await fetchCargosForRun(token, runId);
-      setList(data);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, runId]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const matchAndUpdate = async (
-    waybill: string,
-    target: Cargo['status'],
-  ) => {
-    if (!token || !waybill.trim()) {
-      Alert.alert('Thiếu mã', 'Nhập mã vận đơn.');
-      return;
-    }
-    const c = list.find(
-      (x) => x.waybill_code.toLowerCase() === waybill.trim().toLowerCase(),
-    );
-    if (!c) {
-      Alert.alert('Không tìm thấy', 'Mã vận đơn không khớp chuyến này.');
-      return;
-    }
-    try {
-      await patchCargoDriverStatus(token, c.id, target);
-      await load();
-      setManualCode('');
-    } catch (e) {
-      Alert.alert('Lỗi', e instanceof Error ? e.message : 'Cập nhật thất bại');
-    }
-  };
+/** mbDrvCargoItem */
+export function CargoScreen({ navigation, route }: Props) {
+  const { runId, cargoId } = route.params;
 
   return (
-    <View style={styles.root}>
-      <Text style={styles.title}>Hàng hóa ký gửi</Text>
-      <Text style={styles.hint}>
-        Nhập mã vận đơn (quét QR có thể bổ sung sau với camera).
-      </Text>
-      {loading ? <ActivityIndicator /> : null}
-      <TextInput
-        style={styles.input}
-        placeholder="Mã vận đơn"
-        value={manualCode}
-        onChangeText={setManualCode}
-        autoCapitalize="characters"
-      />
-      <View style={styles.row}>
-        <Button
-          title="Đã nhận lên xe"
-          onPress={() => void matchAndUpdate(manualCode, 'PICKED_UP')}
-        />
-        <Button
-          title="Đã giao hàng"
-          onPress={() => void matchAndUpdate(manualCode, 'DELIVERED')}
-        />
+    <ScreenShell underStackHeader style={styles.shell}>
+      <ScrollView>
+        <Text style={styles.h1}>Chi tiết kiện</Text>
+        <Text style={styles.meta}>Run {runId.slice(0, 8)}… · {cargoId?.slice(0, 8) ?? '—'}</Text>
+        <View style={styles.card}>
+          <Text style={styles.row}>Mã vận đơn: NL-CARGO-DEMO</Text>
+          <Text style={styles.row}>Người gửi: Demo · 090x</Text>
+          <Text style={styles.row}>Người nhận: Demo · 090x</Text>
+        </View>
+      </ScrollView>
+      <View style={styles.actions}>
+        <Pressable style={styles.btn} onPress={() => navigation.navigate('CargoCod')}>
+          <Text style={styles.btnTxt}>COD / thu hộ</Text>
+        </Pressable>
+        <Pressable
+          style={styles.btn}
+          onPress={() => navigation.navigate('CargoTransfer', { cargoId: cargoId ?? 'x' })}
+        >
+          <Text style={styles.btnTxt}>Bàn giao / chuyển</Text>
+        </Pressable>
       </View>
-      <FlatList
-        data={list}
-        keyExtractor={(item) => item.id}
-        ListEmptyComponent={
-          <Text style={styles.muted}>Không có hàng trên chuyến này.</Text>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.waybill}>{item.waybill_code}</Text>
-            <Text style={styles.muted}>Trạng thái: {item.status}</Text>
-            <Text style={styles.muted}>
-              Gửi: {item.sender_info.name} → Nhận: {item.receiver_info.name}
-            </Text>
-          </View>
-        )}
-      />
-    </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, padding: 12, backgroundColor: '#f5f5f5' },
-  title: { fontSize: 18, fontWeight: '600', marginBottom: 4 },
-  hint: { color: '#666', marginBottom: 8, fontSize: 12 },
-  input: {
+  shell: { flex: 1 },
+  h1: { fontFamily: FONT.bold, fontSize: 20, color: C.text },
+  meta: { fontFamily: FONT.regular, color: C.muted, marginBottom: 16 },
+  card: {
+    backgroundColor: C.card,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
-    backgroundColor: '#fff',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
+    borderColor: C.stroke,
+    padding: 16,
     gap: 8,
   },
-  card: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 8,
+  row: { fontFamily: FONT.regular, color: C.text, fontSize: 15 },
+  actions: { gap: 10, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.stroke },
+  btn: {
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: C.stroke,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: C.card,
   },
-  waybill: { fontWeight: '600' },
-  muted: { color: '#666', marginTop: 2 },
+  btnTxt: { color: C.gold, fontFamily: FONT.semibold },
 });

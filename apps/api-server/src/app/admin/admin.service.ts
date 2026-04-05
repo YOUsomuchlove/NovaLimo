@@ -6,54 +6,47 @@ import { TripBatchEntity } from '../entities/trip-batch.entity';
 import { TripRunEntity } from '../entities/trip-run.entity';
 import { VehicleEntity } from '../entities/vehicle.entity';
 
-export type AdminStatsDto = {
-  trip_batches_open: number;
-  trip_batches_clustered: number;
-  trip_runs_in_progress: number;
-  bookings_total: number;
-  revenue_paid_vnd: number;
-  vehicles_available: number;
-};
-
 @Injectable()
 export class AdminService {
   constructor(
     @InjectRepository(TripBatchEntity)
     private readonly batches: Repository<TripBatchEntity>,
-    @InjectRepository(TripRunEntity)
-    private readonly runs: Repository<TripRunEntity>,
     @InjectRepository(BookingEntity)
     private readonly bookings: Repository<BookingEntity>,
     @InjectRepository(VehicleEntity)
     private readonly vehicles: Repository<VehicleEntity>,
+    @InjectRepository(TripRunEntity)
+    private readonly runs: Repository<TripRunEntity>,
   ) {}
 
-  async getStats(): Promise<AdminStatsDto> {
-    const [open, clustered] = await Promise.all([
-      this.batches.count({ where: { status: 'OPEN' } }),
-      this.batches.count({ where: { status: 'CLUSTERED' } }),
-    ]);
-    const trip_runs_in_progress = await this.runs.count({
-      where: { status: 'IN_PROGRESS' },
-    });
-    const bookings_total = await this.bookings.count();
-    const raw = await this.bookings
+  async stats() {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    const trips_today = await this.batches
       .createQueryBuilder('b')
-      .select('COALESCE(SUM(b.total_amount),0)', 'sum')
-      .where('b.payment_status = :ps', { ps: 'PAID' })
-      .getRawOne<{ sum: string }>();
-    const revenue_paid_vnd = parseFloat(raw?.sum ?? '0') || 0;
-    const vehicles_available = await this.vehicles.count({
-      where: { status: 'AVAILABLE' },
+      .where('b.departure_time BETWEEN :start AND :end', { start, end })
+      .getCount();
+
+    const pending_bookings = await this.bookings.count({
+      where: { status: 'WAITING' },
+    });
+
+    const vehicles_in_use = await this.vehicles.count({
+      where: { status: 'IN_USE' },
+    });
+
+    const active_runs = await this.runs.count({
+      where: { status: 'IN_PROGRESS' },
     });
 
     return {
-      trip_batches_open: open,
-      trip_batches_clustered: clustered,
-      trip_runs_in_progress,
-      bookings_total,
-      revenue_paid_vnd,
-      vehicles_available,
+      trips_today,
+      pending_bookings,
+      vehicles_in_use,
+      active_trip_runs: active_runs,
     };
   }
 }

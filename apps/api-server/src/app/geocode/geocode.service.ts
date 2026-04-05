@@ -1,44 +1,54 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 
-export type GeocodeHit = {
-  lat: number;
-  lng: number;
+type NominatimItem = {
+  lat: string;
+  lon: string;
   display_name: string;
 };
 
 @Injectable()
 export class GeocodeService {
-  private readonly logger = new Logger(GeocodeService.name);
+  private readonly cache = new Map<
+    string,
+    { at: number; hits: Array<{ lat: number; lng: number; display_name: string }> }
+  >();
+  private readonly ttlMs = 60_000;
 
-  async search(query: string): Promise<GeocodeHit[]> {
-    const q = query.trim();
-    if (!q) return [];
+  async search(q: string): Promise<Array<{ lat: number; lng: number; display_name: string }>> {
+    const key = q.trim().toLowerCase();
+    if (key.length < 3) return [];
+    const now = Date.now();
+    const hit = this.cache.get(key);
+    if (hit && now - hit.at < this.ttlMs) return hit.hits;
 
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=6`;
+    const url = new URL('https://nominatim.openstreetmap.org/search');
+    url.searchParams.set('format', 'json');
+    url.searchParams.set('q', q.trim());
+    url.searchParams.set('limit', '8');
+
+    let res: Response;
     try {
-      const res = await fetch(url, {
+      res = await fetch(url.toString(), {
         headers: {
-          'User-Agent': 'NovaLimoBooking/1.0 (contact@novalimo.local)',
+          'User-Agent': 'NovaLimo/1.0 (contact: dev@local)',
           Accept: 'application/json',
         },
       });
-      if (!res.ok) {
-        this.logger.warn(`Nominatim HTTP ${res.status}`);
-        return [];
-      }
-      const raw = (await res.json()) as Array<{
-        lat: string;
-        lon: string;
-        display_name: string;
-      }>;
-      return raw.map((r) => ({
-        lat: parseFloat(r.lat),
-        lng: parseFloat(r.lon),
-        display_name: r.display_name,
-      }));
-    } catch (e) {
-      this.logger.warn(`Geocode failed: ${e}`);
-      return [];
+    } catch {
+      throw new ServiceUnavailableException('Geocode upstream unavailable');
     }
+    if (!res.ok) {
+      throw new ServiceUnavailableException('Geocode upstream error');
+    }
+    const data = (await res.json()) as NominatimItem[];
+    const hits = Array.isArray(data)
+      ? data.map((row) => ({
+          lat: Number(row.lat),
+          lng: Number(row.lon),
+          display_name: row.display_name,
+        }))
+      : [];
+    this.cache.set(key, { at: now, hits });
+    return hits;
   }
 }

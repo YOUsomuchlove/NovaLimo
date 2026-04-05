@@ -1,0 +1,37 @@
+# syntax=docker/dockerfile:1
+# Build: docker build -f docker/Dockerfile.api -t novalimo-api .
+# Runtime: Node + bundle webpack (dist/apps/api-server/main.js)
+
+FROM node:20-bookworm AS builder
+WORKDIR /workspace
+ENV NX_DAEMON=false
+# Giảm lỗi ECONNRESET / network aborted khi tải từ registry (đặc biệt khi build song song nhiều service).
+ENV npm_config_fetch_retries=10
+ENV npm_config_fetch_retry_mintimeout=20000
+ENV npm_config_fetch_retry_maxtimeout=120000
+
+COPY package.json package-lock.json ./
+# `npm ci` lỗi nếu lock file lệch với package.json (vd. yaml@2.8.3). Cập nhật lock trên máy: `npm install` rồi commit.
+# Cache npm giữa các lần build (cần BuildKit: Docker Desktop bật mặc định).
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --no-audit --no-fund
+
+COPY . .
+RUN npx nx build api-server --configuration=production
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV npm_config_fetch_retries=10
+ENV npm_config_fetch_retry_mintimeout=20000
+ENV npm_config_fetch_retry_maxtimeout=120000
+
+COPY --from=builder /workspace/dist/apps/api-server/package.json ./
+COPY --from=builder /workspace/dist/apps/api-server/package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --omit=dev --no-audit --no-fund
+
+COPY --from=builder /workspace/dist/apps/api-server/main.js ./
+
+EXPOSE 3000
+CMD ["node", "main.js"]

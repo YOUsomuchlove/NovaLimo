@@ -1,78 +1,66 @@
-import {
-  BadRequestException,
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import type { TripRunStatus } from '@limousine-workspace/shared-types';
 import { Repository } from 'typeorm';
-import type { Booking, TripRun, TripRunStatus } from '@limousine-workspace/shared-types';
-import { BookingEntity } from '../entities/booking.entity';
 import { TripRunEntity } from '../entities/trip-run.entity';
 import { EventsGateway } from '../events/events.gateway';
-import { bookingToDomain, tripRunToDomain } from '../mappers/to-domain';
-
-export type TripRunDetail = {
-  trip_run: TripRun;
-  bookings: Booking[];
-};
 
 @Injectable()
 export class TripRunsService {
   constructor(
     @InjectRepository(TripRunEntity)
-    private readonly tripRuns: Repository<TripRunEntity>,
-    @InjectRepository(BookingEntity)
-    private readonly bookings: Repository<BookingEntity>,
+    private readonly runs: Repository<TripRunEntity>,
     private readonly events: EventsGateway,
   ) {}
 
-  async list(tripBatchId?: string): Promise<TripRun[]> {
-    const where = tripBatchId?.trim()
-      ? { trip_batch_id: tripBatchId.trim() }
-      : {};
-    const rows = await this.tripRuns.find({
-      where,
-      order: { id: 'ASC' },
+  async list() {
+    return this.runs.find({
+      order: { id: 'DESC' },
+      take: 500,
+      relations: ['trip_batch', 'vehicle', 'driver'],
     });
-    return rows.map(tripRunToDomain);
   }
 
-  async getById(id: string): Promise<TripRunDetail> {
-    const run = await this.tripRuns.findOne({ where: { id } });
-    if (!run) throw new NotFoundException('trip run not found');
-
-    const list = await this.bookings.find({
-      where: { trip_run_id: id },
-      order: { pickup_order: 'ASC' },
+  async findOne(id: string) {
+    const r = await this.runs.findOne({
+      where: { id },
+      relations: ['trip_batch', 'vehicle', 'driver'],
     });
-
-    return {
-      trip_run: tripRunToDomain(run),
-      bookings: list.map(bookingToDomain),
-    };
+    if (!r) throw new NotFoundException('Trip run not found');
+    return r;
   }
 
-  async patchStatusByDriver(
-    runId: string,
-    driverId: string,
-    status: TripRunStatus,
-  ): Promise<TripRun> {
-    const run = await this.tripRuns.findOne({ where: { id: runId } });
-    if (!run) throw new NotFoundException('trip run not found');
-    if (run.driver_id !== driverId) throw new ForbiddenException();
+  async create(data: Partial<TripRunEntity>) {
+    const row = await this.runs.save(this.runs.create(data));
+    this.events.emitTripRunUpdated(row);
+    return row;
+  }
 
-    const order: TripRunStatus[] = ['PENDING', 'IN_PROGRESS', 'FINISHED'];
-    const cur = order.indexOf(run.status);
-    const next = order.indexOf(status);
-    if (next === -1) throw new BadRequestException('invalid status');
-    if (next !== cur && next !== cur + 1)
-      throw new BadRequestException('invalid status transition');
+  async update(id: string, patch: Partial<TripRunEntity>) {
+    const r = await this.runs.findOne({ where: { id } });
+    if (!r) throw new NotFoundException('Trip run not found');
+    Object.assign(r, patch);
+    const saved = await this.runs.save(r);
+    this.events.emitTripRunUpdated(saved);
+    return saved;
+  }
 
-    run.status = status;
-    const saved = await this.tripRuns.save(run);
-    const domain = tripRunToDomain(saved);
-    this.events.emitTripRunUpdated(domain);
-    return domain;
+  async remove(id: string): Promise<void> {
+    const x = await this.runs.delete(id);
+    if (!x.affected) throw new NotFoundException('Trip run not found');
+  }
+
+  async findEntity(id: string): Promise<TripRunEntity> {
+    const r = await this.runs.findOne({ where: { id } });
+    if (!r) throw new NotFoundException('Trip run not found');
+    return r;
+  }
+
+  async listStatusesForDriver(driverId: string, status: TripRunStatus) {
+    return this.runs.find({
+      where: { driver_id: driverId, status },
+      relations: ['trip_batch', 'vehicle'],
+      order: { id: 'DESC' },
+    });
   }
 }

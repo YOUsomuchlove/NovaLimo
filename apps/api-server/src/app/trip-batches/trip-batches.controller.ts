@@ -1,46 +1,60 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import type { Booking, TripBatch, TripRun } from '@limousine-workspace/shared-types';
-import type { DispatchBoardResult } from './trip-batches.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import type { TripBatchStatus } from '@limousine-workspace/shared-types';
+import { AdminJwtGuard } from '../auth/admin-jwt.guard';
 import { TripBatchesService } from './trip-batches.service';
-
-type ClusterResult = {
-  trip_batch: TripBatch;
-  created_trip_runs: TripRun[];
-  updated_bookings: Booking[];
-};
+import { TripBatchCreateDto, TripBatchUpdateDto } from './dto/trip-batch-mutate.dto';
 
 @Controller('trip-batches')
 export class TripBatchesController {
-  constructor(private readonly tripBatches: TripBatchesService) {}
+  constructor(private readonly batches: TripBatchesService) {}
 
   @Get()
-  list(): Promise<TripBatch[]> {
-    return this.tripBatches.list();
+  list(@Query('status') status?: TripBatchStatus) {
+    return this.batches.listPublic(status);
   }
 
-  @Get(':id/dispatch-board')
-  dispatchBoard(@Param('id') id: string): Promise<DispatchBoardResult> {
-    return this.tripBatches.getDispatchBoard(id);
+  @Get(':id')
+  @UseGuards(AdminJwtGuard)
+  one(@Param('id', ParseUUIDPipe) id: string) {
+    return this.batches.findOne(id);
   }
 
-  @Post(':id/cluster')
-  cluster(@Param('id') id: string): Promise<ClusterResult> {
-    return this.tripBatches.cluster(id);
+  @Post()
+  @UseGuards(AdminJwtGuard)
+  create(@Body() dto: TripBatchCreateDto) {
+    return this.batches.create({
+      route_name: dto.route_name,
+      departure_time: new Date(dto.departure_time),
+      status: dto.status ?? 'OPEN',
+    });
   }
 
-  @Post(':id/finalize-dispatch')
-  finalizeDispatch(
-    @Param('id') id: string,
-    @Body()
-    body: {
-      items: Array<{
-        booking_id: string;
-        trip_run_id: string;
-        pickup_order: number;
-        dropoff_order: number;
-      }>;
-    },
-  ): Promise<{ updated: number }> {
-    return this.tripBatches.finalizeDispatch(id, body.items ?? []);
+  @Patch(':id')
+  @UseGuards(AdminJwtGuard)
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: TripBatchUpdateDto,
+  ) {
+    const patch: Record<string, unknown> = { ...dto };
+    if (dto.departure_time) patch.departure_time = new Date(dto.departure_time);
+    return this.batches.update(id, patch as never);
+  }
+
+  @Delete(':id')
+  @UseGuards(AdminJwtGuard)
+  async remove(@Param('id', ParseUUIDPipe) id: string) {
+    await this.batches.remove(id);
+    return { ok: true };
   }
 }

@@ -1,6 +1,21 @@
 import './global.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
+import { SiteLayout } from '../components/site/SiteLayout';
 import { AppProviders } from './providers';
+
+const inter = Inter({
+  subsets: ['latin', 'vietnamese'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: '#0b1020',
+};
 
 export const metadata: Metadata = {
   title: {
@@ -25,9 +40,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
-      <body className="bg-slate-50 text-slate-900 antialiased">
-        <AppProviders>{children}</AppProviders>
+    <html lang="vi" className={inter.variable}>
+      <body
+        className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 antialiased`}
+      >
+        <AppProviders>
+          <SiteLayout>{children}</SiteLayout>
+        </AppProviders>
       </body>
     </html>
   );

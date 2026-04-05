@@ -1,87 +1,79 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
-import type {
-  Booking,
-  DriverMyRunWithBookings,
-  TripRunStatus,
-} from '@limousine-workspace/shared-types';
+import type { TripRunStatus } from '@limousine-workspace/shared-types';
+import { Repository } from 'typeorm';
 import { BookingEntity } from '../entities/booking.entity';
 import { CargoEntity } from '../entities/cargo.entity';
-import { TripBatchEntity } from '../entities/trip-batch.entity';
 import { TripRunEntity } from '../entities/trip-run.entity';
-import { VehicleEntity } from '../entities/vehicle.entity';
-import { bookingToDomain, cargoToDomain, tripRunToDomain } from '../mappers/to-domain';
-
-export type MyRun = DriverMyRunWithBookings;
+import { driverMyRunToDto } from '../mappers/to-dto';
 
 @Injectable()
 export class TripsService {
   constructor(
     @InjectRepository(TripRunEntity)
-    private readonly tripRuns: Repository<TripRunEntity>,
+    private readonly runs: Repository<TripRunEntity>,
     @InjectRepository(BookingEntity)
     private readonly bookings: Repository<BookingEntity>,
-    @InjectRepository(TripBatchEntity)
-    private readonly tripBatches: Repository<TripBatchEntity>,
-    @InjectRepository(VehicleEntity)
-    private readonly vehicles: Repository<VehicleEntity>,
     @InjectRepository(CargoEntity)
     private readonly cargos: Repository<CargoEntity>,
   ) {}
 
-  async myRuns(
-    driverId?: string,
-    status?: TripRunStatus,
-  ): Promise<MyRun[]> {
-    const qb = this.tripRuns.createQueryBuilder('r');
-    if (driverId) qb.andWhere('r.driver_id = :driverId', { driverId });
-    if (status) qb.andWhere('r.status = :status', { status });
-    qb.orderBy('r.id', 'ASC');
-    const runs = await qb.getMany();
-    if (runs.length === 0) return [];
-
-    const batchIds = [...new Set(runs.map((x) => x.trip_batch_id))];
-    const vehicleIds = [...new Set(runs.map((x) => x.vehicle_id))];
-    const batches = await this.tripBatches.find({
-      where: { id: In(batchIds) },
+  async myRuns(driverId: string, status: TripRunStatus) {
+    const list = await this.runs.find({
+      where: { driver_id: driverId, status },
+      relations: ['trip_batch', 'vehicle'],
     });
-    const vehs = await this.vehicles.find({ where: { id: In(vehicleIds) } });
-    const batchMap = new Map(batches.map((b) => [b.id, b]));
-    const vehicleMap = new Map(vehs.map((v) => [v.id, v]));
-
-    const result: MyRun[] = [];
-    for (const r of runs) {
-      const tb = batchMap.get(r.trip_batch_id);
-      const v = vehicleMap.get(r.vehicle_id);
-      const list = await this.bookings.find({
-        where: { trip_run_id: r.id },
-        order: { pickup_order: 'ASC' },
-      });
-      const cargoCount = await this.cargos.count({
-        where: { trip_run_id: r.id },
-      });
-      const base = tripRunToDomain(r);
-      result.push({
-        ...base,
-        route_name: tb?.route_name ?? '',
-        departure_time: tb?.departure_time?.toISOString() ?? '',
-        license_plate: v?.license_plate ?? '',
-        passenger_count: list.length,
-        cargo_count: cargoCount,
-        bookings: list.map(bookingToDomain),
-      });
+    list.sort(
+      (a, b) =>
+        a.trip_batch.departure_time.getTime() -
+        b.trip_batch.departure_time.getTime(),
+    );
+    const out = [];
+    for (const run of list) {
+      const [bookings, cargoCount, passenger_count] = await Promise.all([
+        this.bookings.find({ where: { trip_run_id: run.id } }),
+        this.cargos.count({ where: { trip_run_id: run.id } }),
+        this.bookings
+          .createQueryBuilder('b')
+          .where('b.trip_run_id = :rid', { rid: run.id })
+          .andWhere('b.status != :cancel', { cancel: 'CANCELLED' })
+          .getCount(),
+      ]);
+      out.push(
+        driverMyRunToDto({
+          ...run,
+          passenger_count,
+          cargo_count: cargoCount,
+          bookings,
+        }),
+      );
     }
-    return result;
+    return out;
   }
 
-  async cargosForRun(runId: string, driverId: string) {
-    const run = await this.tripRuns.findOne({ where: { id: runId } });
-    if (!run || run.driver_id !== driverId) return [];
-    const rows = await this.cargos.find({
-      where: { trip_run_id: runId },
-      order: { waybill_code: 'ASC' },
+  async myRunDetail(driverId: string, runId: string) {
+    const run = await this.runs.findOne({
+      where: { id: runId },
+      relations: ['trip_batch', 'vehicle'],
     });
-    return rows.map((e) => cargoToDomain(e));
+    if (!run) throw new NotFoundException('Trip run not found');
+    if (run.driver_id !== driverId) throw new ForbiddenException();
+    const bookings = await this.bookings.find({
+      where: { trip_run_id: run.id },
+    });
+    const cargoCount = await this.cargos.count({
+      where: { trip_run_id: run.id },
+    });
+    const passenger_count = await this.bookings
+      .createQueryBuilder('b')
+      .where('b.trip_run_id = :rid', { rid: run.id })
+      .andWhere('b.status != :cancel', { cancel: 'CANCELLED' })
+      .getCount();
+    return driverMyRunToDto({
+      ...run,
+      passenger_count,
+      cargo_count: cargoCount,
+      bookings,
+    });
   }
 }

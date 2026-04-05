@@ -1,16 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import type { User } from '@limousine-workspace/shared-types';
 import { UserEntity } from '../entities/user.entity';
-import { userToDomain } from '../mappers/to-domain';
-
-export type UpsertUserInput = {
-  full_name: string;
-  phone: string;
-  role: User['role'];
-  status: User['status'];
-};
 
 @Injectable()
 export class UsersService {
@@ -19,31 +10,21 @@ export class UsersService {
     private readonly users: Repository<UserEntity>,
   ) {}
 
-  async list(): Promise<User[]> {
-    const rows = await this.users.find({ order: { full_name: 'ASC' } });
-    return rows.map(userToDomain);
+  list() {
+    return this.users.find({ order: { id: 'ASC' }, take: 500 }).then((rows) =>
+      rows.map((row) => {
+        const { password_hash: _omit, ...u } = row;
+        void _omit;
+        return u;
+      }),
+    );
   }
 
-  async create(body: UpsertUserInput): Promise<User> {
-    const e = this.users.create({
-      full_name: body.full_name.trim(),
-      phone: body.phone.trim(),
-      role: body.role,
-      status: body.status,
-      password_hash: null,
-    });
-    const saved = await this.users.save(e);
-    return userToDomain(saved);
-  }
-
-  async update(id: string, body: Partial<UpsertUserInput>): Promise<User> {
-    const e = await this.users.findOne({ where: { id } });
-    if (!e) throw new NotFoundException('user not found');
-    if (body.full_name !== undefined) e.full_name = body.full_name.trim();
-    if (body.phone !== undefined) e.phone = body.phone.trim();
-    if (body.role !== undefined) e.role = body.role;
-    if (body.status !== undefined) e.status = body.status;
-    const saved = await this.users.save(e);
-    return userToDomain(saved);
+  async findOne(id: string) {
+    const u = await this.users.findOne({ where: { id } });
+    if (!u) throw new NotFoundException('User not found');
+    const { password_hash: _omit, ...rest } = u;
+    void _omit;
+    return rest;
   }
 }

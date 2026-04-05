@@ -1,0 +1,38 @@
+# syntax=docker/dockerfile:1
+# Multi-app Next (Nx): build-arg NX_APP=web-booking | web-admin
+# Build: docker build -f docker/Dockerfile.next --build-arg NX_APP=web-booking -t novalimo-booking .
+
+FROM node:20-bookworm AS builder
+WORKDIR /workspace
+ENV NX_DAEMON=false
+ENV npm_config_fetch_retries=10
+ENV npm_config_fetch_retry_mintimeout=20000
+ENV npm_config_fetch_retry_maxtimeout=120000
+
+ARG NX_APP=web-booking
+ARG NEXT_PUBLIC_API_URL=http://localhost:3000/api
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_TELEMETRY_DISABLED=1
+
+COPY package.json package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --no-audit --no-fund
+
+COPY . .
+RUN npx nx build "${NX_APP}" --configuration=production
+
+FROM node:20-bookworm-slim AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
+
+ARG NX_APP=web-booking
+
+COPY --from=builder /workspace/apps/${NX_APP}/.next/standalone ./
+COPY --from=builder /workspace/apps/${NX_APP}/.next/static ./apps/${NX_APP}/.next/static
+COPY --from=builder /workspace/apps/${NX_APP}/public ./apps/${NX_APP}/public
+
+WORKDIR /app/apps/${NX_APP}
+EXPOSE 3000
+CMD ["node", "server.js"]

@@ -57,7 +57,7 @@ export function SeatMap({
   const takenSet = useMemo(() => new Set(takenSeats), [takenSeats]);
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
       <Typography.Title level={5}>Chọn ghế</Typography.Title>
       <Typography.Paragraph type="secondary" className="!mb-4 text-sm">
         Ghế VIP (hàng trước) có phụ phí. Ghế đỏ đã có người đặt.
@@ -69,7 +69,8 @@ export function SeatMap({
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-2">
+      <div className="max-w-full overflow-x-auto pb-2 [-webkit-overflow-scrolling:touch]">
+        <div className="flex min-w-min flex-wrap justify-center gap-1.5 px-0.5 sm:gap-2 md:min-w-0">
         {seats.map((id) => {
           const taken = takenSet.has(id);
           const selected = selectedSeat === id;
@@ -100,6 +101,7 @@ export function SeatMap({
             </Tooltip>
           );
         })}
+        </div>
       </div>
     </div>
   );

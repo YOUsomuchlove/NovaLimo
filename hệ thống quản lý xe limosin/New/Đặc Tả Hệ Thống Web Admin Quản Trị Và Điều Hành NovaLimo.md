@@ -1,61 +1,171 @@
-Dưới đây là tài liệu đặc tả nghiệp vụ và kỹ thuật chi tiết dành riêng cho phân hệ **Web Admin (Web Quản trị/Điều hành \- apps/web-admin)**. Đây được xem là "bộ não" của toàn bộ hệ thống NovaLimo, nơi các nhân viên điều hành trực tiếp giám sát và kích hoạt các thuật toán thông minh.
+# Đặc tả phân hệ: Web Admin — Quản trị & điều hành NovaLimo
 
-### TÀI LIỆU ĐẶC TẢ PHÂN HỆ: WEB ADMIN (QUẢN TRỊ & ĐIỀU HÀNH)
+Tài liệu mô tả nghiệp vụ, giao diện và kỹ thuật cho phân hệ **Web Admin** (`apps/web-admin`). Phần **danh mục màn hình** được **đối chiếu với bản vẽ chi tiết** trong tệp `web-admin.pen` (các frame đặt tên `NovaLimo Admin · …`). Khi triển khai Next.js, nhiều màn có thể gộp thành một route có tab/phụ lộ trình; tài liệu này vẫn liệt kê **đủ từng màn thiết kế** để đội sản phẩm và dev cùng tham chiếu.
 
-#### 1\. Tổng quan & Kiến trúc Công nghệ
+**Liên kết hệ thống tài liệu:** [Đặc Tả Tổng Thể Và Cấu Hình Hệ Thống NovaLimo.md](./Đặc%20Tả%20Tổng%20Thể%20Và%20Cấu%20Hình%20Hệ%20Thống%20NovaLimo.md) — sơ đồ phân hệ, cấu hình env, RBAC/API, realtime.
 
-* **Mục tiêu:** Là trung tâm điều khiển (Control Panel) cho phép bộ phận điều hành quản lý toàn bộ vòng đời chuyến đi, giám sát đội xe/tài xế thời gian thực, quản lý doanh thu và đặc biệt là xử lý linh hoạt việc chia xe, ghép chuyến 1, 2\.  
-* **Nền tảng & Thiết kế:** Giao diện Responsive hoạt động mượt mà trên cả PC và máy tính bảng (Tablet), giúp điều hành viên có thể thao tác ngay cả khi đang di chuyển mà không cần tải App riêng 2\.  
-* **Công nghệ lõi:** Sử dụng **Next.js & React** nằm trong thư mục apps/web-admin 3\.  
-* **Thư viện UI/UX:** Tương tự Web Đặt vé, Web Admin tiếp tục sử dụng **Ant Design (AntD)** kết hợp với Tailwind CSS (lấy từ libs/shared-ui). Ngoài ra, tích hợp thêm các thư viện hỗ trợ thao tác **Kéo thả (Drag & Drop)** chuyên sâu (như dnd-kit hoặc react-beautiful-dnd) để xử lý tác vụ chuyển khách giữa các xe 3, 4\.  
-* **Giao tiếp Dữ liệu:** Đồng bộ định nghĩa dữ liệu chặt chẽ từ libs/shared-types (như bảng Trip\_Batches, Trip\_Runs, Bookings) để đảm bảo End-to-End Type Safety 5-7.
+---
 
-#### 2\. Cấu trúc các Trang (Pages) và Tính năng Cốt lõi
+## 1. Tổng quan và kiến trúc công nghệ
 
-**A. Trang Bảng điều khiển (Dashboard & Analytics)**
+- **Mục tiêu:** Trung tâm điều khiển (control panel) cho điều hành: quản lý vòng đời chuyến, giám sát đội xe/tài xế, xử lý đơn vé và ký gửi, tài chính/COD, cấu hình vận hành và phân quyền.
+- **Nền tảng:** Giao diện **responsive**, ưu tiên **PC và tablet** để điều hành có thể thao tác khi di chuyển mà không bắt buộc cài app riêng.
+- **Công nghệ lõi:** **Next.js & React** trong `apps/web-admin`.
+- **UI/UX:** **Ant Design** + **Tailwind CSS**, tái sử dụng pattern từ `libs/shared-ui`. Các thao tác **kéo–thả** (chia khách giữa các xe sau khi xếp tự động) có thể dùng **dnd-kit** hoặc thư viện tương đương.
+- **Dữ liệu:** Đồng bộ kiểu từ `libs/shared-types` (ví dụ `TripBatch`, `TripRun`, `Booking`, `Vehicle`, …) nhằm **type safety** end-to-end với API.
 
-* **Mục đích:** Cung cấp cái nhìn toàn cảnh về tình hình kinh doanh và vận hành trong ngày.  
-* **Thiết kế (AntD):** Sử dụng Card và Statistic để hiển thị các con số tổng quan: Tổng doanh thu, Số vé đã bán, Tỷ lệ lấp đầy ghế, Số xe đang chạy 8\. Tích hợp biểu đồ (Charts) để phân tích doanh thu, chi phí phát sinh và lương tài xế 8\.
+---
 
-**B. Trang Quản lý Đội xe & Tài xế (Fleet & Driver Management)**
+## 2. Thành phần thiết kế dùng chung (trong `web-admin.pen`)
 
-* **Mục đích:** Khai báo năng lực vận tải của nhà xe.  
-* **Tính năng:**  
-* Quản lý danh sách xe (Vehicles): Thêm biển số, loại xe (Limousine 9 chỗ, 11 chỗ, v.v.), sức chứa, và trạng thái (Sẵn sàng, Đang bảo dưỡng, Đang chạy) 8, 9\.  
-* Quản lý nhân sự (Users): Tạo tài khoản cho tài xế, cấp quyền truy cập Mobile App, theo dõi trạng thái hoạt động 9\.  
-* **Thiết kế (AntD):** Dùng Table kết hợp Modal để thêm/sửa thông tin.
+Các khung không phải “trang nghiệp vụ” nhưng phục vụ lắp ráp và nhất quán UI:
 
-**C. Trang Giám sát Hành trình (Live Tracking & GPS)**
+| Tên frame (trong file) | Vai trò |
+|------------------------|--------|
+| **halo: design system components** | Kit component (nút, form, bảng, Steps, Sidebar, …) mô phỏng Ant Design. |
+| **NovaLimo UI · Message & Popup Library** | Thư viện thông báo, modal, popup chuẩn hóa. |
+| **dashboard-utility**, **dashboard-revenue**, **dashboard-football** | Khối/widget minh họa cho dashboard (thống kê, biểu đồ, v.v.). |
+| **panelDrivers** | Panel/component mẫu liên quan danh sách tài xế (dùng lại trong các màn điều phối/giám sát). |
 
-* **Mục đích:** Theo dõi vị trí đội xe theo thời gian thực trên bản đồ số.  
-* **Tính năng:** Thông qua **Socket.io** tích hợp với Backend, trang này hiển thị icon các xe đang di chuyển trên bản đồ 3, 10\. Điều hành viên có thể click vào từng xe để xem vận tốc, tài xế đang lái, và tiến độ đón/trả khách 10\.
+---
 
-**D. Trang Quản lý Đơn hàng & Hàng hóa (Bookings & Cargos)**
+## 3. Danh mục đầy đủ các trang/màn hình thiết kế (`NovaLimo Admin · …`)
 
-* **Mục đích:** Tra cứu, hỗ trợ tạo vé thủ công (cho khách gọi tổng đài) và quản lý ký gửi.  
-* **Tính năng:**  
-* Lưu trữ thông tin vé: Họ tên, SĐT hành khách, người đặt hộ, địa chỉ đón/trả tận nơi, tọa độ PostGIS (pickup\_location, dropoff\_location) 7, 8\.  
-* Quản lý Hàng hóa: Xử lý hàng hóa như một "hành khách ảo" có mã vận đơn, điểm nhận/giao nhưng không chiếm ghế ngồi 8, 11\.
+Dưới đây là **tất cả** các frame đặt tên nghiệp vụ trong bản vẽ, nhóm theo luồng điều hành. Mô tả ngắn gắn với **tên màn** và chức năng kỳ vọng trong hệ thống NovaLimo.
 
-**E. TRANG ĐIỀU PHỐI THÔNG MINH (SMART DISPATCHING) \- TÍNH NĂNG QUAN TRỌNG NHẤT**
+### 3.1. Tổng quan và điều phối
 
-* **Mục đích:** Kích hoạt thuật toán AI (OR-Tools) và xử lý ngoại lệ trước giờ xe xuất bến. Trang này giải quyết bài toán cốt lõi: Chia 30 khách vào 3 xe nhỏ sao cho tối ưu 3, 4\.  
-* **Thiết kế & Hoạt động:**  
-* **Giao diện "Rổ chờ" (Trip\_Batches):** Sử dụng Component Tabs của AntD để hiển thị các khung giờ (VD: Chuyến 14:00) với danh sách toàn bộ khách đang chờ xếp xe 6, 12\.  
-* **Nút "Xếp Xe Tự Động":** Khi click, hệ thống gọi API xuống Backend. Backend dùng **PostGIS** để gom các khách gần nhau (bán kính 0.5km), sau đó dùng **OR-Tools** vẽ lộ trình khép kín không chạy lòng vòng và sinh ra các xe thực tế (Trip\_Runs) 3, 4, 12\.  
-* **Giao diện Kéo thả linh hoạt (Drag & Drop):** Sau khi thuật toán chia xong, hệ thống hiển thị danh sách các xe (Card 1, Card 2, Card 3). Nếu có khách thứ 31 (vượt sức chứa) hoặc khách yêu cầu đổi xe, hệ thống báo đỏ 4\. Điều hành viên có thể dùng chuột **kéo (drag) khách từ xe này thả (drop) sang xe khác**, hoặc điều thêm xe trung chuyển cực kỳ trực quan 1, 3, 4\.  
-* **Chốt lệnh:** Sau khi rà soát, Điều hành viên bấm "Xuất Lệnh", toàn bộ thứ tự đón (pickup\_order) và trả (dropoff\_order) sẽ được chốt cứng và đẩy thẳng xuống Mobile App của tài xế 7, 12\.
+| Màn hình (tên trong `web-admin.pen`) | Mục đích / nội dung chính |
+|--------------------------------------|---------------------------|
+| **NovaLimo Admin · Dashboard & Analytics** | Bảng điều khiển: chỉ số vận hành/kinh doanh (vé, doanh thu, lấp đầy, xe đang chạy), biểu đồ xu hướng. |
+| **NovaLimo Admin · Điều phối Thông minh (Smart Dispatching)** | “Rổ chờ” theo khung giờ (`trip_batch`), danh sách khách chờ xếp xe, nút chạy thuật toán xếp xe, sau đó điều chỉnh kéo–thả và **xuất lệnh** xuống app tài xế. |
+| **NovaLimo Admin · Phơi lệnh (Manifest)** | Xem/in phơi lệnh theo chuyến xe — danh sách khách, thứ tự đón/trả sau khi đã chốt. |
+| **NovaLimo Admin · Bàn giao Trung chuyển** | Quy trình bàn giao khách/kiện giữa xe tuyến chính và xe trung chuyển (nếu nghiệp vụ có). |
 
-#### 3\. Luồng Giao tiếp Dữ liệu (Workflow) trên Web Admin
+### 3.2. Chuyến chạy (Trip runs)
 
-1. **Hiển thị dữ liệu:** Web Admin gọi API lấy danh sách từ bảng Bookings theo từng trip\_batch\_id (Khung giờ) đang ở trạng thái OPEN 6, 7\.  
-2. **Chạy thuật toán:** Khi bấm "Xếp xe", Backend trả về kết quả là các Trip\_Runs (Chuyến xe thực tế) kèm danh sách khách đã được gán trip\_run\_id và thứ tự đón/trả tối ưu 6, 7, 12\.  
-3. **Xử lý State React:** Giao diện Kéo Thả (Drag & Drop) nhận dữ liệu JSON này, lưu vào State nội bộ. Khi nhân viên kéo thả đổi khách, State cập nhật theo thời gian thực.  
-4. **Cập nhật Database:** Khi bấm "Xuất Lệnh", Web Admin gửi lại mảng dữ liệu mới nhất xuống Backend để lưu chính thức vào bảng Bookings (thay đổi trip\_run\_id tương ứng) và đổi trạng thái chuyến thành IN\_PROGRESS 6, 7, 12\.
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Quản lý Chuyến (Trip Runs)** | Danh sách chuyến xe thực tế đã/đang chạy, lọc theo ngày, tuyến, trạng thái. |
+| **NovaLimo Admin · Chi tiết Chuyến** | Chi tiết một `trip_run`: tài xế, xe, lịch trình, khách/giao hàng gắn chuyến. |
+| **NovaLimo Admin · Chỉnh sửa Chuyến** | Form chỉnh sửa thông tin chuyến (theo quyền và quy tắc nghiệp vụ). |
 
-#### 4\. Quy tắc Code & Vận hành tại thư mục apps/web-admin
+### 3.3. Đơn vé, ký gửi và vận hành hàng hóa
 
-* **Import thư viện:** Mọi Component UI phức tạp (như bảng điều khiển bản đồ, nút bấm chuẩn, form tạo vé) đều phải được tạo bằng Nx Generators trong libs/shared-ui và import vào Web Admin, tuyệt đối không code cứng (hardcode) trực tiếp tại Web Admin để đảm bảo Web Booking cũng có thể tái sử dụng 5, 13, 14\.  
-* **Quản lý Type:** Import toàn bộ kiểu dữ liệu (Interfaces/Types) như Booking, TripRun, Vehicle từ alias @limo/shared-types 15\. Nếu Backend thêm trường dữ liệu (ví dụ thêm thuộc tính fuel\_cost cho xe), Frontend sẽ được báo lỗi ngay lúc code nếu chưa cập nhật.
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Quản lý Đơn hàng & Ký gửi Hàng hóa** | Tra cứu tập trung vé khách và đơn ký gửi; hỗ trợ thao tác hỗ trợ khách qua tổng đài. |
+| **NovaLimo Admin · Tạo đơn vé hành khách** | Tạo vé thủ công (điểm đón/trả, ghế, thanh toán). |
+| **NovaLimo Admin · Chi tiết đơn vé hành khách** | Xem chi tiết một booking: hành khách, ghế, trạng thái, liên kết chuyến. |
+| **NovaLimo Admin · Sửa đơn vé hành khách** | Chỉnh sửa vé đã tạo (đổi giờ/ghế/hủy — theo policy). |
+| **NovaLimo Admin · Tạo đơn ký gửi hàng hóa** | Tạo vận đơn ký gửi không hoặc kèm ghế tùy nghiệp vụ. |
+| **NovaLimo Admin · Chi tiết vận đơn ký gửi** | Chi tiết mã vận đơn, trạng thái, điểm nhận/giao. |
+| **NovaLimo Admin · Sửa vận đơn ký gửi** | Cập nhật đơn ký gửi. |
+| **NovaLimo Admin · Vận hành Hàng hóa** | Màn tổng quan vận hành khoảng ký gửi (xử lý tại bến, trạng thái kiện). |
 
-Bạn có muốn tôi phác thảo thử cấu trúc một file JSON Payload (dữ liệu mẫu trả về từ API) cho phần "Xếp xe tự động" để hình dung rõ cách dữ liệu đẩy lên trang Web Admin phục vụ tính năng Kéo thả (Drag & Drop) không?  
+### 3.4. Khách hàng
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Khách hàng** | Danh sách khách hàng (CRM nhẹ): SĐT, lịch sử đặt, ghi chú. |
+| **NovaLimo Admin · Chi tiết Khách hàng** | Hồ sơ chi tiết một khách. |
+| **NovaLimo Admin · Sửa Khách hàng** | Chỉnh sửa thông tin khách. |
+
+### 3.5. Đội xe và tài xế
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Quản lý Đội xe & Tài xế** | Danh sách xe và tài khoản tài xế, trạng thái hoạt động. |
+| **NovaLimo Admin · Tạo xe mới** / **NovaLimo Admin · Sửa xe** | CRUD phương tiện (biển số, loại, sức chứa, trạng thái). |
+| **NovaLimo Admin · Chi tiết xe** | Chi tiết một xe. |
+| **NovaLimo Admin · Tạo tài xế mới** / **NovaLimo Admin · Sửa tài xế** | CRUD tài xế, liên kết app mobile. |
+| **NovaLimo Admin · Chi tiết tài xế** | Chi tiết một tài xế (chuyến, KPI nếu có). |
+
+### 3.6. Tài chính và COD
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Quản lý Tài chính** | Tổng quan thu chi, đối soát giao dịch. |
+| **NovaLimo Admin · Chi tiết tài chính** / **NovaLimo Admin · Sửa tài chính** | Xem và điều chỉnh bút toán/giao dịch (theo quyền). |
+| **NovaLimo Admin · Đối soát COD** | Đối soát thu hộ COD với tài xế/chuyến. |
+
+### 3.7. Giám sát thời gian thực
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Giám sát Hành trình (Command Center)** | Bản đồ/trạng thái xe theo thời gian thực (WebSocket/socket.io), click xe xem tài xế, tốc độ, tiến độ đón/trả. |
+
+### 3.8. Tổng đài (Call center)
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Tổng đài · Tạo vé thủ công** | Luồng nhanh cho CS tạo vé khi khách gọi. |
+| **NovaLimo Admin · Tổng đài · Yêu cầu/CS** | Danh sách ticket/yêu cầu hỗ trợ. |
+| **NovaLimo Admin · Tổng đài · Hộp thư hỗ trợ** | Hộp thư/tin nhắn hỗ trợ khách. |
+
+### 3.9. Báo cáo
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Báo cáo Chuyến** | Thống kê theo chuyến (số khách, đúng giờ, sự cố). |
+| **NovaLimo Admin · Báo cáo Doanh thu** | Doanh thu theo ngày/tuyến/kênh. |
+| **NovaLimo Admin · Báo cáo Hàng hóa/COD** | Ký gửi và COD. |
+| **NovaLimo Admin · Báo cáo Tài xế** | Hiệu suất tài xế (chuyến, đánh giá, nếu có). |
+
+### 3.10. Cấu hình hệ thống
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · Cấu hình tuyến/điểm** | Tuyến, bến, điểm dừng. |
+| **NovaLimo Admin · Cấu hình khung giờ** | Khung giờ xuất bến / `trip_batch`. |
+| **NovaLimo Admin · Cấu hình giá** | Bảng giá, điều kiện áp dụng. |
+| **NovaLimo Admin · Cấu hình COD** | Quy tắc thu hộ và đối soát COD. |
+| **NovaLimo Admin · Cấu hình thông báo** | Mẫu SMS/Zalo/email, trigger. |
+
+### 3.11. RBAC và kiểm toán
+
+| Màn hình | Mục đích / nội dung chính |
+|----------|---------------------------|
+| **NovaLimo Admin · RBAC · Users** | Người dùng nội bộ và quyền đăng nhập admin. |
+| **NovaLimo Admin · RBAC · Roles** | Vai trò (dispatcher, kế toán, …). |
+| **NovaLimo Admin · RBAC · Permissions** | Ma trận quyền chi tiết. |
+| **NovaLimo Admin · Audit Log** | Nhật ký thao tác quan trọng (ai làm gì, khi nào). |
+
+---
+
+## 4. Tính năng cốt lõi: điều phối thông minh (bổ sung chi tiết kỹ thuật)
+
+Phần này khớp với màn **Điều phối Thông minh** và luồng dữ liệu backend đã mô tả trong kiến trúc NovaLimo:
+
+- **Giao diện “rổ chờ”:** Tabs hoặc bộ lọc theo khung giờ (`trip_batch`), danh sách booking trạng thái chờ xếp.
+- **Xếp xe tự động:** API gọi backend dùng **PostGIS** (gom khách theo khoảng cách) và **OR-Tools** (tối ưu tuyến/thứ tự), sinh **`trip_run`** và gán `trip_run_id`, `pickup_order`, `dropoff_order`.
+- **Kéo–thả:** Sau khi có đề xuất, điều hành có thể kéo khách giữa các xe; cảnh báo khi vượt sức chứa hoặc vi phạm ràng buộc.
+- **Xuất lệnh:** Lưu trạng thái chính thức, đồng bộ xuống **app tài xế** (thứ tự đón/trả đã chốt).
+
+---
+
+## 5. Luồng giao tiếp dữ liệu (tóm tắt)
+
+1. **Hiển thị:** Web Admin gọi API lấy `bookings` theo `trip_batch_id` (trạng thái phù hợp với “mở rổ”).
+2. **Chạy thuật toán:** Trả về các `trip_run` và phân bổ booking; UI cập nhật state cho vùng kéo–thả.
+3. **Điều chỉnh tay:** State thay đổi theo thao tác kéo–thả cục bộ.
+4. **Chốt:** Gửi payload cập nhật xuống API: ghi `trip_run_id`, thứ tự đón/trả, chuyển trạng thái chuyến/batch theo quy ước hệ thống.
+
+---
+
+## 6. Quy ước code tại `apps/web-admin`
+
+- **UI dùng chung:** Component lặp (bản đồ, form vé, bảng chuẩn) nên đặt trong **`libs/shared-ui`** (Nx generators), tránh nhân bản chỉ trong `web-admin` khi có thể tái sử dụng.
+- **Kiểu dữ liệu:** Dùng `@limo/shared-types` (hoặc alias Nx tương đương trong repo) cho mọi entity từ API.
+- **Thư viện:** Khai báo dependency chung ở `package.json` gốc monorepo để đồng phiên bản với `web-booking` và các app khác.
+
+---
+
+## 7. Ghi chú đồng bộ thiết kế và mã nguồn
+
+- Bản **`web-admin.pen`** mô tả **đầy đủ** các màn riêng (ví dụ từng loại báo cáo, từng màn tạo/sửa). Trong **Next.js**, một số nhóm có thể gộp (ví dụ `/reports` với tab, `/settings` với tab) — cần bảng mapping route ↔ frame khi triển khai.
+- Các route hiện có trong repo (tham chiếu nhanh): `dashboard`, `dispatch`, `dispatch/[batchId]`, `trip-runs`, `trip-runs/[id]`, `bookings`, `cargos`, `customers`, `vehicles`, `users`, `finance`, `monitor`, `tracking`, `call-center`, `reports`, `settings`, `rbac`, `login`, v.v. Việc mở rộng cho khớp toàn bộ màn trong pen là hạng mục sản phẩm/roadmap.
+
+---
+
+*Tài liệu căn cứ: wireframe `hệ thống quản lý xe limosin/New/web-admin.pen` và kiến trúc monorepo NovaLimo.*

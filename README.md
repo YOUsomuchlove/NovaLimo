@@ -235,6 +235,43 @@ docker compose --profile osrm up -d
 
 (`OSRM_BASE_URL` mặc định `http://localhost:5000`.)
 
+### Đóng gói & chạy bằng Docker (API + Next — booking & admin)
+
+Có thể **build image** cho backend và cả hai web Next trong Docker, rồi dựng cùng PostgreSQL bằng Compose (file **`docker-compose.stack.yml`** + **`docker-compose.yml`**).
+
+| File | Vai trò |
+|------|---------|
+| `docker/Dockerfile.api` | Multi-stage: `npm ci` → `nx build api-server` → image chạy `node main.js` (cổng 3000). |
+| `docker/Dockerfile.next` | Build-arg `NX_APP` = `web-booking` hoặc `web-admin`; dùng **`output: 'standalone'`** của Next.js. |
+| `docker-compose.stack.yml` | Service `api`, `web-booking`, `web-admin` nối với `postgres` từ compose gốc. |
+| `.dockerignore` | Giảm context build (bỏ `node_modules`, `.next`, …). |
+
+**Chạy full stack (cần Docker Desktop / Engine):**
+
+```bash
+npm run docker:stack
+```
+
+Tương đương:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.stack.yml up --build
+```
+
+**Cổng mặc định sau khi lên:**
+
+| Dịch vụ | URL |
+|---------|-----|
+| API | `http://localhost:3000/api` |
+| Web đặt vé | `http://localhost:3001` |
+| Web quản trị | `http://localhost:3002` |
+
+**Lưu ý quan trọng:** `NEXT_PUBLIC_API_URL` được **nhúng lúc build** image Next. Giá trị mặc định là `http://localhost:3000/api` (trình duyệt trên máy bạn gọi API qua localhost). Khi deploy ra **domain / HTTPS**, cần build lại image với biến môi trường (ví dụ file `.env` cùng thư mục compose: `NEXT_PUBLIC_API_URL=https://api.cua-ban.com/api`). API trong stack dùng `DATABASE_URL` trỏ tới service Docker `postgres`.
+
+Chi tiết thêm: **`docker/README.md`**.
+
+**App tài xế (Expo)** không nằm trong stack Docker này; vẫn build bằng Nx/Expo riêng (store hoặc OTA).
+
 ---
 
 ## 8. Chạy ứng dụng (development)

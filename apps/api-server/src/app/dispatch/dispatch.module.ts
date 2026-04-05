@@ -1,16 +1,12 @@
 import { Module } from '@nestjs/common';
+import { BookingsModule } from '../bookings/bookings.module';
+import { TripRunsModule } from '../trip-runs/trip-runs.module';
+import { DispatchController } from './dispatch.controller';
 import { DispatchService } from './dispatch.service';
-import { OrToolsVrpService } from './ortools-vrp.service';
-import { OsrmService } from './osrm.service';
-import { SpatialClusterService } from './spatial-cluster.service';
 
 @Module({
-  providers: [
-    DispatchService,
-    OsrmService,
-    SpatialClusterService,
-    OrToolsVrpService,
-  ],
-  exports: [DispatchService, OsrmService, SpatialClusterService, OrToolsVrpService],
+  imports: [BookingsModule, TripRunsModule],
+  controllers: [DispatchController],
+  providers: [DispatchService],
 })
 export class DispatchModule {}

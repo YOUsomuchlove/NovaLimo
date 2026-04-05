@@ -1,37 +1,25 @@
 {
   "expo": {
-    "name": "AppDriver",
-    "slug": "app-driver",
+    "name": "NovaLimo Driver",
+    "slug": "novalimo-driver",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "app-driver",
-    "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "scheme": "novalimo-driver",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/images/osm-tile-nav.png",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#020617"
+    },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
+        "backgroundColor": "#020617"
+      }
     },
-    "web": {
-      "bundler": "metro",
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      [
-        "expo-splash-screen",
-        {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
-        }
-      ]
-    ]
+    "plugins": ["expo-font", "expo-location", ["expo-camera", { "cameraPermission": "Quét QR chứng từ hàng hóa." }], "expo-notifications"]
   }
 }

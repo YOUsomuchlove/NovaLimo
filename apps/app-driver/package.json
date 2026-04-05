@@ -1,25 +1,6 @@
 {
   "name": "app-driver",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . apps/app-driver"
-  },
-  "dependencies": {
-    "@expo/metro-config": "*",
-    "@testing-library/react-native": "*",
-    "expo": "*",
-    "expo-splash-screen": "*",
-    "expo-status-bar": "*",
-    "expo-system-ui": "*",
-    "jest-expo": "*",
-    "metro-config": "*",
-    "metro-resolver": "*",
-    "react": "*",
-    "react-native": "*",
-    "react-native-svg": "*",
-    "react-native-svg-transformer": "*",
-    "react-native-web": "*"
-  },
-  "devDependencies": {}
+  "main": "index.js"
 }

@@ -1,6 +1,9 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'users' })
+export type UserRoleDb = 'ADMIN' | 'DRIVER';
+export type UserStatusDb = 'ACTIVE' | 'INACTIVE';
+
+@Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -11,12 +14,12 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 32, unique: true })
   phone!: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  password_hash!: string | null;
+  @Column({ type: 'varchar', length: 255 })
+  password_hash!: string;
 
-  @Column({ type: 'varchar', length: 16 })
-  role!: 'ADMIN' | 'DRIVER';
+  @Column({ type: 'enum', enum: ['ADMIN', 'DRIVER'] })
+  role!: UserRoleDb;
 
-  @Column({ type: 'varchar', length: 16 })
-  status!: 'ACTIVE' | 'INACTIVE';
+  @Column({ type: 'enum', enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' })
+  status!: UserStatusDb;
 }

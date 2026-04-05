@@ -1,12 +1,13 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { GeocodeService, type GeocodeHit } from './geocode.service';
+import { GeocodeService } from './geocode.service';
 
 @Controller('geocode')
 export class GeocodeController {
   constructor(private readonly geocode: GeocodeService) {}
 
   @Get()
-  search(@Query('q') q: string): Promise<GeocodeHit[]> {
-    return this.geocode.search(q ?? '');
+  search(@Query('q') q: string) {
+    if (!q?.trim()) return [];
+    return this.geocode.search(q);
   }
 }

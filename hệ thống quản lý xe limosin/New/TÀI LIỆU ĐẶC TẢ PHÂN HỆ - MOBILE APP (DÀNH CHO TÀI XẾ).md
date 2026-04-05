@@ -1,134 +1,216 @@
-### TÀI LIỆU ĐẶC TẢ PHÂN HỆ: MOBILE APP (DÀNH CHO TÀI XẾ)
+# Tài liệu đặc tả phân hệ: Mobile App (dành cho tài xế)
 
-#### 1. Tổng quan & Mục đích
+*Tài liệu được **đối chiếu với bản vẽ** trong `app-mobile.pen` và `app-mobile-chat-shift.pen`: mọi **tên frame** dưới đây trùng (hoặc tương ứng) tên trong file Pencil để dev/design tra cửu 1:1.*
 
-- **Mục tiêu:** Ứng dụng di động được thiết kế tinh gọn dành riêng cho tài xế xe Limousine. Đối với mô hình xe khách chất lượng cao, tài xế thường phải kiêm luôn công việc của phụ xe, do đó ứng dụng giúp họ không bị phân tâm bởi việc tìm đường hay gọi điện thoại liên tục cho khách, từ đó nâng cao tính an toàn khi lái xe.
-- **Nền tảng:** Hoạt động mượt mà trên cả hai hệ điều hành iOS và Android.
-- **Điểm nổi bật:** Cung cấp "Phơi lệnh điện tử" tự động, dẫn đường tối ưu và giúp tài xế cùng hành khách "nhìn thấy nhau" trên bản đồ, loại bỏ sự lúng túng khi tìm điểm đón.
-
-#### 2. Kiến trúc & Công nghệ nền tảng
-
-- **Công nghệ lõi:** Sử dụng **React Native (hoặc Expo)**. Việc này cho phép dùng chung ngôn ngữ và tư duy với các phân hệ Web, tối ưu chi phí phát triển vì chỉ cần viết code một lần là có thể xuất ra app cho cả iOS và Android.
-- **Tích hợp Bản đồ số:** Ứng dụng sử dụng **Google Maps API** trực tiếp trên thiết bị di động để vẽ bản đồ trực quan và dẫn đường chi tiết từ điểm A đến điểm B.
-- **Giao tiếp Real-time:** Sử dụng **Socket.io** để kết nối trực tiếp với Backend, hỗ trợ tính năng nhắn tin thời gian thực với bộ phận điều hành.
-- **Kiến trúc Monorepo (Nx):** Mã nguồn nằm tại thư mục `apps/app-driver` và kế thừa các cấu trúc dữ liệu chuẩn hóa từ thư viện `libs/shared-types` (như định nghĩa `TripRun`, `Booking`).
-
-#### 3. Các tính năng cốt lõi (Core Features)
-
-**A. Nhận lệnh & Phơi lệnh điện tử**
-
-- Thay vì dùng phơi giấy dễ sai sót, tài xế mở App để nhận danh sách chuyến đi (Trip Runs) đã được chốt và tự động sắp xếp bởi hệ thống cốt lõi.
-- Phơi lệnh điện tử này giúp đảm bảo tuyệt đối không có sự gian lận trong quá trình đón trả khách và kiểm soát doanh thu.
-- Tài xế có thể xem trước toàn bộ danh sách khách hàng, bao gồm: tên khách, điểm lên xe, điểm xuống xe theo thứ tự tối ưu nhất.
-
-**B. Điều hướng thông minh & Tối ưu lộ trình (Smart Navigation)**
-
-- Dựa trên danh sách đã được sắp xếp từ thuật toán, App kết hợp với Google Maps để vẽ cung đường di chuyển khép kín tối ưu nhất, giúp giảm chi phí tiền xăng cho nhà xe.
-- Tài xế có thể nhìn thấy vị trí chính xác của hành khách trên bản đồ để đón kịp thời, đúng giờ mà không cần gọi điện thoại hỏi đường.
-
-**C. Cập nhật trạng thái hành trình (Check-in / Check-out)**
-
-- Khi xe đến điểm đón, tài xế thao tác "Check-in" xác nhận khách đã lên xe (trạng thái vé chuyển sang `PICKED_UP`).
-- Khi đến điểm trả, tài xế thao tác trả khách (trạng thái vé chuyển sang `DROPPED_OFF`). Điều này giúp người quản lý ở văn phòng nắm bắt tức thì tình trạng số ghế trống và doanh thu ngay khi xe đang chạy.
-- Tương tự với Hàng hóa ký gửi, tài xế cập nhật trạng thái "Đã nhận" hoặc "Đã giao" hàng hóa và quản lý số tiền thu hộ (COD) thông qua mã vận đơn hoặc quét QR code.
-
-**D. Chấm công & Giám sát GPS**
-
-- App yêu cầu quyền truy cập GPS để tự động ghi nhận giờ bắt đầu và kết thúc ca làm việc của tài xế dựa trên vị trí địa lý.
-- Dữ liệu định vị sẽ được gửi về máy chủ liên tục để Web Admin vẽ vị trí xe thời gian thực trên bản đồ, tăng cường an ninh, an toàn và giám sát xe có chạy sai tuyến hay không.
-
-**E. Giao tiếp nội bộ (Real-time Communication)**
-
-- Hệ thống cung cấp tính năng chat trực tiếp giữa tài xế và bộ phận điều hành giúp xử lý nhanh các tình huống khẩn cấp, tắc đường hoặc xe gặp sự cố.
-
-#### 4. Luồng xử lý Dữ liệu trên App (Data Flow)
-
-Luồng dữ liệu khi tài xế sử dụng App diễn ra theo trình tự cực kỳ chặt chẽ:
-
-1. **Lấy danh sách chuyến:** App Tài xế gọi API `GET /trips/my-runs?status=PENDING` gửi lên Backend.
-2. **Hiển thị dữ liệu sắp xếp sẵn:** Backend trả về danh sách khách hàng (đã được thuật toán POSTGIS và OR-Tools phân bổ). Danh sách này được trả về kèm theo tham số `pickup_order` (Thứ tự đón) và `dropoff_order` (Thứ tự trả) được sắp xếp sẵn từ nhỏ đến lớn (ASC).
-3. **Thực thi:** Tài xế không cần suy nghĩ đường đi, chỉ việc nhìn danh sách hiển thị từ trên xuống dưới và bấm nút "Dẫn đường" cho khách hàng đầu tiên.
-4. **Đồng bộ State:** Mỗi khi tài xế bấm Check-in, App gọi API cập nhật trạng thái `status` của bản ghi trong bảng `Bookings` ở Database, đồng thời bắn sự kiện qua Socket.io để Web Admin tự động cập nhật màu sắc ghế trên giao diện quản lý.
-
-#### 5. Quy tắc Code đặc thù tại `apps/app-driver`
-
-Khi lập trình viên thao tác trên mã nguồn của App Tài xế, cần tuân thủ nghiêm ngặt quy tắc kiến trúc Monorepo Nx:
-
-- **Chia sẻ Type (Type Safety):** Toàn bộ kiểu dữ liệu (như `TripRun`, `Booking`) bắt buộc phải import từ `@limo/shared-types`. Nhờ đó, nếu Backend thay đổi cấu trúc dữ liệu trả về, App Tài xế sẽ báo lỗi biên dịch (compile error) ngay lập tức.
-- **Tuyệt đối KHÔNG dùng chung UI Web:** Khác với Web Admin và Web Booking dùng chung `libs/shared-ui`, **App Tài xế không được phép import thư viện này**. Nguyên nhân là do React Native sử dụng các thẻ UI riêng biệt (như `<View>`, `<Text>`) khác hoàn toàn với DOM của Web (như `<div>`, `<span>`). Các UI Component của App Tài xế phải được viết riêng hoặc tạo một thư viện UI thuần React Native mới nếu cần.
-
-Bộ tài liệu này định nghĩa rõ ràng vai trò của ứng dụng dành cho tài xế, vừa đóng vai trò như thiết bị điều hướng (Navigation), vừa là thiết bị báo cáo thời gian thực, là mảnh ghép cuối cùng để toàn bộ hệ thống điều phối thông minh NovaLimo vận hành trơn tru.
+**Liên kết hệ thống tài liệu:** [Đặc Tả Tổng Thể Và Cấu Hình Hệ Thống NovaLimo.md](./Đặc%20Tả%20Tổng%20Thể%20Và%20Cấu%20Hình%20Hệ%20Thống%20NovaLimo.md) — ma trận client/API/socket, `EXPO_PUBLIC_API_URL`, quy trình cập nhật đặc tả.
 
 ---
 
-### MÔ TẢ CHI TIẾT CÁC TRANG VÀ THAO TÁC SỬ DỤNG TRONG APP TÀI XẾ
+## 1. Tổng quan và mục đích
 
-#### 1. Trang Đăng nhập & Bắt đầu ca làm việc (Login & Check-in Shift)
+- **Mục tiêu:** App mobile tinh gọn cho tài xế limousine — giảm thao tác khi lái, tập trung vào **phơi lệnh điện tử**, **điều hướng**, **check-in/out**, **hàng ký gửi/COD**, **chat điều hành** và **kết ca**.
+- **Nền tảng:** iOS và Android (một codebase).
+- **Điểm nổi bật:** Phơi lệnh điện tử theo thứ tự đã chốt; bản đồ/lộ trình; đồng bộ real-time với điều hành; hỗ trợ SOS và quy trình hàng/COD.
 
-- **Giao diện hiển thị:**
-  - Màn hình đăng nhập bằng Số điện thoại và Mật khẩu (đã được cấp trên Web Admin).
-  - Nút bấm lớn: **"Bắt đầu ca làm việc"**.
-- **Thao tác sử dụng:**
-  1. Tài xế mở app, tiến hành đăng nhập.
-  2. App sẽ yêu cầu cấp quyền **Truy cập Vị trí (Location)** và **Thông báo (Notification)**. Đây là điều kiện bắt buộc để hệ thống giám sát GPS.
-  3. Tài xế bấm nút "Bắt đầu ca làm việc". Lúc này, GPS bắt đầu ghi nhận và gửi tín hiệu định vị liên tục về trung tâm điều hành, đồng thời ghi nhận giờ chấm công của tài xế.
+---
 
-#### 2. Trang chủ: Danh sách Chuyến đi (My Trips)
+## 2. Kiến trúc và công nghệ
 
-- **Giao diện hiển thị:**
-  - Sử dụng dạng Tab phân loại: **Chờ xuất bến (Pending)**, **Đang chạy (In Progress)**, và **Lịch sử (Finished)**.
-  - Mỗi chuyến đi hiển thị dạng Thẻ (Card) bao gồm: Tuyến đường (VD: Hà Nội - Quảng Ninh), Biển số xe sẽ lái, Giờ xuất bến dự kiến, và Tổng số khách/hàng hóa.
-- **Thao tác sử dụng:**
-  1. Tài xế chọn tab "Chờ xuất bến" để xem lệnh điều động của ngày hôm nay. (App tự động gọi API `GET /trips/my-runs?status=PENDING` để lấy dữ liệu).
-  2. Tài xế bấm chọn vào Thẻ của chuyến đi sắp tới để vào xem chi tiết Phơi lệnh điện tử.
+- **Công nghệ lõi:** **React Native** (hoặc **Expo**) — `apps/app-driver`.
+- **Bản đồ:** **Google Maps SDK** (hoặc tương đương) cho hiển thị lộ trình và chỉ đường.
+- **Real-time:** **Socket.io** (hoặc WebSocket) cho vị trí, chat, cập nhật trạng thái.
+- **Monorepo (Nx):** Dùng chung kiểu dữ liệu từ `libs/shared-types` (`TripRun`, `Booking`, …).
 
-#### 3. Trang Chi tiết Chuyến đi & Phơi lệnh điện tử (Electronic Manifest)
+---
 
-- **Giao diện hiển thị:**
-  - Đây là "bản đồ kho báu" của tài xế, thay thế hoàn toàn giấy tờ truyền thống giúp chống gian lận.
-  - Hiển thị danh sách khách hàng và hàng hóa ký gửi. **Điểm đặc biệt:** Danh sách này không lộn xộn mà đã được sắp xếp chính xác từ trên xuống dưới theo thứ tự `pickup_order` (thứ tự đón) và `dropoff_order` (thứ tự trả) do thuật toán điều phối quyết định.
-  - Hiển thị rõ các ghi chú của khách hàng (ví dụ: "Nhà hẻm sâu, xe đỗ ngoài đầu ngõ").
-- **Thao tác sử dụng:**
-  1. Tài xế vuốt để kiểm tra tổng quan danh sách khách sẽ đi chuyến này.
-  2. Khi xe bắt đầu nổ máy rời bến, tài xế bấm nút **"Bắt đầu hành trình"**. Trạng thái chuyến đi chuyển sang `IN_PROGRESS` (Đang chạy).
+## 3. Tệp thiết kế Pencil và vai trò
 
-#### 4. Trang Điều hướng & Đón/Trả khách trực tiếp (Navigation & Check-in) - TÍNH NĂNG CỐT LÕI
+| Tệp | Nội dung chính |
+|-----|----------------|
+| **`app-mobile.pen`** | Canvas đầy đủ: **bản đồ luồng màn hình**, toàn bộ màn **NovaLimo Driver · …**, thanh điều hướng 4 tab, thư viện **Permission Dialog**, widget demo (`dashboard-*`). |
+| **`app-mobile-chat-shift.pen`** | Canvas mini **NovaLimo Driver · Chat + Kết thúc ca (mini)** — gom hai màn: **Chat nội bộ (Tài xế ↔ Điều hành)** và **Kết thúc ca & Báo cáo** (phiên bản rút gọn/đặt cạnh nhau để xem nhanh). |
 
-- **Giao diện hiển thị:**
-  - **Nửa trên màn hình:** Là bản đồ trực quan tích hợp Google Maps API.
-  - **Nửa dưới màn hình:** Là thẻ thông tin (Swipeable Card) của **khách hàng tiếp theo cần đón/trả**. Chỉ hiện 1 khách tại 1 thời điểm để tài xế không bị rối.
-  - **Các nút thao tác nhanh:** "Chỉ đường", "Đã lên xe" (Check-in), "Không liên lạc được", "Đã trả khách" (Check-out).
-- **Thao tác sử dụng (Quy trình khép kín):**
-  1. **Dẫn đường:** App hiển thị khách hàng đầu tiên. Tài xế bấm nút **"Chỉ đường"**. App lập tức vẽ cung đường ngắn nhất từ vị trí hiện tại đến tọa độ chuẩn PostGIS (`pickup_location`) của khách hàng đó để tiết kiệm xăng.
-  2. **Đón khách:** Khi đến gần điểm đón, tài xế có thể nhìn thấy vị trí của hành khách đang đứng trên bản đồ để đón kịp thời, loại bỏ việc phải gọi điện thoại hỏi đường liên tục.
-  3. **Check-in:** Khách bước lên xe, tài xế bấm/vuốt nút **"Đã lên xe"**. Lập tức trạng thái vé cập nhật thành `PICKED_UP`, dữ liệu được đồng bộ Real-time qua Socket.io về Web Admin để văn phòng biết ghế đó đã có người ngồi.
-  4. **Chuyển tiếp tự động:** Ngay sau khi bấm Check-in khách số 1, thẻ thông tin tự động trượt sang khách số 2. Tài xế tiếp tục lặp lại quy trình.
-  5. **Trả khách:** Khi đến điểm trả, tài xế thao tác **"Đã trả khách"**, hệ thống cập nhật trạng thái `DROPPED_OFF`. Tài xế không cần bận tâm hỏi "Khách xuống đâu?" gây mất tập trung khi lái xe.
+Màn **Chat** và **Kết thúc ca** trong hai file là **cùng nghiệp vụ**; `app-mobile-chat-shift.pen` phục vụ trình bày/ghi chú nhanh, `app-mobile.pen` là bộ đầy đủ luồng.
 
-#### 5. Trang Quản lý Hàng hóa Ký gửi (Cargo Management)
+---
 
-- **Giao diện hiển thị:**
-  - Tách biệt với danh sách hành khách, hiển thị danh sách các kiện hàng cần giao nhận trên cùng chuyến xe.
-  - Tích hợp tính năng Camera để quét mã vạch/Mã QR Code.
-- **Thao tác sử dụng:**
-  1. Tài xế nhận hàng: Mở trang Hàng hóa, dùng App quét mã QR trên biên nhận hoặc chọn kiện hàng, bấm "Đã nhận lên xe" (Trạng thái `PICKED_UP`).
-  2. Tài xế giao hàng: Đến điểm trả, kiểm tra đúng người nhận, thu hộ tiền COD (nếu có), bấm "Đã giao hàng" (`DELIVERED`). Hệ thống sẽ tự động đối soát tiền cước và tiền thu hộ vào báo cáo doanh thu cuối ngày.
+## 4. Thành phần thiết kế dùng chung (trong `app-mobile.pen`)
 
-#### 6. Trang Liên lạc nội bộ (Chat & Support)
+| Tên trong bản vẽ | Mô tả |
+|------------------|--------|
+| **NovaLimo Driver · Bản đồ luồng màn hình** | Khung **mô tả IA**: thứ tự màn, gợi ý route backend (xem mục 5). Không phải màn người dùng. |
+| **Bottom side menu (library)** | Mẫu **thanh dưới 4 tab**: **Chuyến · Hàng · Chat · Ca** (lặp lại trên các màn). |
+| **Permission Dialog (library)** | Thư viện popup xin quyền (vị trí, thông báo, camera…). |
+| **dashboard-utility**, **dashboard-revenue**, **dashboard-football** | Khối widget minh họa (nếu tái sử dụng trên home/báo cáo). |
 
-- **Giao diện hiển thị:**
-  - Khung chat trực tiếp kết nối với bộ phận Điều hành (Web Admin).
-- **Thao tác sử dụng:**
-  1. Trong trường hợp kẹt xe, sự cố thủng lốp, hoặc khách hàng số 3 gọi điện không nghe máy, tài xế mở mục Chat.
-  2. Nhắn tin hoặc gửi tin nhắn thoại (Voice note) cho điều hành viên (thông qua công nghệ Socket.io báo cáo thời gian thực).
-  3. Điều hành viên nhận tin trên Web Admin, gọi điện xử lý với khách và có thể hủy vé của khách đó ngay trên Admin. App Tài xế sẽ tự động gạch bỏ khách đó khỏi danh sách để tài xế bỏ qua điểm đón đó.
+---
 
-#### 7. Trang Kết thúc ca & Báo cáo (End Shift & Report)
+## 5. Bản đồ luồng màn (trích từ frame *Bản đồ luồng màn hình* trong `app-mobile.pen`)
 
-- **Giao diện hiển thị:**
-  - Tổng hợp nhanh số lượng khách đã chở, số hàng đã giao và tổng tiền mặt (tiền vé khách trả trên xe + tiền thu hộ COD) tài xế đang giữ.
-- **Thao tác sử dụng:**
-  1. Sau khi trả vị khách cuối cùng, tài xế bấm nút **"Hoàn thành chuyến đi"**.
-  2. Khi hết ngày làm việc, tài xế bấm **"Kết thúc ca"**, tắt hệ thống định vị và bàn giao tiền cho kế toán dựa trên các con số hệ thống đã tự động tính toán.
+Wireframe ghi nhận thứ tự và gợi ý đường dẫn API (prototype):
 
-Với thiết kế thao tác một chạm (One-touch) và trượt (Swipe) này, App Tài xế đóng vai trò như một trợ lý ảo, dẫn dắt tài xế đi đúng lộ trình ngắn nhất, đảm bảo tính an toàn giao thông và nâng cao sự chuyên nghiệp của dịch vụ xe Limousine.
+- **Hàng 1:** (1) Đăng nhập → (2) Trang chủ chuyến → (3) Chi tiết chuyến → (4) Điều hướng → (5) Khách/check-in → (6) Báo sự cố/SOS  
+- **Hàng 2:** (7) Hàng ký gửi → (8) Chi tiết kiện → (9) Quét QR → (10) COD → (11) Bàn giao hàng → (12) Chat nội bộ  
+- **Hàng 3:** (13) Kết thúc ca → (14) Thông báo → (15) Thu nhập → (16) Hồ sơ → (17) Thư viện popup quyền  
+
+**Thanh dưới (4 tab)** — gợi ý route:
+
+- **Chuyến:** `/trips/my-runs`, `/trips/:id`, `/trips/:id/passengers`  
+- **Hàng:** `/cargos/my-tasks`, `/cargos/:id`, `/cargos/cod`  
+- **Chat:** kênh socket (ví dụ `/driver-chat`)  
+- **Ca:** `/driver/shifts/current`, `/driver/shifts/summary`  
+
+*Khi triển khai, có thể điều chỉnh path nhưng nên giữ đúng nhóm chức năng trên.*
+
+---
+
+## 6. Danh mục đầy đủ các màn hình thiết kế (tên frame: `NovaLimo Driver · …`)
+
+| # | Tên frame **chính xác** trong `app-mobile.pen` | Mục đích / ghi chú |
+|---|-----------------------------------------------|---------------------|
+| 1 | **NovaLimo Driver · Đăng nhập & Bắt đầu ca** | Đăng nhập; khối **Bắt đầu ca** sau khi cấp quyền. |
+| 2 | **NovaLimo Driver · Trang chủ (Danh sách chuyến đi)** | Tab **Chờ / Đang chạy / Lịch sử** (theo wireframe); danh sách chuyến dạng thẻ; **bottom nav** 4 tab. |
+| 3 | **NovaLimo Driver · Chi tiết chuyến đi & Phơi lệnh** | Phơi lệnh: khách/hàng, thứ tự đón/trả, ghi chú; CTA **Bắt đầu hành trình** (chuyển trạng thái chuyến). |
+| 4 | **NovaLimo Driver · Điều hướng & Đón trả (đang lái)** | Nửa trên: bản đồ + lộ trình; nửa dưới: sheet **“Đón tiếp theo”**, chỉ đường, vuốt **đã đón**, **không liên lạc được**; dock 4 tab. |
+| 5 | **NovaLimo Driver · Danh sách khách & Check-in** | Danh sách khách theo thứ tự; nút quét/CTA hỗ trợ check-in hàng loạt. |
+| 6 | **NovaLimo Driver · Báo sự cố / SOS** | Form báo cáo sự cố + nút **SOS** khẩn cấp + gửi. |
+| 7 | **NovaLimo Driver · Quản lý Hàng hóa Ký gửi** | Danh sách kiện trên chuyến; **FAB camera** (quét/ảnh). |
+| 8 | **NovaLimo Driver · Chi tiết kiện hàng** | Chi tiết một kiện: trạng thái, điểm nhận/giao, ghi chú. |
+| 9 | **NovaLimo Driver · Quét QR / Chứng từ** | Khung camera/quét mã, đèn (torch). |
+| 10 | **NovaLimo Driver · COD & Bàn giao tiền** | Danh sách COD, số tiền thu hộ, đối soát/bàn giao. |
+| 11 | **NovaLimo Driver · Chuyển/Bàn giao hàng hóa** | Luồng chuyển/bàn giao kiện (trung chuyển, bến…). |
+| 12 | **NovaLimo Driver · Chat nội bộ (Tài xế ↔ Điều hành)** | Danh sách tin nhắn + composer; tab **Chat** active. Cùng nội dung với frame tương ứng trong `app-mobile-chat-shift.pen`. |
+| 13 | **NovaLimo Driver · Kết thúc ca & Báo cáo** | Tổng hợp ca, checklist trước khi off, nút **Kết thúc ca**, cảnh báo không cập nhật chuyến sau khi off. Trùng nghiệp vụ với **Kết thúc ca & Báo cáo** trong `app-mobile-chat-shift.pen`. |
+| 14 | **NovaLimo Driver · Thông báo** | Trung tâm thông báo (điều phối, hệ thống). |
+| 15 | **NovaLimo Driver · Thu nhập & Đối soát** | Thu nhập theo ngày/ca, đối soát với hệ thống. |
+| 16 | **NovaLimo Driver · Hồ sơ tài xế** | Thông tin tài khoản, xe, cài đặt. |
+
+**Lưu ý:** Màn **Bản đồ luồng màn hình** là **sơ đồ IA**, không tính là màn app cho người dùng cuối.
+
+---
+
+## 7. Thanh điều hướng dưới (4 tab)
+
+Trên hầu hết màn, wireframe dùng cùng một **bottom nav** 4 mục:
+
+1. **Chuyến** — danh sách chuyến, chi tiết, điều hướng, khách.  
+2. **Hàng** — ký gửi, chi tiết kiện, quét QR, COD.  
+3. **Chat** — kênh với điều hành.  
+4. **Ca** — kết thúc ca, thông báo, thu nhập, hồ sơ (tùy IA có thể mở từ đây hoặc từ avatar/menu).
+
+---
+
+## 8. Các tính năng cốt lõi (tóm tắt nghiệp vụ)
+
+**A. Nhận lệnh & phơi lệnh điện tử** — Đồng bộ `trip_run`, danh sách khách/hàng theo `pickup_order` / `dropoff_order`.
+
+**B. Điều hướng & tối ưu lộ trình** — Bản đồ, chỉ đường tới điểm đón/trả; hiển thị **một khách tiếp theo** trên sheet để giảm tải nhận thức.
+
+**C. Check-in / check-out** — Cập nhật trạng thái vé (`PICKED_UP`, `DROPPED_OFF`); đồng bộ socket tới Web Admin.
+
+**D. Hàng ký gửi & COD** — Quản lý kiện, quét QR, COD và bàn giao tiền.
+
+**E. GPS & ca làm việc** — Quyền vị trí cho tracking và logic ca (bắt đầu/kết thúc).
+
+**F. Chat & SOS** — Chat điều hành; báo sự cố và SOS.
+
+---
+
+## 9. Luồng dữ liệu (Data flow)
+
+1. **Lấy chuyến:** `GET` danh sách chuyến của tài xế (ví dụ theo trạng thái).  
+2. **Hiển thị manifest:** Backend trả booking đã sắp thứ tự; app render list/map/nav.  
+3. **Thực thi:** Chỉ đường → đến điểm → check-in/out → cập nhật API.  
+4. **Đồng bộ:** Mỗi thay đổi trạng thái gửi API + (tuỳ chọn) socket để Admin cập nhật realtime.
+
+---
+
+## 10. Quy tắc code tại `apps/app-driver`
+
+- **Type:** Mọi entity (`TripRun`, `Booking`, …) import từ `@limo/shared-types` (hoặc alias Nx tương đương).  
+- **UI:** **Không** import `libs/shared-ui` (DOM/Ant Design web). Component mobile viết riêng cho React Native hoặc thư viện RN dùng chung trong monorepo nếu sau này tách `libs/shared-mobile-ui`.  
+- **Dependency:** Khai báo tập trung ở `package.json` gốc khi có chính sách monorepo.
+
+---
+
+## 11. Mô tả chi tiết theo từng màn (khớp bản vẽ)
+
+### 11.1. Đăng nhập & Bắt đầu ca (`NovaLimo Driver · Đăng nhập & Bắt đầu ca`)
+
+- Form đăng nhập (SĐT/mật khẩu hoặc theo chuẩn backend).  
+- Sau đăng nhập: xin quyền **vị trí** và **thông báo** (tham **Permission Dialog** library).  
+- **Bắt đầu ca:** bật gửi GPS định kỳ, ghi nhận ca làm việc.
+
+### 11.2. Trang chủ — Danh sách chuyến (`… Trang chủ (Danh sách chuyến đi)`)
+
+- Tab phân loại: chờ xuất bến / đang chạy / lịch sử.  
+- Mỗi chuyến: tuyến, biển số, giờ xuất bến, số khách/kiện. Chạm vào → chi tiết chuyến.
+
+### 11.3. Chi tiết chuyến & phơi lệnh (`… Chi tiết chuyến đi & Phơi lệnh`)
+
+- Danh sách khách/hàng đúng thứ tự thuật toán; ghi chú khách.  
+- **Bắt đầu hành trình:** chuyển sang trạng thái đang chạy, mở luồng điều hướng.
+
+### 11.4. Điều hướng & đón trả (`… Điều hướng & Đón trả (đang lái)`)
+
+- Map + polyline; một thẻ **đón tiếp theo** với địa chỉ, **Chỉ đường**, vuốt/xác nhận **đã đón**, **Không liên lạc được**.  
+- Sau check-in, chuyển khách tiếp theo.
+
+### 11.5. Danh sách khách & check-in (`… Danh sách khách & Check-in`)
+
+- List view toàn bộ khách chuyến; hỗ trợ thao tác nhanh/ quét nếu nghiệp vụ yêu cầu.
+
+### 11.6. Báo sự cố / SOS (`… Báo sự cố / SOS`)
+
+- Gửi mô tả sự cố; nút **SOS** nổi bật cho tình huống khẩn.
+
+### 11.7. Hàng ký gửi — tổng quan (`… Quản lý Hàng hóa Ký gửi`)
+
+- Danh sách kiện; FAB mở camera/quét.
+
+### 11.8. Chi tiết kiện (`… Chi tiết kiện hàng`)
+
+- Trạng thái nhận/giao, địa điểm, COD liên quan (nếu có).
+
+### 11.9. Quét QR / chứng từ (`… Quét QR / Chứng từ`)
+
+- Full-screen camera, vùng quét, bật đèn.
+
+### 11.10. COD & bàn giao tiền (`… COD & Bàn giao tiền`)
+
+- Tổng hợp tiền mặt/COD cần nộp; xác nhận bàn giao.
+
+### 11.11. Chuyển/bàn giao hàng (`… Chuyển/Bàn giao hàng hóa`)
+
+- Thao tác chuyển kiện sang xe/chuyến khác hoặc bàn giao tại bến.
+
+### 11.12. Chat nội bộ (`… Chat nội bộ (Tài xế ↔ Điều hành)`)
+
+- Hội thoại với điều hành; real-time qua socket. File **`app-mobile-chat-shift.pen`** có cùng màn dạng canvas mini.
+
+### 11.13. Kết thúc ca & báo cáo (`… Kết thúc ca & Báo cáo`)
+
+- Checklist; nút kết ca; cảnh báo hậu quả (không cập nhật chuyến sau khi off). Canvas **`app-mobile-chat-shift.pen`** đặt cạnh **Chat** để review nhanh.
+
+### 11.14. Thông báo (`… Thông báo`)
+
+- Danh sách thông báo hệ thống/điều phối.
+
+### 11.15. Thu nhập & đối soát (`… Thu nhập & Đối soát`)
+
+- Theo ca/ngày; khớp với báo cáo nội bộ.
+
+### 11.16. Hồ sơ tài xế (`… Hồ sơ tài xế`)
+
+- Thông tin cá nhân, phương tiện gán, đăng xuất, cài đặt.
+
+---
+
+## 12. Ghi chú biên tập
+
+- Tài liệu cũ mô tả 7 nhóm màn chung; bản này **mở rộng đúng số màn** trong `app-mobile.pen` (16 màn `NovaLimo Driver · …` + bản đồ luồng + thư viện).  
+- **`app-mobile-chat-shift.pen`** không thêm màn mới về nghiệp vụ — chỉ bố cục mini cho **Chat** và **Kết thúc ca**.
+
+---
+
+*Tài liệu căn cứ: `hệ thống quản lý xe limosin/New/app-mobile.pen`, `app-mobile-chat-shift.pen`, và kiến trúc monorepo NovaLimo.*

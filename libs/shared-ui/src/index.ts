@@ -3,6 +3,8 @@ export * from './lib/web/admin-shell';
 export * from './lib/web/booking-theme';
 export * from './lib/web/booking-shell';
 export * from './lib/web/admin-theme';
+export * from './lib/web/admin-dark-panel';
+export * from './lib/web/admin-message-patterns';
 export * from './lib/web/admin-map-placeholder';
 export * from './lib/web/seat-map';
 export * from './lib/web/address-search';

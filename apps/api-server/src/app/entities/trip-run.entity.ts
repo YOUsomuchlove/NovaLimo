@@ -1,19 +1,40 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TripBatchEntity } from './trip-batch.entity';
+import { UserEntity } from './user.entity';
+import { VehicleEntity } from './vehicle.entity';
 
-@Entity({ name: 'trip_runs' })
+export type TripRunStatusDb = 'PENDING' | 'IN_PROGRESS' | 'FINISHED';
+
+@Entity('trip_runs')
 export class TripRunEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'uuid' })
+  @Column('uuid')
   trip_batch_id!: string;
 
-  @Column({ type: 'uuid' })
+  @ManyToOne(() => TripBatchEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'trip_batch_id' })
+  trip_batch!: TripBatchEntity;
+
+  @Column('uuid')
   vehicle_id!: string;
 
-  @Column({ type: 'uuid' })
+  @ManyToOne(() => VehicleEntity, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'vehicle_id' })
+  vehicle!: VehicleEntity;
+
+  @Column('uuid')
   driver_id!: string;
 
-  @Column({ type: 'varchar', length: 32 })
-  status!: 'PENDING' | 'IN_PROGRESS' | 'FINISHED';
+  @ManyToOne(() => UserEntity, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'driver_id' })
+  driver!: UserEntity;
+
+  @Column({
+    type: 'enum',
+    enum: ['PENDING', 'IN_PROGRESS', 'FINISHED'],
+    default: 'PENDING',
+  })
+  status!: TripRunStatusDb;
 }

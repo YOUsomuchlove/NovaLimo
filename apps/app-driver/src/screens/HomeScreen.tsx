@@ -17,10 +17,15 @@ import {
   postDriverLocation,
   startShift,
 } from '../api/client';
+import { ListCard } from '../components/ListCard';
+import { ScreenShell } from '../components/ScreenShell';
+import { SegmentedTripTabs } from '../components/SegmentedTripTabs';
 import { useAuth } from '../context/AuthContext';
-import type { RootStackParamList } from '../navigation/types';
+import { rootNavigationRef } from '../navigation/rootNavigation';
+import type { TripsStackParamList } from '../navigation/types';
+import { C, FONT } from '../theme/tokens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type Props = NativeStackScreenProps<TripsStackParamList, 'Home'>;
 
 const TABS: { key: TripRunStatus; label: string }[] = [
   { key: 'PENDING', label: 'Chờ xuất bến' },
@@ -31,24 +36,21 @@ const TABS: { key: TripRunStatus; label: string }[] = [
 export function HomeScreen({ navigation }: Props) {
   const { token, logout: clearToken } = useAuth();
   const [tab, setTab] = useState<TripRunStatus>('PENDING');
-  const [runs, setRuns] = useState<Awaited<ReturnType<typeof fetchMyRuns>>>(
-    [],
-  );
+  const [runs, setRuns] = useState<Awaited<ReturnType<typeof fetchMyRuns>>>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shiftStarted, setShiftStarted] = useState(false);
 
   const logout = () => {
     clearToken();
-    navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+    rootNavigationRef.reset({ index: 0, routes: [{ name: 'Login' }] });
   };
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <View style={styles.headerBtns}>
-          <Button title="Chat" onPress={() => navigation.navigate('Chat')} />
-          <Button title="Ca" onPress={() => navigation.navigate('EndShift')} />
+          <Button title="Đăng xuất" onPress={logout} color={C.gold} />
         </View>
       ),
     });
@@ -76,11 +78,7 @@ export function HomeScreen({ navigation }: Props) {
         },
         async (loc) => {
           try {
-            await postDriverLocation(
-              token,
-              loc.coords.latitude,
-              loc.coords.longitude,
-            );
+            await postDriverLocation(token, loc.coords.latitude, loc.coords.longitude);
           } catch {
             /* ignore */
           }
@@ -124,10 +122,12 @@ export function HomeScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.root}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Chuyến của tôi</Text>
-        <Button title="Đăng xuất" onPress={logout} />
+    <ScreenShell underStackHeader style={styles.shell}>
+      <View style={styles.topRow}>
+        <View>
+          <Text style={styles.screenTitle}>Chuyến của bạn</Text>
+          <Text style={styles.screenSub}>NovaLimo Driver</Text>
+        </View>
       </View>
 
       {!shiftStarted ? (
@@ -135,30 +135,13 @@ export function HomeScreen({ navigation }: Props) {
           <Text style={styles.hint}>
             Bấm bắt đầu ca để gửi tín hiệu định vị (sau khi đã cấp quyền).
           </Text>
-          <Button
-            title="Bắt đầu ca làm việc"
-            onPress={() => void onStartShift()}
-          />
+          <Button title="Bắt đầu ca làm việc" onPress={() => void onStartShift()} color={C.gold} />
         </View>
       ) : null}
 
-      <View style={styles.tabs}>
-        {TABS.map((t) => (
-          <Pressable
-            key={t.key}
-            onPress={() => setTab(t.key)}
-            style={[styles.tab, tab === t.key && styles.tabActive]}
-          >
-            <Text
-              style={[styles.tabText, tab === t.key && styles.tabTextActive]}
-            >
-              {t.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+      <SegmentedTripTabs tabs={TABS} active={tab} onChange={setTab} />
 
-      {loading ? <ActivityIndicator /> : null}
+      {loading ? <ActivityIndicator color={C.gold} /> : null}
       {error ? <Text style={styles.err}>{error}</Text> : null}
 
       <FlatList
@@ -166,65 +149,79 @@ export function HomeScreen({ navigation }: Props) {
         keyExtractor={(item) => item.id}
         refreshing={loading}
         onRefresh={() => void load()}
+        ListFooterComponent={
+          <View style={styles.backlog}>
+            <Text style={styles.backlogTitle}>Lối tắt</Text>
+            <View style={styles.backlogRow}>
+              <Pressable style={styles.backlogBtn} onPress={() => navigation.navigate('Sos')}>
+                <Text style={styles.backlogBtnText}>SOS</Text>
+              </Pressable>
+              <Pressable
+                style={styles.backlogBtn}
+                onPress={() => navigation.navigate('Notifications')}
+              >
+                <Text style={styles.backlogBtnText}>Thông báo</Text>
+              </Pressable>
+              <Pressable style={styles.backlogBtn} onPress={() => navigation.navigate('Income')}>
+                <Text style={styles.backlogBtnText}>Thu nhập</Text>
+              </Pressable>
+              <Pressable style={styles.backlogBtn} onPress={() => navigation.navigate('Profile')}>
+                <Text style={styles.backlogBtnText}>Hồ sơ</Text>
+              </Pressable>
+            </View>
+          </View>
+        }
         ListEmptyComponent={
           <Text style={styles.muted}>Không có chuyến trong mục này.</Text>
         }
         renderItem={({ item }) => (
-          <Pressable
-            style={styles.card}
-            onPress={() => navigation.navigate('TripDetail', { run: item })}
-          >
-            <Text style={styles.route}>{item.route_name || '—'}</Text>
-            <Text style={styles.muted}>Biển số: {item.license_plate}</Text>
-            <Text style={styles.muted}>
-              Giờ xuất bến:{' '}
-              {item.departure_time
-                ? new Date(item.departure_time).toLocaleString()
-                : '—'}
-            </Text>
-            <Text style={styles.muted}>
-              Khách: {item.passenger_count} · Hàng: {item.cargo_count}
-            </Text>
-            <Text style={styles.muted}>Trạng thái: {item.status}</Text>
+          <Pressable onPress={() => navigation.navigate('TripDetail', { run: item })}>
+            <ListCard title={item.route_name || '—'} subtitle={`${item.license_plate} · ${item.status}`}>
+              <Text style={styles.muted}>
+                Xuất bến:{' '}
+                {item.departure_time ? new Date(item.departure_time).toLocaleString() : '—'}
+              </Text>
+              <Text style={styles.muted}>
+                Khách: {item.passenger_count} · Hàng: {item.cargo_count}
+              </Text>
+            </ListCard>
           </Pressable>
         )}
       />
-    </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, padding: 12, backgroundColor: '#f5f5f5' },
-  header: {
+  shell: { flex: 1 },
+  topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-start',
+    marginBottom: 14,
   },
-  title: { fontSize: 18, fontWeight: '600' },
+  screenTitle: { fontFamily: FONT.bold, fontSize: 20, color: C.text },
+  screenSub: { fontFamily: FONT.regular, fontSize: 13, color: C.muted, marginTop: 2 },
   box: { marginBottom: 12 },
-  hint: { marginBottom: 8, color: '#555' },
-  tabs: { flexDirection: 'row', marginBottom: 8, gap: 4 },
-  tab: {
-    flex: 1,
-    padding: 8,
-    backgroundColor: '#e8e8e8',
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  tabActive: { backgroundColor: '#1677ff' },
-  tabText: { fontSize: 11, color: '#333' },
-  tabTextActive: { color: '#fff', fontWeight: '600' },
-  card: {
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  route: { fontWeight: '600', marginBottom: 4 },
-  muted: { color: '#666', marginTop: 2 },
-  err: { color: '#cf1322', marginBottom: 8 },
+  hint: { marginBottom: 8, color: C.muted, fontFamily: FONT.regular },
+  err: { color: C.error, marginBottom: 8, fontFamily: FONT.regular },
   headerBtns: { flexDirection: 'row', gap: 4 },
+  backlog: { marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.stroke },
+  backlogTitle: {
+    fontSize: 12,
+    color: C.muted,
+    fontFamily: FONT.semibold,
+    marginBottom: 8,
+  },
+  backlogRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  backlogBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: C.stroke,
+    backgroundColor: C.card,
+  },
+  backlogBtnText: { color: C.gold, fontFamily: FONT.semibold, fontSize: 12 },
+  muted: { color: C.muted, marginTop: 2, fontFamily: FONT.regular, fontSize: 13 },
 });

@@ -1,12 +1,14 @@
-import { Controller, Get } from '@nestjs/common';
-import { AdminService, type AdminStatsDto } from './admin.service';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { AdminJwtGuard } from '../auth/admin-jwt.guard';
+import { AdminService } from './admin.service';
 
 @Controller('admin')
 export class AdminController {
   constructor(private readonly admin: AdminService) {}
 
   @Get('stats')
-  stats(): Promise<AdminStatsDto> {
-    return this.admin.getStats();
+  @UseGuards(AdminJwtGuard)
+  stats() {
+    return this.admin.stats();
   }
 }

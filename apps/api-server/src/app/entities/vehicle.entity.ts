@@ -1,16 +1,22 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'vehicles' })
+export type VehicleStatusDb = 'AVAILABLE' | 'MAINTENANCE' | 'IN_USE';
+
+@Entity('vehicles')
 export class VehicleEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'varchar', length: 32 })
+  @Column({ type: 'varchar', length: 32, unique: true })
   license_plate!: string;
 
   @Column({ type: 'int' })
   capacity!: number;
 
-  @Column({ type: 'varchar', length: 32 })
-  status!: 'AVAILABLE' | 'MAINTENANCE' | 'IN_USE';
+  @Column({
+    type: 'enum',
+    enum: ['AVAILABLE', 'MAINTENANCE', 'IN_USE'],
+    default: 'AVAILABLE',
+  })
+  status!: VehicleStatusDb;
 }

@@ -111,3 +111,27 @@ export interface Cargo {
   dropoff_location: GeoPoint;
   status: CargoStatus;
 }
+
+/** Ca làm việc tài xế — app-mobile.pen · Kết thúc ca & Báo cáo; API /driver/shifts */
+export type DriverShiftStatus = 'ACTIVE' | 'ENDED';
+
+export interface DriverShift {
+  id: UUID;
+  driver_id: UUID;
+  started_at: string;
+  ended_at: string | null;
+  status: DriverShiftStatus;
+  /** Tọa độ khi bắt đầu ca (tuỳ chính sách) */
+  start_location?: GeoPoint | null;
+}
+
+/** Tin nhắn chat tài xế ↔ điều hành — Socket.io /realtime */
+export interface DriverDispatchChatMessage {
+  id: UUID;
+  shift_id?: UUID | null;
+  driver_id: UUID;
+  /** ADMIN user hoặc hệ thống */
+  sender_role: 'DRIVER' | 'ADMIN';
+  body: string;
+  created_at: string;
+}

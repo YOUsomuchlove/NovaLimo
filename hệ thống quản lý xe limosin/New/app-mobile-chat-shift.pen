@@ -1,0 +1,1245 @@
+{
+  "version": "2.10",
+  "children": [
+    {
+      "type": "frame",
+      "id": "mbMiniCanvas",
+      "x": 0,
+      "y": 0,
+      "name": "NovaLimo Driver · Chat + Kết thúc ca (mini)",
+      "clip": true,
+      "width": 900,
+      "height": 900,
+      "fill": "#0B1020",
+      "layout": "none",
+      "children": [
+        {
+          "type": "frame",
+          "id": "mbChatInternal",
+          "x": 40,
+          "y": 28,
+          "name": "Chat nội bộ (Tài xế ↔ Điều hành)",
+          "clip": true,
+          "width": 390,
+          "height": 844,
+          "fill": "#020617",
+          "layout": "none",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "mbChatBg",
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "fill": "#020617"
+            },
+            {
+              "type": "frame",
+              "id": "mbChatSafe",
+              "x": 18,
+              "y": 44,
+              "width": 354,
+              "height": 780,
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mbChatHdr",
+                  "width": "fill_container",
+                  "height": 56,
+                  "layout": "horizontal",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mbChatBack",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#0B1020",
+                      "cornerRadius": 999,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#334155"
+                      },
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "mbChatBackIc",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "chevron-left",
+                          "iconFontFamily": "lucide",
+                          "fill": "#E5E7EB"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbChatTitleCol",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mbChatTitle",
+                          "content": "Liên lạc nội bộ",
+                          "fill": "#F9FAFB",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": 900,
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mbChatSub",
+                          "content": "Điều hành viên · Hỗ trợ nhanh",
+                          "fill": "#94A3B8",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": 700,
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbChatCallOps",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#052E16",
+                      "cornerRadius": 999,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#16A34A"
+                      },
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "mbChatCallOpsIc",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "headset",
+                          "iconFontFamily": "lucide",
+                          "fill": "#4ADE80"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbChatList",
+                  "width": "fill_container",
+                  "height": 620,
+                  "clip": true,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mbChatTime1",
+                      "width": "fill_container",
+                      "height": 22,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mbChatTime1Tx",
+                          "content": "Hôm nay · 14:18",
+                          "fill": "#64748B",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": 800
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbChatMsg1Row",
+                      "width": "fill_container",
+                      "layout": "horizontal",
+                      "justifyContent": "end",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mbChatMsg1",
+                          "width": 280,
+                          "fill": "#2563EB",
+                          "cornerRadius": 16,
+                          "padding": 14,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mbChatMsg1Tx",
+                              "content": "Báo điều hành: Kẹt xe ở điểm A, em dự kiến trễ 8–10 phút. Xin hướng dẫn.",
+                              "fill": "#FFFFFF",
+                              "fontFamily": "Inter",
+                              "fontSize": 15,
+                              "fontWeight": 800,
+                              "lineHeight": 1.25,
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container"
+                            },
+                            {
+                              "type": "text",
+                              "id": "mbChatMsg1Meta",
+                              "content": "Đã gửi",
+                              "fill": "#DBEAFE",
+                              "fontFamily": "Inter",
+                              "fontSize": 11,
+                              "fontWeight": 700
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbChatMsg2Row",
+                      "width": "fill_container",
+                      "layout": "horizontal",
+                      "justifyContent": "start",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mbChatMsg2",
+                          "width": 302,
+                          "fill": "#0B1020",
+                          "cornerRadius": 16,
+                          "stroke": {
+                            "align": "inside",
+                            "thickness": 1,
+                            "fill": "#334155"
+                          },
+                          "padding": 14,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "mbChatMsg2From",
+                              "layout": "horizontal",
+                              "gap": 8,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "mbChatOpsDot",
+                                  "width": 10,
+                                  "height": 10,
+                                  "fill": "#22C55E",
+                                  "cornerRadius": 999
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "mbChatOpsName",
+                                  "content": "Điều hành",
+                                  "fill": "#E5E7EB",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 12,
+                                  "fontWeight": 900
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "mbChatMsg2Tx",
+                              "content": "Đã nhận thông tin. Anh/Chị bật \"Chỉ đường\" để đi lối cầu mới. Em cập nhật khách sẽ trễ 10 phút.",
+                              "fill": "#F9FAFB",
+                              "fontFamily": "Inter",
+                              "fontSize": 15,
+                              "fontWeight": 800,
+                              "lineHeight": 1.25,
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mbChatQuickActions",
+                              "width": "fill_container",
+                              "layout": "horizontal",
+                              "gap": 10,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "mbChatNavShortcut",
+                                  "width": "fill_container",
+                                  "height": 44,
+                                  "fill": "#111827",
+                                  "cornerRadius": 12,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1,
+                                    "fill": "#334155"
+                                  },
+                                  "layout": "horizontal",
+                                  "gap": 10,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "mbChatNavShortcutIc",
+                                      "width": 18,
+                                      "height": 18,
+                                      "iconFontName": "navigation",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#60A5FA"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "mbChatNavShortcutTx",
+                                      "content": "Mở chỉ đường",
+                                      "fill": "#E5E7EB",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 13,
+                                      "fontWeight": 900
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "mbChatCallShortcut",
+                                  "width": 86,
+                                  "height": 44,
+                                  "fill": "#052E16",
+                                  "cornerRadius": 12,
+                                  "stroke": {
+                                    "align": "inside",
+                                    "thickness": 1,
+                                    "fill": "#16A34A"
+                                  },
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "mbChatCallShortcutIc",
+                                      "width": 20,
+                                      "height": 20,
+                                      "iconFontName": "phone-call",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "#4ADE80"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbChatMsg3Row",
+                      "width": "fill_container",
+                      "layout": "horizontal",
+                      "justifyContent": "end",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mbChatMsg3",
+                          "width": 292,
+                          "fill": "#1D4ED8",
+                          "cornerRadius": 16,
+                          "padding": 14,
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mbChatMsg3Tx",
+                              "content": "Đã rõ. Em đi theo lộ trình mới. Nếu cần em sẽ gửi voice note vì đang lái.",
+                              "fill": "#FFFFFF",
+                              "fontFamily": "Inter",
+                              "fontSize": 15,
+                              "fontWeight": 800,
+                              "lineHeight": 1.25,
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbChatComposer",
+                  "width": "fill_container",
+                  "height": 92,
+                  "fill": "#020617",
+                  "layout": "horizontal",
+                  "gap": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mbChatInput",
+                      "width": "fill_container",
+                      "height": 60,
+                      "fill": "#0B1020",
+                      "cornerRadius": 16,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#334155"
+                      },
+                      "padding": [
+                        0,
+                        14
+                      ],
+                      "layout": "horizontal",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "mbChatInputIc",
+                          "width": 18,
+                          "height": 18,
+                          "iconFontName": "message-square",
+                          "iconFontFamily": "lucide",
+                          "fill": "#94A3B8"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mbChatInputPh",
+                          "content": "Nhập tin nhắn…",
+                          "fill": "#94A3B8",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": 700,
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbChatMicBtn",
+                      "width": 68,
+                      "height": 68,
+                      "fill": "#2563EB",
+                      "cornerRadius": 999,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 2,
+                        "fill": "#93C5FD"
+                      },
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "mbChatMicIc",
+                          "width": 30,
+                          "height": 30,
+                          "iconFontName": "mic",
+                          "iconFontFamily": "lucide",
+                          "fill": "#EFF6FF"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+            ,
+            {
+              "type": "frame",
+              "id": "mbChatBottomNav",
+              "x": 12,
+              "y": 758,
+              "width": 366,
+              "height": 74,
+              "fill": "#0B1020",
+              "cornerRadius": 20,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#334155"
+              },
+              "padding": [
+                8,
+                10
+              ],
+              "layout": "horizontal",
+              "gap": 8,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mbChatNavTrips",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#0B1020",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbChatNavTripsIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "route",
+                      "iconFontFamily": "lucide",
+                      "fill": "#94A3B8"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbChatNavTripsTx",
+                      "content": "Chuyến",
+                      "fill": "#94A3B8",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 800
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbChatNavCargo",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#0B1020",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbChatNavCargoIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "package",
+                      "iconFontFamily": "lucide",
+                      "fill": "#94A3B8"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbChatNavCargoTx",
+                      "content": "Hàng",
+                      "fill": "#94A3B8",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 800
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbChatNavChat",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#111827",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#334155"
+                  },
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbChatNavChatIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "message-square",
+                      "iconFontFamily": "lucide",
+                      "fill": "#D4AF37"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbChatNavChatTx",
+                      "content": "Chat",
+                      "fill": "#F9FAFB",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 900
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbChatNavShift",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#0B1020",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbChatNavShiftIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "power",
+                      "iconFontFamily": "lucide",
+                      "fill": "#94A3B8"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbChatNavShiftTx",
+                      "content": "Ca",
+                      "fill": "#94A3B8",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 800
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "mbShiftEnd",
+          "x": 470,
+          "y": 28,
+          "name": "Kết thúc ca & Báo cáo",
+          "clip": true,
+          "width": 390,
+          "height": 844,
+          "fill": "#020617",
+          "layout": "none",
+          "children": [
+            {
+              "type": "rectangle",
+              "id": "mbShiftBg",
+              "x": 0,
+              "y": 0,
+              "width": 390,
+              "height": 844,
+              "fill": "#020617"
+            },
+            {
+              "type": "frame",
+              "id": "mbShiftSafe",
+              "x": 20,
+              "y": 44,
+              "width": 350,
+              "height": 780,
+              "layout": "vertical",
+              "gap": 14,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mbShiftHdr",
+                  "width": "fill_container",
+                  "height": 56,
+                  "layout": "horizontal",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mbShiftBack",
+                      "width": 44,
+                      "height": 44,
+                      "fill": "#0B1020",
+                      "cornerRadius": 999,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#334155"
+                      },
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon_font",
+                          "id": "mbShiftBackIc",
+                          "width": 20,
+                          "height": 20,
+                          "iconFontName": "chevron-left",
+                          "iconFontFamily": "lucide",
+                          "fill": "#E5E7EB"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbShiftTitleCol",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "mbShiftTitle",
+                          "content": "Kết thúc ca",
+                          "fill": "#F9FAFB",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": 900,
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mbShiftSub",
+                          "content": "Tổng kết & đối soát nhanh",
+                          "fill": "#94A3B8",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": 700,
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbShiftHero",
+                  "width": "fill_container",
+                  "fill": "#0B1020",
+                  "cornerRadius": 18,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#334155"
+                  },
+                  "padding": 16,
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mbShiftHeroTop",
+                      "width": "fill_container",
+                      "layout": "horizontal",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mbShiftBadge",
+                          "width": 44,
+                          "height": 44,
+                          "fill": "#052E16",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "mbShiftBadgeIc",
+                              "width": 22,
+                              "height": 22,
+                              "iconFontName": "clipboard-check",
+                              "iconFontFamily": "lucide",
+                              "fill": "#4ADE80"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mbShiftHeroText",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mbShiftHeroTitle",
+                              "content": "Ca làm việc hôm nay",
+                              "fill": "#F9FAFB",
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": 900
+                            },
+                            {
+                              "type": "text",
+                              "id": "mbShiftHeroMeta",
+                              "content": "08:00 → 18:05 · 3 chuyến",
+                              "fill": "#94A3B8",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": 800
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbShiftHeroHint",
+                      "content": "Vui lòng kiểm tra số liệu trước khi kết thúc ca. Các thay đổi sau khi kết thúc ca cần điều hành xác nhận.",
+                      "fill": "#CBD5E1",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": 700,
+                      "lineHeight": 1.35,
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbShiftStats",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 12,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mbShiftStatPax",
+                      "width": "fill_container",
+                      "fill": "#0B1020",
+                      "cornerRadius": 18,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#334155"
+                      },
+                      "padding": 16,
+                      "layout": "horizontal",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mbShiftStatPaxIcWrap",
+                          "width": 44,
+                          "height": 44,
+                          "fill": "#1D4ED8",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "mbShiftStatPaxIc",
+                              "width": 22,
+                              "height": 22,
+                              "iconFontName": "users",
+                              "iconFontFamily": "lucide",
+                              "fill": "#DBEAFE"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mbShiftStatPaxCol",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mbShiftStatPaxLbl",
+                              "content": "Tổng khách đã chở",
+                              "fill": "#CBD5E1",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": 800
+                            },
+                            {
+                              "type": "text",
+                              "id": "mbShiftStatPaxVal",
+                              "content": "27",
+                              "fill": "#F9FAFB",
+                              "fontFamily": "Inter",
+                              "fontSize": 30,
+                              "fontWeight": 900
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbShiftStatCargo",
+                      "width": "fill_container",
+                      "fill": "#0B1020",
+                      "cornerRadius": 18,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#334155"
+                      },
+                      "padding": 16,
+                      "layout": "horizontal",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mbShiftStatCargoIcWrap",
+                          "width": 44,
+                          "height": 44,
+                          "fill": "#3B2A00",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "mbShiftStatCargoIc",
+                              "width": 22,
+                              "height": 22,
+                              "iconFontName": "package",
+                              "iconFontFamily": "lucide",
+                              "fill": "#FBBF24"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mbShiftStatCargoCol",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mbShiftStatCargoLbl",
+                              "content": "Tổng hàng đã giao",
+                              "fill": "#CBD5E1",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": 800
+                            },
+                            {
+                              "type": "text",
+                              "id": "mbShiftStatCargoVal",
+                              "content": "11",
+                              "fill": "#F9FAFB",
+                              "fontFamily": "Inter",
+                              "fontSize": 30,
+                              "fontWeight": 900
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mbShiftStatCash",
+                      "width": "fill_container",
+                      "fill": "#0B1020",
+                      "cornerRadius": 18,
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#334155"
+                      },
+                      "padding": 16,
+                      "layout": "horizontal",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "mbShiftStatCashIcWrap",
+                          "width": 44,
+                          "height": 44,
+                          "fill": "#3B1D00",
+                          "cornerRadius": 14,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon_font",
+                              "id": "mbShiftStatCashIc",
+                              "width": 22,
+                              "height": 22,
+                              "iconFontName": "banknote",
+                              "iconFontFamily": "lucide",
+                              "fill": "#FBBF24"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "mbShiftStatCashCol",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mbShiftStatCashLbl",
+                              "content": "Tổng tiền mặt cần nộp lại",
+                              "fill": "#CBD5E1",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": 800
+                            },
+                            {
+                              "type": "text",
+                              "id": "mbShiftStatCashVal",
+                              "content": "1.850.000đ",
+                              "fill": "#FBBF24",
+                              "fontFamily": "Inter",
+                              "fontSize": 28,
+                              "fontWeight": 900
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbShiftSpacer",
+                  "width": "fill_container",
+                  "height": 56,
+                  "fill": "#020617"
+                },
+                {
+                  "type": "frame",
+                  "id": "mbShiftEndBtn",
+                  "width": "fill_container",
+                  "height": 66,
+                  "fill": "#EA580C",
+                  "cornerRadius": 18,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 2,
+                    "fill": "#FB923C"
+                  },
+                  "layout": "horizontal",
+                  "gap": 12,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbShiftEndBtnIc",
+                      "width": 22,
+                      "height": 22,
+                      "iconFontName": "octagon-alert",
+                      "iconFontFamily": "lucide",
+                      "fill": "#2A0A00"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbShiftEndBtnTx",
+                      "content": "Kết thúc ca làm việc",
+                      "fill": "#2A0A00",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": 900
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "mbShiftEndNote",
+                  "content": "Sau khi kết thúc ca, bạn sẽ không thể cập nhật trạng thái chuyến/đơn hàng. Nếu cần chỉnh sửa, liên hệ điều hành.",
+                  "fill": "#94A3B8",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": 700,
+                  "lineHeight": 1.35,
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container"
+                }
+              ]
+            }
+            ,
+            {
+              "type": "frame",
+              "id": "mbShiftBottomNav",
+              "x": 12,
+              "y": 758,
+              "width": 366,
+              "height": 74,
+              "fill": "#0B1020",
+              "cornerRadius": 20,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#334155"
+              },
+              "padding": [
+                8,
+                10
+              ],
+              "layout": "horizontal",
+              "gap": 8,
+              "justifyContent": "space_between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "mbShiftNavTrips",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#0B1020",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbShiftNavTripsIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "route",
+                      "iconFontFamily": "lucide",
+                      "fill": "#94A3B8"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbShiftNavTripsTx",
+                      "content": "Chuyến",
+                      "fill": "#94A3B8",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 800
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbShiftNavCargo",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#0B1020",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbShiftNavCargoIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "package",
+                      "iconFontFamily": "lucide",
+                      "fill": "#94A3B8"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbShiftNavCargoTx",
+                      "content": "Hàng",
+                      "fill": "#94A3B8",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 800
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbShiftNavChat",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#0B1020",
+                  "cornerRadius": 16,
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbShiftNavChatIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "message-square",
+                      "iconFontFamily": "lucide",
+                      "fill": "#94A3B8"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbShiftNavChatTx",
+                      "content": "Chat",
+                      "fill": "#94A3B8",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 800
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "mbShiftNavShift",
+                  "width": 82,
+                  "height": 58,
+                  "fill": "#111827",
+                  "cornerRadius": 16,
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#334155"
+                  },
+                  "layout": "vertical",
+                  "gap": 6,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon_font",
+                      "id": "mbShiftNavShiftIc",
+                      "width": 20,
+                      "height": 20,
+                      "iconFontName": "power",
+                      "iconFontFamily": "lucide",
+                      "fill": "#FCA5A5"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mbShiftNavShiftTx",
+                      "content": "Ca",
+                      "fill": "#FCA5A5",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": 900
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "themes": {
+    "Mode": [
+      "Light",
+      "Dark"
+    ]
+  }
+}

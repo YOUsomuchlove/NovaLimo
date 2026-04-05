@@ -1,15 +1,29 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { TripBatchEntity } from './trip-batch.entity';
+import { TripRunEntity } from './trip-run.entity';
 
-@Entity({ name: 'bookings' })
+export type BookingStatusDb = 'WAITING' | 'PICKED_UP' | 'DROPPED_OFF' | 'CANCELLED';
+export type PaymentMethodDb = 'COD' | 'MOMO' | 'ZALOPAY' | 'VNPAY';
+export type PaymentStatusDb = 'PENDING' | 'PAID' | 'FAILED';
+
+@Entity('bookings')
 export class BookingEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'uuid' })
+  @Column('uuid')
   trip_batch_id!: string;
 
-  @Column({ type: 'uuid', nullable: true })
+  @ManyToOne(() => TripBatchEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'trip_batch_id' })
+  trip_batch!: TripBatchEntity;
+
+  @Column('uuid', { nullable: true })
   trip_run_id!: string | null;
+
+  @ManyToOne(() => TripRunEntity, { onDelete: 'SET NULL', nullable: true })
+  @JoinColumn({ name: 'trip_run_id' })
+  trip_run!: TripRunEntity | null;
 
   @Column({ type: 'varchar', length: 255 })
   passenger_name!: string;
@@ -32,10 +46,6 @@ export class BookingEntity {
   @Column({ type: 'double precision' })
   pickup_lng!: number;
 
-  /** PostGIS geography — đồng bộ từ pickup_lat/lng */
-  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
-  pickup_geom!: string | null;
-
   @Column({ type: 'text' })
   dropoff_address!: string;
 
@@ -45,33 +55,42 @@ export class BookingEntity {
   @Column({ type: 'double precision' })
   dropoff_lng!: number;
 
-  @Column({ type: 'geography', spatialFeatureType: 'Point', srid: 4326, nullable: true })
-  dropoff_geom!: string | null;
-
   @Column({ type: 'int', nullable: true })
   pickup_order!: number | null;
 
   @Column({ type: 'int', nullable: true })
   dropoff_order!: number | null;
 
-  @Column({ type: 'varchar', length: 32 })
-  status!: 'WAITING' | 'PICKED_UP' | 'DROPPED_OFF' | 'CANCELLED';
+  @Column({
+    type: 'enum',
+    enum: ['WAITING', 'PICKED_UP', 'DROPPED_OFF', 'CANCELLED'],
+    default: 'WAITING',
+  })
+  status!: BookingStatusDb;
 
   @Column({ type: 'text', nullable: true })
   note!: string | null;
 
-  @Column({ type: 'varchar', length: 16, nullable: true })
+  @Column({ type: 'varchar', length: 32, nullable: true })
   seat_label!: string | null;
 
-  @Column({ type: 'double precision', default: 0 })
-  unit_price!: number;
+  @Column({ type: 'double precision', nullable: true })
+  unit_price!: number | null;
 
-  @Column({ type: 'double precision', default: 0 })
-  total_amount!: number;
+  @Column({ type: 'double precision', nullable: true })
+  total_amount!: number | null;
 
-  @Column({ type: 'varchar', length: 16, nullable: true })
-  payment_method!: 'COD' | 'MOMO' | 'ZALOPAY' | 'VNPAY' | null;
+  @Column({
+    type: 'enum',
+    enum: ['COD', 'MOMO', 'ZALOPAY', 'VNPAY'],
+    nullable: true,
+  })
+  payment_method!: PaymentMethodDb | null;
 
-  @Column({ type: 'varchar', length: 16, default: 'PENDING' })
-  payment_status!: 'PENDING' | 'PAID' | 'FAILED';
+  @Column({
+    type: 'enum',
+    enum: ['PENDING', 'PAID', 'FAILED'],
+    default: 'PENDING',
+  })
+  payment_status!: PaymentStatusDb;
 }

@@ -1,192 +1,176 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import React from 'react';
 import {
-  Alert,
-  Button,
-  Linking,
-  ScrollView,
+  ImageBackground,
+  Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { io } from 'socket.io-client';
-import {
-  fetchTripRunDetail,
-  getSocketBaseUrl,
-  patchBookingStatus,
-} from '../api/client';
-import { useAuth } from '../context/AuthContext';
-import type { RootStackParamList } from '../navigation/types';
-import { getNextStop } from '../utils/nextStop';
+import Svg, { Path } from 'react-native-svg';
+import { ScreenShell } from '../components/ScreenShell';
+import type { TripsStackParamList } from '../navigation/types';
+import { C, FONT } from '../theme/tokens';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ActiveNav'>;
+type Props = NativeStackScreenProps<TripsStackParamList, 'ActiveNav'>;
 
-export function ActiveNavigationScreen({ route }: Props) {
-  const { runId } = route.params;
-  const { token } = useAuth();
-  const [bookings, setBookings] = useState(
-    [] as Awaited<ReturnType<typeof fetchTripRunDetail>>['bookings'],
-  );
-  const [err, setErr] = useState<string | null>(null);
+const MAP = require('../../assets/images/osm-tile-nav.png');
 
-  const load = useCallback(async () => {
-    if (!token) return;
-    try {
-      const d = await fetchTripRunDetail(token, runId);
-      setBookings(d.bookings);
-      setErr(null);
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Lỗi tải');
-    }
-  }, [token, runId]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  useEffect(() => {
-    if (!token) return;
-    const socket = io(`${getSocketBaseUrl()}/realtime`, {
-      transports: ['websocket'],
-    });
-    const onUp = () => void load();
-    socket.on('booking_status_changed', onUp);
-    socket.on('trip_run_updated', onUp);
-    return () => {
-      socket.off('booking_status_changed', onUp);
-      socket.off('trip_run_updated', onUp);
-      socket.disconnect();
-    };
-  }, [token, load]);
-
-  const next = useMemo(() => getNextStop(bookings), [bookings]);
-
-  const openDirections = () => {
-    if (!next) return;
-    const loc =
-      next.kind === 'pickup'
-        ? next.booking.pickup_location
-        : next.booking.dropoff_location;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}`;
-    void Linking.openURL(url);
-  };
-
-  const onCheckIn = async () => {
-    if (!token || !next || next.kind !== 'pickup') return;
-    try {
-      await patchBookingStatus(token, next.booking.id, 'PICKED_UP');
-      await load();
-    } catch (e) {
-      Alert.alert('Lỗi', e instanceof Error ? e.message : 'Không cập nhật được');
-    }
-  };
-
-  const onDropOff = async () => {
-    if (!token || !next || next.kind !== 'dropoff') return;
-    try {
-      await patchBookingStatus(token, next.booking.id, 'DROPPED_OFF');
-      await load();
-    } catch (e) {
-      Alert.alert('Lỗi', e instanceof Error ? e.message : 'Không cập nhật được');
-    }
-  };
-
-  const region = useMemo(() => {
-    if (!next) {
-      return {
-        latitude: 21.0285,
-        longitude: 105.8542,
-        latitudeDelta: 0.2,
-        longitudeDelta: 0.2,
-      };
-    }
-    const loc =
-      next.kind === 'pickup'
-        ? next.booking.pickup_location
-        : next.booking.dropoff_location;
-    return {
-      latitude: loc.lat,
-      longitude: loc.lng,
-      latitudeDelta: 0.05,
-      longitudeDelta: 0.05,
-    };
-  }, [next]);
-
+/** mbDrvNavPickup — map + sheet đón */
+export function ActiveNavigationScreen({ navigation: _nav }: Props) {
   return (
-    <View style={styles.root}>
-      <MapView style={styles.map} initialRegion={region} region={region}>
-        {next ? (
-          <Marker
-            coordinate={{
-              latitude:
-                next.kind === 'pickup'
-                  ? next.booking.pickup_location.lat
-                  : next.booking.dropoff_location.lat,
-              longitude:
-                next.kind === 'pickup'
-                  ? next.booking.pickup_location.lng
-                  : next.booking.dropoff_location.lng,
-            }}
-            title={next.booking.passenger_name}
-            description={next.kind === 'pickup' ? 'Đón' : 'Trả'}
-          />
-        ) : null}
-      </MapView>
-
-      <ScrollView style={styles.panel} contentContainerStyle={styles.panelContent}>
-        <Text style={styles.title}>Khách tiếp theo</Text>
-        {err ? <Text style={styles.err}>{err}</Text> : null}
-        {!next ? (
-          <Text style={styles.muted}>Không còn điểm đón/trả trong danh sách.</Text>
-        ) : (
-          <>
-            <Text style={styles.kind}>
-              {next.kind === 'pickup' ? 'Đón' : 'Trả'}
-            </Text>
-            <Text style={styles.name}>{next.booking.passenger_name}</Text>
-            <Text style={styles.muted}>
-              {next.kind === 'pickup'
-                ? next.booking.pickup_address
-                : next.booking.dropoff_address}
-            </Text>
-            {next.booking.note ? (
-              <Text style={styles.note}>Ghi chú: {next.booking.note}</Text>
-            ) : null}
-            <View style={styles.row}>
-              <Button title="Chỉ đường" onPress={openDirections} />
-            </View>
-            {next.kind === 'pickup' ? (
-              <Button title="Đã lên xe (Check-in)" onPress={() => void onCheckIn()} />
-            ) : (
-              <Button title="Đã trả khách" onPress={() => void onDropOff()} />
-            )}
-            <Button
-              title="Không liên lạc được (ghi nhận)"
-              onPress={() =>
-                Alert.alert(
-                  'Thông báo',
-                  'Điều hành có thể cập nhật trên Web Admin.',
-                )
-              }
+    <ScreenShell edges={['left', 'right']} noInnerPadding style={styles.shell}>
+      <View style={styles.mapBlock}>
+        <ImageBackground source={MAP} style={styles.mapImg} resizeMode="cover">
+          <View style={styles.tint} />
+          <View style={styles.topBar}>
+            <Text style={styles.topTitle}>Đang lái</Text>
+            <Text style={styles.topSub}>ETA ~ 12 phút</Text>
+          </View>
+          <View style={styles.searchFake}>
+            <Text style={styles.searchTxt}>Tìm điểm đón…</Text>
+          </View>
+          <Svg width="100%" height={200} style={styles.svg}>
+            <Path
+              d="M 40 180 Q 120 40 280 100 T 340 20"
+              stroke={C.ctaBlue}
+              strokeWidth={10}
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
-          </>
-        )}
-      </ScrollView>
-    </View>
+          </Svg>
+          <View style={styles.pulse} />
+          <View style={styles.carDot} />
+        </ImageBackground>
+      </View>
+
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <Text style={styles.lbl}>ĐÓN TIẾP THEO</Text>
+        <Text style={styles.name}>Trần Thị Mai</Text>
+        <Text style={styles.addr}>
+          Đón: Ngõ 7 phố Huế, Hàng Bài, Hoàn Kiếm, HN — cổng nhà 12 (biển NovaLimo)
+        </Text>
+        <Pressable style={styles.dirBtn}>
+          <Text style={styles.dirTxt}>Mở chỉ đường</Text>
+        </Pressable>
+        <View style={styles.swipe}>
+          <Text style={styles.swipeTxt}>Vuốt để xác nhận đã đón</Text>
+        </View>
+        <Pressable style={styles.noContact}>
+          <Text style={styles.noContactTxt}>Không liên hệ được khách</Text>
+        </Pressable>
+      </View>
+    </ScreenShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1 },
-  map: { flex: 0.42, minHeight: 180 },
-  panel: { flex: 0.58, backgroundColor: '#fff' },
-  panelContent: { padding: 16, paddingBottom: 32 },
-  title: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
-  kind: { color: '#1677ff', fontWeight: '600' },
-  name: { fontSize: 18, fontWeight: '600', marginTop: 4 },
-  muted: { color: '#666', marginTop: 4 },
-  note: { color: '#ad6800', marginTop: 8 },
-  row: { marginVertical: 8 },
-  err: { color: '#cf1322', marginBottom: 8 },
+  shell: { flex: 1, paddingHorizontal: 0 },
+  mapBlock: { height: 320 },
+  mapImg: { flex: 1, width: '100%' },
+  tint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#0B1220',
+    opacity: 0.35,
+  },
+  topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    backgroundColor: C.mapTopBar,
+  },
+  topTitle: { fontFamily: FONT.semibold, color: C.text, fontSize: 15 },
+  topSub: { fontFamily: FONT.regular, color: C.muted, fontSize: 12 },
+  searchFake: {
+    position: 'absolute',
+    top: 52,
+    left: 16,
+    right: 16,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  searchTxt: { color: '#64748b', fontFamily: FONT.regular, fontSize: 14 },
+  svg: { position: 'absolute', left: 0, right: 0, bottom: 40 },
+  pulse: {
+    position: 'absolute',
+    bottom: 36,
+    left: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(37,99,235,0.2)',
+  },
+  carDot: {
+    position: 'absolute',
+    bottom: 44,
+    left: 32,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    borderWidth: 4,
+    borderColor: C.ctaBlue,
+  },
+  sheet: {
+    flex: 1,
+    backgroundColor: C.sheetBg,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    borderWidth: 1,
+    borderColor: '#1E293B',
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 24,
+    gap: 8,
+  },
+  grab: {
+    alignSelf: 'center',
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: C.stroke,
+    marginBottom: 4,
+  },
+  lbl: {
+    fontFamily: FONT.regular,
+    fontSize: 11,
+    letterSpacing: 1.2,
+    color: C.muted,
+  },
+  name: { fontFamily: FONT.regular, fontSize: 26, color: C.text },
+  addr: { fontFamily: FONT.regular, fontSize: 17, color: '#E2E8F0', lineHeight: 22 },
+  dirBtn: {
+    backgroundColor: C.ctaBlue,
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  dirTxt: { fontFamily: FONT.semibold, color: '#fff', fontSize: 16 },
+  swipe: {
+    borderRadius: 999,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: C.swipeTrack,
+    borderWidth: 2,
+    borderColor: C.swipeStroke,
+    alignItems: 'center',
+  },
+  swipeTxt: { color: C.success, fontFamily: FONT.semibold, fontSize: 14 },
+  noContact: {
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: C.noContactBg,
+    borderWidth: 1,
+    borderColor: C.noContactStroke,
+  },
+  noContactTxt: { color: '#fecaca', fontFamily: FONT.regular, fontSize: 13 },
 });

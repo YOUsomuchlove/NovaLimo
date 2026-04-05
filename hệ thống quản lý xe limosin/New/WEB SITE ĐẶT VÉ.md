@@ -1,111 +1,150 @@
-### TÀI LIỆU ĐẶC TẢ PHÂN HỆ: WEB ĐẶT VÉ (WEB BOOKING) - BẢN CẬP NHẬT UI/UX VÀ ANT DESIGN
+## Tài liệu đặc tả phân hệ: Web đặt vé & kênh khách hàng NovaLimo
 
-#### 1. Tổng quan & Kiến trúc Công nghệ
+*Tài liệu được **đối chiếu đầy đủ** với bản vẽ chi tiết `web-bôking.pen`: mọi **tên frame** dưới đây trùng với tên trong file Pencil để dev/design tra cứu 1:1.*
 
-- **Mục tiêu:** Là "mặt tiền" sang trọng của nhà xe NovaLimo, giúp khách hàng tự thao tác tìm kiếm, chọn ghế, đặt vé và thanh toán trực tuyến nhanh chóng, mang lại trải nghiệm mượt mà chuẩn khách VIP.
-- **Công nghệ lõi:** **Next.js & React** (hỗ trợ SSR tối ưu SEO cực mạnh).
-- **Thư viện UI/UX:** Sử dụng **Ant Design (AntD)** làm thư viện Component chính kết hợp với **Tailwind CSS** để tùy biến giao diện. AntD mang lại sự đồng bộ, chuyên nghiệp, hỗ trợ responsive tốt và cung cấp sẵn các form nhập liệu phức tạp, giúp tiết kiệm thời gian phát triển.
-- **Phong cách thiết kế (Visual Style):** Sang trọng, tối giản (Minimalism). Sử dụng tông màu chủ đạo thể hiện sự cao cấp (như Xanh Navy/Đen kết hợp Vàng Gold), các nút bấm (Button) và thẻ (Card) từ AntD sẽ được bo góc mềm mại (border-radius), tạo cảm giác thân thiện và "thích mắt" cho người dùng.
+**Liên kết hệ thống tài liệu:** [Đặc Tả Tổng Thể Và Cấu Hình Hệ Thống NovaLimo.md](./Đặc%20Tả%20Tổng%20Thể%20Và%20Cấu%20Hình%20Hệ%20Thống%20NovaLimo.md) — chỉ mục các phân hệ, nguyên tắc cấu hình đa môi trường, REST/socket và checklist thay đổi lớn.
 
 ---
 
-#### 2. Cấu trúc các trang (Pages) và Thiết kế Giao diện áp dụng AntD
+### 1. Tổng quan
 
-Để mang lại luồng đặt vé logic, hệ thống chia thành các trang sau với thiết kế cụ thể:
-
-**A. Trang Chủ (Home Page)**
-
-- **Mục đích:** Gây ấn tượng đầu tiên, cung cấp công cụ tìm kiếm vé nhanh và hiển thị các chương trình khuyến mãi.
-- **Thiết kế & AntD áp dụng:**
-  - **Hero Banner:** Sử dụng `Carousel` của AntD để chạy các hình ảnh xe Limousine nội thất sang trọng.
-  - **Hộp tìm kiếm (Search Box):** Đặt nổi bật giữa màn hình. Sử dụng `Select` của AntD (có tính năng search/autocomplete) cho điểm đi/điểm đến, và `DatePicker` của AntD để chọn ngày khởi hành.
-  - **Nút Call-to-action:** Nút "Tìm Chuyến" sử dụng `Button` kích thước lớn (size="large"), màu Vàng Gold nổi bật.
-
-**B. Trang Kết quả tìm kiếm & Chọn chuyến (Search Results)**
-
-- **Mục đích:** Liệt kê các chuyến đi phù hợp, hiển thị giá vé, loại xe và thời gian.
-- **Thiết kế & AntD áp dụng:**
-  - **Bộ lọc (Filters):** Sử dụng `Checkbox` và `Slider` của AntD ở cột bên trái để khách hàng lọc theo giờ chạy, mức giá, hoặc loại xe (9 chỗ, 12 chỗ).
-  - **Danh sách chuyến:** Sử dụng `List` hoặc `Card` của AntD. Mỗi Card hiển thị giờ đi - giờ đến, loại xe, và số ghế trống. Khi khách bấm "Chọn chuyến", một khung `Drawer` hoặc giao diện cuộn mượt mà sẽ hiện ra để chọn ghế.
-
-**C. Trang Lựa chọn Sơ đồ ghế (Seat Map Selection)**
-
-- **Mục đích:** Hiển thị sơ đồ ghế đồ họa trực quan, đúng với thực tế của từng dòng xe.
-- **Thiết kế & AntD áp dụng:**
-  - Giao diện sơ đồ sẽ được custom CSS kết hợp với hệ thống `Grid` (Row, Col) của AntD.
-  - **Xe 9 chỗ & 12 chỗ:** Bố trí ghế theo thực tế với 2 ghế đầu, các hàng giữa 2 ghế tách rời, và hàng cuối 3 ghế liền kề.
-  - **Xe 19 chỗ & 22 chỗ:** Bố trí theo cấu trúc 2-1 (2 ghế liền kề, 1 ghế đơn có lối đi ở giữa), và hàng ghế cuối có 3 ghế.
-  - **Trạng thái ghế:** Ghế trống (màu trắng/xám), Ghế đang chọn (màu Vàng Gold), Ghế đã bán (màu Đỏ, disable nút bấm). Khách click vào sẽ hiện `Tooltip` của AntD báo giá tiền cho vị trí ghế đó (vì ghế VIP sát tài xế hoặc ghế giữa có thể có giá khác nhau).
-
-**D. Trang Nhập thông tin & Chọn điểm đón/trả tận nơi (Passenger Info & Location)**
-
-- **Mục đích:** Thu thập thông tin người đi, người đặt hộ và định vị chính xác điểm đón/trả.
-- **Thiết kế & AntD áp dụng:**
-  - Sử dụng `Steps` của AntD trên cùng để hiển thị tiến trình (Chọn chuyến -> Chọn ghế -> Thông tin -> Thanh toán).
-  - Sử dụng `Form` của AntD với tính năng validate (xác thực) mạnh mẽ (bắt buộc nhập SĐT đúng định dạng).
-  - **Tách biệt thông tin:** Chia làm 2 tab (`Tabs` của AntD) cho "Người đi xe" (`passenger_name`, `passenger_phone`) và "Người đặt hộ" (`booker_name`, `booker_phone`).
-  - **Bản đồ Số (Google Maps Integration):** Khách hàng nhập địa chỉ qua ô `AutoComplete` của AntD. Hệ thống tự động ghim vị trí lên bản đồ thu nhỏ và lưu tọa độ (Geometry Point Lat/Lng chuẩn PostGIS) vào trường `pickup_location` và `dropoff_location`.
-
-**E. Trang Thanh toán trực tuyến (Checkout & Payment)**
-
-- **Mục đích:** Chốt giao dịch an toàn và nhanh chóng.
-- **Thiết kế & AntD áp dụng:**
-  - Sử dụng `Radio.Group` kết hợp với thẻ `Card` của AntD để khách chọn phương thức thanh toán: Ví Momo, ZaloPay, VNPay (thẻ nội địa/quốc tế), hoặc Thanh toán tại nhà xe.
-  - Hiển thị tóm tắt đơn hàng (Hóa đơn) bên góc phải bằng Component `Descriptions` của AntD để hiển thị rõ ràng: Tên khách, Số ghế, Điểm đón, Tổng tiền.
-
-**F. Trang Quản lý vé cá nhân (User Profile / My Tickets)**
-
-- **Mục đích:** Khách hàng theo dõi vé đã đặt, kiểm tra trạng thái xe.
-- **Thiết kế & AntD áp dụng:**
-  - Sử dụng `Table` của AntD để liệt kê lịch sử chuyến đi.
-  - Sử dụng `Tag` của AntD để hiển thị trạng thái vé cực kỳ trực quan với các màu sắc: Đang chờ xe (Vàng), Đã lên xe (Xanh dương), Đã hoàn thành (Xanh lá), Đã hủy (Đỏ).
+- **Vai trò:** “Mặt tiền” NovaLimo trên web — khách tự **tìm chuyến → chọn ghế → nhập thông tin → thanh toán → nhận xác nhận**, **tra cứu vé**; luồng **ký gửi hàng**; các trang **giới thiệu, bảng giá, liên hệ** và **pháp lý (điều khoản, bảo mật, FAQ, 404)**.
+- **Công nghệ:** **Next.js & React** (SSR/SEO), **Ant Design** + **Tailwind CSS** (bám kit trong pen).
+- **Phong cách:** Sang trọng, tối giản; **xanh navy / đen**, nhấn **vàng gold** cho CTA; bo góc mềm.
 
 ---
 
-#### 3. Luồng xử lý Dữ liệu dưới Database (Data Flow)
+### 2. Cấu trúc canvas & thành phần không phải “trang”
 
-Sự kết hợp giữa giao diện AntD mượt mà và Database bên dưới diễn ra như sau:
+Trong `web-bôking.pen`, hai **nhãn vùng canvas** (zone) mô tả bố cục tổng thể:
 
-1. **Ghi nhận dữ liệu từ Form (AntD Form -> API):** Khi khách bấm hoàn tất trên giao diện, dữ liệu từ `Form` được gửi về API để tạo bản ghi trong bảng `Bookings`.
-2. **Khởi tạo tọa độ thuật toán:** Địa chỉ đón (`pickup_address`) và địa chỉ trả (`dropoff_address`) được lưu cùng tọa độ bản đồ không gian (`pickup_location`, `dropoff_location`).
-3. **Gắn rổ chờ:** Vé được gắn ngay vào một `trip_batch_id` (Khung giờ chuyến, ví dụ chuyến 14:00) với trạng thái là `WAITING`. Các trường dữ liệu phân xe (`trip_run_id`), và thứ tự đón trả (`pickup_order`, `dropoff_order`) tạm thời là **NULL** cho đến khi hệ thống Admin kích hoạt thuật toán xếp xe.
-4. **Chăm sóc tự động:** Sau khi đặt xong, giao diện hiển thị màn hình Thành công (`Result` component của AntD), đồng thời hệ thống gửi SMS/Zalo kèm link vé điện tử để khách theo dõi vị trí xe.
-   
+| Tên frame (trong file) | Ý nghĩa |
+|------------------------|--------|
+| **Canvas · Khu A — Đặt vé limousine (tìm chuyến → ghế → thông tin → thanh toán → tra cứu → giới thiệu / giá / liên hệ)** | Cột wireframe luồng **hành khách + marketing/hỗ trợ**. |
+| **Canvas · Khu B — Ký gửi hàng (landing → form → báo giá → thành công) & pháp lý (điều khoản, bảo mật, FAQ, 404)** | Cột wireframe **cargo + trang pháp lý / lỗi**. |
 
+**Kit & khối minh họa (dùng lại trên nhiều màn):**
 
+| Tên frame (trong file) | Vai trò |
+|------------------------|--------|
+| **halo: design system components** | Thư viện component (Ant Design–like): Button, Form, Table, Steps, Drawer, Modal, Tabs, v.v. |
+| **dashboard-utility**, **dashboard-revenue**, **dashboard-football** | Widget/biểu đồ minh họa (tham chiếu layout dashboard nếu tái sử dụng trên trang chủ hoàn chỉnh). |
 
-### 5. Cấu trúc Hệ thống & Quy tắc Viết code (Architecture & Coding Conventions)
+---
 
-Để đảm bảo khả năng bảo trì, mở rộng và đồng bộ với toàn bộ hệ sinh thái NovaLimo, phân hệ **Web Đặt vé** tuân thủ nghiêm ngặt các tiêu chuẩn của kiến trúc **Integrated Monorepo** được quản lý bởi **Nx**.
+### 3. Danh mục đầy đủ các màn hình thiết kế (theo tên frame trong `web-bôking.pen`)
 
-#### 5.1. Cấu trúc thư mục hệ thống (Directory Structure)
+Bảng dưới liệt kê **toàn bộ** các frame cấp “màn hình nghiệp vụ” hoặc **bước luồng** (modal/drawer) xuất hiện trong bản vẽ. Cột **Loại** giúp phân biệt khi map sang route Next.js.
 
-Mã nguồn của Web Đặt vé không nằm rời rạc mà được đặt trong cấu trúc thư mục gốc chung của toàn dự án, tuân thủ theo nguyên tắc chia tách **Apps** (Ứng dụng) và **Libs** (Thư viện dùng chung). Cấu trúc cụ thể liên quan đến Web Đặt vé như sau:
+#### 3.1. Khu A — Đặt vé limousine & nội dung công khai
 
-- **`apps/web-booking/`**: Nơi chứa mã nguồn chính của ứng dụng Web Đặt vé (sử dụng Next.js & React). Thư mục này chỉ chứa các trang (Pages) điều hướng, xử lý logic gọi API và gắn kết các component.
-- **`libs/shared-types/`**: Thư viện chứa các định nghĩa kiểu dữ liệu (Interfaces/Types) của hệ thống (ví dụ: `Booking`, `TripRun`, `Vehicle`).
-- **`libs/shared-ui/`**: Thư viện chứa các Component giao diện (đã được tùy biến bằng Ant Design và Tailwind CSS) dùng chung cho cả Web Đặt vé và Web Admin.
+| # | Tên frame **chính xác** trong `web-bôking.pen` | Loại | Mục đích / ghi chú |
+|---|-----------------------------------------------|------|---------------------|
+| A1 | **Trang Chủ (Home Page)** | Trang | Hero (**Hero Banner**), khu nổi bật (**Featured Section**), CTA tìm chuyến; **Booking Footer** chung chuẩn site. |
+| A2 | **Trang Kết quả tìm kiếm chuyến xe** | Trang | Danh sách chuyến; lớp phủ / khối nội dung (**Content Wrap**, **Results Background**, v.v.). |
+| A3 | **Drawer (Mở hé)** | Drawer | Mô phỏng sau khi bấm **Chọn chuyến**: “Lựa chọn sơ đồ ghế”, chọn Limousine 9/12 chỗ, trạng thái ghế — dẫn sang màn sơ đồ đầy đủ. |
+| A4 | **Sơ đồ ghế (Seat Map)** | Trang | **Vehicle Segmented** (chọn dòng xe), **Legend**, **Seat Wrap**, **Seat Action Bar** (Tiếp tục); header/footer cùng pattern site. |
+| A5 | **Reference: Seat Map 12 chỗ** | Tham chiếu | Khung đối chiếu bố cục ghế 12 chỗ (song song với A4, không thay cho route riêng trừ khi PM quyết định). |
+| A6 | **Trang Thông tin (Booking)** | Trang | **Steps** + **Info Content**: thông tin hành khách, điểm đón/trả. |
+| A7 | **Trang Thanh toán (Checkout)** | Trang | **Steps** + **Checkout Content**; tóm tắt đơn, chọn kênh thanh toán. |
+| A8 | **Popup hoàn tất thanh toán (QR + thông tin)** | Modal | QR chuyển khoản + đối chiếu thông tin chuyến & hành khách; gợi ý xác nhận vé sau vài phút. |
+| A9 | **NovaLimo · Đặt vé thành công (Passenger success)** | Trang | Mã đơn (ví dụ `NL-…`), QR thanh toán/check-in, hướng dẫn bước tiếp (SMS/email, có mặt trước giờ chạy). |
+| A10 | **Tra cứu vé đã đặt (theo SĐT)** | Trang | Form tra cứu; **Dashboard row** — cột phải trống khi chưa tra cứu. |
+| A11 | **Tra cứu vé — có kết quả (demo)** | Trang | Cùng layout A10; cột phải có danh sách vé (mock) khi tra cứu thành công. |
+| A12 | **Trang Giới thiệu (About Us)** | Trang | Hero “Hành trình đẳng cấp”, **Fleet cards**, **Stats Row**, **Values row**, v.v. |
+| A13 | **Trang Bảng giá (Pricing)** | Trang | **Tabs** theo tuyến, **Pricing table card**, **Alert policy**. |
+| A14 | **Trang Liên hệ & Hỗ trợ (Contact)** | Trang | **Contact grid**, hotline/email đồng bộ footer. |
 
-#### 5.2. Quy tắc Viết code (Coding Conventions)
+#### 3.2. Khu B — Ký gửi hàng
 
-Để dự án vận hành trơn tru và không phát sinh nợ kỹ thuật (technical debt), lập trình viên khi code phân hệ Web Đặt vé phải tuân thủ các quy tắc sau:
+| # | Tên frame **chính xác** trong `web-bôking.pen` | Loại | Mục đích / ghi chú |
+|---|-----------------------------------------------|------|---------------------|
+| B1 | **NovaLimo · Ký gửi hàng (Landing)** | Trang | Landing: value prop, **USP row**, quy trình, CTA vào form. |
+| B2 | **NovaLimo · Đặt gửi hàng (Cargo booking)** | Trang | **form card**: thông tin kiện; checkbox đồng ý điều khoản & hàng không cấm. |
+| B3 | **NovaLimo · Báo giá ký gửi (Cargo results)** | Trang | **results card**: phương án giá (ví dụ Tiêu chuẩn / Nhanh / Hàng dễ vỡ), điều kiện phụ phí. |
+| B4 | **NovaLimo · Gửi hàng thành công (Cargo success)** | Trang | Mã vận đơn (ví dụ `CG-…`), QR quầy, nhắc có mặt tại bến trước giờ chạy. |
 
-**A. Quy tắc về Luồng phụ thuộc một chiều (One-way Dependency Flow)**
+#### 3.3. Pháp lý & lỗi hệ thống
 
-- Để tránh tình trạng xung đột mã nguồn (circular dependencies), **Web Đặt vé tuyệt đối không được import code trực tiếp từ các app khác** (như `apps/web-admin` hay `apps/api-server`).
-- Mọi giao tiếp dữ liệu nội bộ phải thông qua các thư viện nằm trong thư mục `libs/`.
+| # | Tên frame **chính xác** trong `web-bôking.pen` | Loại | Mục đích / ghi chú |
+|---|-----------------------------------------------|------|---------------------|
+| L1 | **NovaLimo · Điều khoản sử dụng (Terms)** | Trang | Nội dung điều khoản + header/footer chuẩn. |
+| L2 | **NovaLimo · Chính sách bảo mật (Privacy)** | Trang | Chính sách bảo mật. |
+| L3 | **NovaLimo · Câu hỏi thường gặp (FAQ)** | Trang | FAQ (implementation: **Accordion** từ kit). |
+| L4 | **NovaLimo · Không tìm thấy trang (404)** | Trang | 404 + nút quay lại. |
 
-**B. Đảm bảo an toàn kiểu dữ liệu từ đầu đến cuối (End-to-End Type Safety)**
+---
 
-- Mọi dữ liệu trả về từ API hoặc form nhập liệu của khách hàng đều phải sử dụng chung Type/Interface đã khai báo tại `libs/shared-types`.
-- Khi import kiểu dữ liệu, bắt buộc sử dụng Alias chuẩn của Nx (ví dụ: `import { Booking } from '@limo/shared-types';`) thay vì sử dụng đường dẫn tương đối (như `../../libs/...`). Nhờ quy tắc này, nếu Backend thay đổi cấu trúc dữ liệu, Web Đặt vé sẽ báo lỗi ngay lúc biên dịch (compile time), ngăn chặn lỗi phát sinh ở môi trường thật.
+### 4. Thành phần chung header / footer (lặp lại trên các trang)
 
-**C. Nguyên tắc chia sẻ UI Component tối đa (Code Sharing)**
+Theo wireframe, các trang dùng chung pattern:
 
-- Nếu một thành phần giao diện (Component) trên Web Đặt vé có khả năng tái sử dụng (Ví dụ: Sơ đồ ghế đồ họa, Form nhập địa chỉ đón trả, Nút bấm chuẩn AntD), lập trình viên **không được viết trực tiếp vào thư mục `apps/web-booking`**.
-- Thay vào đó, phải sử dụng công cụ **Nx Generators** (`nx g @nx/react:lib`) để tạo Component này bên trong `libs/shared-ui`. Hệ thống sẽ tự động cập nhật liên kết trong file `tsconfig.base.json`, sau đó Web Đặt vé mới gọi ra sử dụng thông qua cú pháp `import { SeatMap } from '@limo/shared-ui';`.
+- **Header:** logo NovaLimo, điều hướng **Trang Chủ — Giới Thiệu — Bảng Giá — Liên Hệ — Ký gửi hàng**, CTA kiểu “Đặt vé ngay” (chi tiết node nằm trong frame từng trang).
+- **Footer / Booking Footer:** Hotline **1900 3528**, **support@novalimo.vn**, địa chỉ VP mẫu (Tầng 8, 123 Nguyễn Trãi, Q. Thanh Xuân, Hà Nội), © **2026**; copy nhấn mạnh **một SĐT** cho đặt vé = tra cứu vé = liên hệ hỗ trợ (cùng hệ thống).
 
-**D. Quản lý thư viện tập trung (Single Source of Truth)**
+---
 
-- Lập trình viên không được tự ý cài đặt các thư viện npm riêng lẻ (như AntD, Axios, Lodash...) vào bên trong thư mục `apps/web-booking`.
-- Tất cả các thư viện ngoại vi đều phải được khai báo và cài đặt chung tại file `package.json` nằm ở thư mục gốc của dự án, nhằm tránh xung đột phiên bản giữa Web Đặt vé, Web Admin và Backend.
+### 5. Chi tiết UI/UX theo nhóm (triển khai AntD)
+
+#### 5.1. Trang chủ
+
+- Hero, khối tìm kiếm (điểm đi/đến, ngày): `Select`, `DatePicker`.
+- Khu “Hành trình được yêu thích” / trải nghiệm đặt vé.
+
+#### 5.2. Kết quả tìm kiếm & Drawer
+
+- Bộ lọc: `Checkbox` / `Slider` / `Select` tùy PM.
+- **Drawer (Mở hé):** preview chọn sơ đồ ghế trước khi vào **Sơ đồ ghế (Seat Map)** đầy đủ.
+
+#### 5.3. Sơ đồ ghế
+
+- Segmented “Chọn dòng xe”; legend trống / đã bán / đang chọn; tooltip giá theo ghế nếu nghiệp vụ có.
+- Tham chiếu bố cục: frame **Reference: Seat Map 12 chỗ**.
+
+#### 5.4. Thông tin & thanh toán
+
+- **Steps** cho tiến trình; **Form** + validate SĐT; có thể tab Người đi / Người đặt hộ.
+- Thanh toán: `Radio` + `Card` (Momo, ZaloPay, VNPay, tại nhà xe); **Popup** QR như màn A8.
+
+#### 5.5. Tra cứu vé
+
+- Một SĐT thống nhất; **Tag** trạng thái vé trên danh sách kết quả (A11).
+
+#### 5.6. Ký gửi & pháp lý
+
+- Cargo: landing → form → báo giá → success (B1–B4).
+- Terms / Privacy / FAQ / 404: nội dung dài + layout đọc thoải mái.
+
+---
+
+### 6. Bộ kit trong file (`halo: design system components`)
+
+Map sang **Ant Design** khi code `apps/web-booking`: Button, Card, Input, Select, Steps, Tabs, Table, Drawer, Modal, Tooltip, Accordion, Pagination, v.v.
+
+---
+
+### 7. Luồng dữ liệu & backend (tóm tắt)
+
+1. Submit form → API tạo **Bookings** (và cargo nếu có).
+2. Địa chỉ: text + tọa độ khi geocode.
+3. Vé gắn `trip_batch_id`; `trip_run_id` / thứ tự đón có thể gán sau điều phối.
+4. Sau đặt: success + SMS/email/Zalo; hiển thị mã đơn/QR như **NovaLimo · Đặt vé thành công**.
+
+---
+
+### 8. Kiến trúc monorepo & quy ước (Nx)
+
+- **`apps/web-booking/`:** routes Next.js, gọi API.
+- **`libs/shared-types/`**, **`libs/shared-ui/`:** type và component dùng chung.
+- Không import trực tiếp từ `web-admin` / `api-server`; dependency npm khai báo ở `package.json` gốc.
+
+---
+
+### 9. Ghi chú mapping thiết kế ↔ code
+
+- Số **frame trang** trong pen **nhiều hơn** số file `page.tsx` hiện có là bình thường: có thể gộp route (ví dụ `/booking/success`) hoặc dùng query/modal cho **Drawer** / **Popup** thay vì URL riêng — cần bảng mapping nội bộ khi chốt IA.
+- Hai màn **Tra cứu** (A10/A11) là hai trạng thái UI của cùng một chức năng tra cứu.
+
+---
+
+*Tài liệu căn cứ: `hệ thống quản lý xe limosin/New/web-bôking.pen` và kiến trúc monorepo NovaLimo.*

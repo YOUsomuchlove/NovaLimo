@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  libs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install
+        run: npm ci
+      - name: Lint (Nx)
+        run: npx nx run-many -t lint --projects=utils-core,shared-ui,shared-types --parallel
+      - name: Typecheck utils-core
+        run: npx tsc -p libs/utils-core/tsconfig.lib.json --noEmit
+      - name: Typecheck shared-ui
+        run: npx tsc -p libs/shared-ui/tsconfig.lib.json --noEmit
+      - name: Unit tests utils-core
+        run: npx jest libs/utils-core --passWithNoTests --maxWorkers=2
+      - name: Lint utils-map
+        run: npx nx run utils-map:lint
+      - name: Playwright smoke (skip nếu không có web-booking)
+        run: npx playwright install chromium && npm run test:e2e
