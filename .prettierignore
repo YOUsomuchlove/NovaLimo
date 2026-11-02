@@ -7,3 +7,4 @@
 **/.expo
 package-lock.json
 *.pen
+libs/design-tokens/src/generated/

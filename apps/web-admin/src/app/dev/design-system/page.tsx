@@ -7,7 +7,7 @@ import {
   lightTheme,
   palette,
 } from '@limousine-workspace/design-tokens';
-import type { Booking } from '@limousine-workspace/shared-types';
+import type { BookingStatus } from '@limousine-workspace/shared-types';
 import {
   AddressAutocomplete,
   Avatar,
@@ -475,9 +475,11 @@ function StatusSection() {
                 <div className="flex flex-wrap gap-2">
                   {(
                     [
-                      'WAITING',
+                      'PENDING_PAYMENT',
+                      'CONFIRMED',
                       'PICKED_UP',
                       'DROPPED_OFF',
+                      'NO_SHOW',
                       'CANCELLED',
                     ] as const
                   ).map((s) => (
@@ -534,7 +536,9 @@ function StatusSection() {
               label: 'Hàng hóa',
               value: (
                 <div className="flex flex-wrap gap-2">
-                  {(['PENDING', 'PICKED_UP', 'DELIVERED'] as const).map((s) => (
+                  {(
+                    ['CREATED', 'IN_TRANSIT', 'DELIVERED', 'RETURNED'] as const
+                  ).map((s) => (
                     <StatusTag key={s} domain="cargo" status={s} />
                   ))}
                 </div>
@@ -823,10 +827,14 @@ function LayoutSection() {
 
 /* ---------------- Table ---------------- */
 
-type Row = Pick<
-  Booking,
-  'id' | 'passenger_name' | 'passenger_phone' | 'pickup_address' | 'status'
-> & { amount: number };
+type Row = {
+  id: string;
+  passenger_name: string;
+  passenger_phone: string;
+  pickup_address: string;
+  status: BookingStatus;
+  amount: number;
+};
 
 const ROWS: Row[] = [
   {
@@ -834,7 +842,7 @@ const ROWS: Row[] = [
     passenger_name: 'Nguyễn Văn A',
     passenger_phone: '0912345678',
     pickup_address: '36 Hàng Bài, Hoàn Kiếm',
-    status: 'WAITING',
+    status: 'CONFIRMED',
     amount: 350000,
   },
   {

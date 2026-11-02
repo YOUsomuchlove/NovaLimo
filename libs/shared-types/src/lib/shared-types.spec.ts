@@ -1,46 +1,40 @@
-import type { Booking, TripBatch, TripRun, User, Vehicle } from './shared-types';
+import {
+  BOOKING_STATUSES,
+  BOOKING_TRANSITIONS,
+  CARGO_STATUSES,
+  CARGO_TRANSITIONS,
+  TRIP_BATCH_STATUSES,
+  TRIP_BATCH_TRANSITIONS,
+  TRIP_RUN_STATUSES,
+  TRIP_RUN_TRANSITIONS,
+  canTransition,
+} from './enums';
 
-describe('shared-types', () => {
-  it('exports core types', () => {
-    const _vehicle: Vehicle = {
-      id: 'v1',
-      license_plate: '29B-12345',
-      capacity: 10,
-      status: 'AVAILABLE',
-    };
-    const _user: User = {
-      id: 'u1',
-      full_name: 'Driver',
-      phone: '0900000000',
-      role: 'DRIVER',
-      status: 'ACTIVE',
-    };
-    const _batch: TripBatch = {
-      id: 'b1',
-      route_name: 'HN-QN',
-      departure_time: new Date().toISOString(),
-      status: 'OPEN',
-    };
-    const _run: TripRun = {
-      id: 'r1',
-      trip_batch_id: _batch.id,
-      vehicle_id: _vehicle.id,
-      driver_id: _user.id,
-      status: 'PENDING',
-    };
-    const _booking: Booking = {
-      id: 'bk1',
-      trip_batch_id: _batch.id,
-      trip_run_id: _run.id,
-      passenger_name: 'A',
-      passenger_phone: '09',
-      pickup_address: 'Pickup',
-      pickup_location: { lat: 0, lng: 0 },
-      dropoff_address: 'Dropoff',
-      dropoff_location: { lat: 0, lng: 0 },
-      status: 'WAITING',
-    };
+describe('status transition maps', () => {
+  it.each([
+    ['booking', BOOKING_STATUSES, BOOKING_TRANSITIONS],
+    ['trip run', TRIP_RUN_STATUSES, TRIP_RUN_TRANSITIONS],
+    ['trip batch', TRIP_BATCH_STATUSES, TRIP_BATCH_TRANSITIONS],
+    ['cargo', CARGO_STATUSES, CARGO_TRANSITIONS],
+  ] as const)(
+    '%s map covers every status and only targets known statuses',
+    (_name, statuses, map) => {
+      const all = new Set<string>(statuses);
+      expect(Object.keys(map).sort()).toEqual([...statuses].sort());
+      for (const targets of Object.values(map) as readonly string[][])
+        for (const t of targets) expect(all.has(t)).toBe(true);
+    },
+  );
 
-    expect(_booking.trip_run_id).toEqual('r1');
+  it('treats staying in the same status as allowed and terminal states as final', () => {
+    expect(canTransition(BOOKING_TRANSITIONS, 'CONFIRMED', 'CONFIRMED')).toBe(
+      true,
+    );
+    expect(canTransition(BOOKING_TRANSITIONS, 'CANCELLED', 'CONFIRMED')).toBe(
+      false,
+    );
+    expect(canTransition(TRIP_RUN_TRANSITIONS, 'FINISHED', 'IN_PROGRESS')).toBe(
+      false,
+    );
   });
 });

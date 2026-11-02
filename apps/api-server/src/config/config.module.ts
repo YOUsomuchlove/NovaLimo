@@ -1,5 +1,5 @@
 import { Global, Inject, Module } from '@nestjs/common';
-import { type Env, validateEnv } from './env';
+import { validateEnv } from './env';
 
 export const APP_ENV = Symbol('APP_ENV');
 

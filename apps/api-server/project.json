@@ -3,16 +3,11 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/api-server/src",
   "projectType": "application",
-  "tags": [
-    "scope:api",
-    "type:app"
-  ],
+  "tags": ["scope:api", "type:app"],
   "targets": {
     "build": {
       "executor": "@nx/webpack:webpack",
-      "outputs": [
-        "{options.outputPath}"
-      ],
+      "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
@@ -47,20 +42,14 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "apps/api-server/**/*.ts"
-        ]
+        "lintFilePatterns": ["apps/api-server/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": [
-        "{workspaceRoot}/coverage/{projectRoot}"
-      ],
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/api-server/jest.config.ts",
         "passWithNoTests": false
@@ -69,8 +58,25 @@
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "tsc -p apps/api-server/tsconfig.app.json --noEmit"
+        "command": "tsc -p apps/api-server/tsconfig.app.json --noEmit && tsc -p apps/api-server/tsconfig.e2e.json --noEmit"
       }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "jest -c apps/api-server/jest.e2e.config.ts --runInBand"
+      }
+    },
+    "db": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node -r @swc-node/register apps/api-server/scripts/db.ts",
+        "forwardAllArgs": true,
+        "env": {
+          "SWC_NODE_PROJECT": "tsconfig.base.json"
+        }
+      },
+      "description": "migrate | revert | status | generate <Name> | seed"
     }
   }
 }

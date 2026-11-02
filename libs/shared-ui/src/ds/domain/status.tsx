@@ -14,39 +14,53 @@ type StatusMeta = { label: string; tone: Tone; pulse?: boolean };
 /** One place for every status → Vietnamese label + colour, used by admin, booking and driver. */
 export const STATUS_META = {
   booking: {
-    WAITING: { label: 'Chờ đón', tone: 'info' },
+    PENDING_PAYMENT: { label: 'Chờ thanh toán', tone: 'warning' },
+    CONFIRMED: { label: 'Đã xác nhận', tone: 'info' },
     PICKED_UP: { label: 'Đã lên xe', tone: 'brand', pulse: true },
     DROPPED_OFF: { label: 'Đã trả khách', tone: 'success' },
+    NO_SHOW: { label: 'Vắng mặt', tone: 'danger' },
     CANCELLED: { label: 'Đã hủy', tone: 'neutral' },
   } satisfies Record<BookingStatus, StatusMeta>,
   payment: {
-    PENDING: { label: 'Chờ thanh toán', tone: 'warning' },
+    UNPAID: { label: 'Chưa thanh toán', tone: 'neutral' },
+    PENDING: { label: 'Chờ chuyển khoản', tone: 'warning' },
     PAID: { label: 'Đã thanh toán', tone: 'success' },
+    REFUNDED: { label: 'Đã hoàn tiền', tone: 'info' },
     FAILED: { label: 'Thanh toán lỗi', tone: 'danger' },
   } satisfies Record<PaymentStatus, StatusMeta>,
   tripBatch: {
-    OPEN: { label: 'Đang nhận khách', tone: 'info' },
+    OPEN: { label: 'Đang bán vé', tone: 'info' },
+    CLOSED: { label: 'Ngừng bán', tone: 'neutral' },
     CLUSTERED: { label: 'Đã xếp xe', tone: 'brand' },
+    DISPATCHED: { label: 'Đã xuất lệnh', tone: 'brand', pulse: true },
     COMPLETED: { label: 'Hoàn thành', tone: 'success' },
+    CANCELLED: { label: 'Đã hủy', tone: 'neutral' },
   } satisfies Record<TripBatchStatus, StatusMeta>,
   tripRun: {
-    PENDING: { label: 'Chờ chạy', tone: 'warning' },
+    PENDING: { label: 'Chờ xuất lệnh', tone: 'warning' },
+    DISPATCHED: { label: 'Đã xuất lệnh', tone: 'info' },
     IN_PROGRESS: { label: 'Đang chạy', tone: 'brand', pulse: true },
     FINISHED: { label: 'Hoàn thành', tone: 'success' },
+    CANCELLED: { label: 'Đã hủy', tone: 'neutral' },
   } satisfies Record<TripRunStatus, StatusMeta>,
   vehicle: {
     AVAILABLE: { label: 'Sẵn sàng', tone: 'success' },
     IN_USE: { label: 'Đang chạy', tone: 'brand', pulse: true },
     MAINTENANCE: { label: 'Bảo dưỡng', tone: 'warning' },
+    INACTIVE: { label: 'Ngừng hoạt động', tone: 'neutral' },
   } satisfies Record<VehicleStatus, StatusMeta>,
   cargo: {
-    PENDING: { label: 'Chờ lấy hàng', tone: 'warning' },
-    PICKED_UP: { label: 'Đang vận chuyển', tone: 'brand', pulse: true },
+    CREATED: { label: 'Chờ lấy hàng', tone: 'warning' },
+    PICKED_UP: { label: 'Đã lấy hàng', tone: 'info' },
+    IN_TRANSIT: { label: 'Đang vận chuyển', tone: 'brand', pulse: true },
     DELIVERED: { label: 'Đã giao', tone: 'success' },
+    RETURNED: { label: 'Hoàn trả', tone: 'danger' },
+    CANCELLED: { label: 'Đã hủy', tone: 'neutral' },
   } satisfies Record<CargoStatus, StatusMeta>,
   user: {
     ACTIVE: { label: 'Hoạt động', tone: 'success' },
     INACTIVE: { label: 'Ngừng hoạt động', tone: 'neutral' },
+    LOCKED: { label: 'Đã khóa', tone: 'danger' },
   } satisfies Record<UserStatus, StatusMeta>,
 } as const;
 
