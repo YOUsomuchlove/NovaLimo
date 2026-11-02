@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Button, Radio, Typography } from 'antd';
-import type { PaymentMethod } from '@limousine-workspace/shared-types';
+import type { PaymentMethod } from '@limousine-workspace/shared-types/legacy';
 
 const OPTIONS: {
   value: PaymentMethod;
@@ -10,9 +10,24 @@ const OPTIONS: {
   subtitle?: string;
   dot: string;
 }[] = [
-  { value: 'MOMO', title: 'Ví MoMo', subtitle: 'Thanh toán qua ví MoMo', dot: '#a50064' },
-  { value: 'ZALOPAY', title: 'ZaloPay', subtitle: 'Thanh toán qua ZaloPay', dot: '#0068ff' },
-  { value: 'VNPAY', title: 'VNPay', subtitle: 'Thẻ / QR qua cổng VNPay', dot: '#0f4c92' },
+  {
+    value: 'MOMO',
+    title: 'Ví MoMo',
+    subtitle: 'Thanh toán qua ví MoMo',
+    dot: '#a50064',
+  },
+  {
+    value: 'ZALOPAY',
+    title: 'ZaloPay',
+    subtitle: 'Thanh toán qua ZaloPay',
+    dot: '#0068ff',
+  },
+  {
+    value: 'VNPAY',
+    title: 'VNPay',
+    subtitle: 'Thẻ / QR qua cổng VNPay',
+    dot: '#0f4c92',
+  },
   {
     value: 'COD',
     title: 'Thanh toán tại nhà xe',

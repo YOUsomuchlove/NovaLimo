@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Form, Typography } from 'antd';
-import type { Booking } from '@limousine-workspace/shared-types';
+import type { Booking } from '@limousine-workspace/shared-types/legacy';
 import { getApiBaseUrl } from '../../lib/api';
 import { BookingPageScaffold } from '../../components/layout/BookingPageScaffold';
 import { TicketLookupForm } from '../../components/my-tickets/TicketLookupForm';

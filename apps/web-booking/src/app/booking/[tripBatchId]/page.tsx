@@ -14,7 +14,7 @@ import {
   useRouter,
   useSearchParams,
 } from 'next/navigation';
-import type { PaymentMethod } from '@limousine-workspace/shared-types';
+import type { PaymentMethod } from '@limousine-workspace/shared-types/legacy';
 import {
   priceForSeat,
   type SeatCapacity,

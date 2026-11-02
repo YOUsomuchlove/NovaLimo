@@ -13,7 +13,7 @@ import { Alert, Button, Empty } from 'antd';
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import type { TripBatch } from '@limousine-workspace/shared-types';
+import type { TripBatch } from '@limousine-workspace/shared-types/legacy';
 import { getApiBaseUrl } from '../../lib/api';
 import { formatRouteDash } from '../../lib/route-parse';
 import { PEN_BG } from '../../lib/booking-pen-assets';
@@ -94,9 +94,7 @@ function SearchPageInner() {
       if (!d.isSame(dayjs(dateStr), 'day')) return false;
       const h = d.hour() + d.minute() / 60;
       if (presetRanges.length > 0) {
-        const inSlot = presetRanges.some(
-          ([lo, hi]) => h >= lo && h <= hi,
-        );
+        const inSlot = presetRanges.some(([lo, hi]) => h >= lo && h <= hi);
         if (!inSlot) return false;
       } else if (h < hourFilter[0] || h > hourFilter[1]) {
         return false;
@@ -104,7 +102,8 @@ function SearchPageInner() {
       const { mockPrice, capacity } = getBatchDemoMeta(b);
       if (mockPrice < priceRange[0] || mockPrice > priceRange[1]) return false;
       const capKey = String(capacity);
-      if (vehicleTypes.length > 0 && !vehicleTypes.includes(capKey)) return false;
+      if (vehicleTypes.length > 0 && !vehicleTypes.includes(capKey))
+        return false;
       return b.status === 'OPEN';
     });
   }, [
@@ -117,9 +116,7 @@ function SearchPageInner() {
     vehicleTypes,
   ]);
 
-  const routeTitle = route
-    ? formatRouteDash(route)
-    : 'tất cả tuyến';
+  const routeTitle = route ? formatRouteDash(route) : 'tất cả tuyến';
 
   const applyPresetHours = useCallback((values: string[]) => {
     setPresetHours(values);
@@ -191,7 +188,10 @@ function SearchPageInner() {
             }
           />
         ) : null}
-        <SearchHeroSection tripCount={filtered.length} routeTitle={routeTitle} />
+        <SearchHeroSection
+          tripCount={filtered.length}
+          routeTitle={routeTitle}
+        />
 
         <div className="mt-2 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)_minmax(260px,300px)] lg:items-start lg:gap-8">
           <aside className="min-w-0 lg:max-w-[300px]">

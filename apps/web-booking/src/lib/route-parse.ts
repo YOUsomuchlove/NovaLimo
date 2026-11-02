@@ -1,4 +1,4 @@
-import type { TripBatch } from '@limousine-workspace/shared-types';
+import type { TripBatch } from '@limousine-workspace/shared-types/legacy';
 
 /** Tách "Điểm đi → Điểm đến" từ `route_name` API (hỗ trợ →, ->, –, —, -). */
 export function parseRouteEndpoints(

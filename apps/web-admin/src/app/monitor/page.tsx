@@ -32,27 +32,10 @@ export default function MonitorPage() {
         ...l,
         `${label}: ${JSON.stringify(payload).slice(0, 200)}…`,
       ]);
-    socket.on(RealtimeEvents.tripBatchUpdated, (payload: unknown) => {
-      push(RealtimeEvents.tripBatchUpdated, payload);
-    });
-    socket.on(RealtimeEvents.tripRunUpdated, (payload: unknown) => {
-      push(RealtimeEvents.tripRunUpdated, payload);
-    });
-    socket.on(RealtimeEvents.bookingStatusChanged, (payload: unknown) => {
-      push(RealtimeEvents.bookingStatusChanged, payload);
-    });
-    socket.on(RealtimeEvents.driverLocation, (payload: unknown) => {
-      push(RealtimeEvents.driverLocation, payload);
-    });
-    socket.on(RealtimeEvents.driverChat, (payload: unknown) => {
-      push(RealtimeEvents.driverChat, payload);
-    });
-    socket.on(RealtimeEvents.shiftStarted, (payload: unknown) => {
-      push(RealtimeEvents.shiftStarted, payload);
-    });
-    socket.on(RealtimeEvents.shiftEnded, (payload: unknown) => {
-      push(RealtimeEvents.shiftEnded, payload);
-    });
+    // Legacy debug log — replaced by the real monitor map in phase 4.
+    for (const event of Object.values(RealtimeEvents)) {
+      socket.on(event, (payload: unknown) => push(event, payload));
+    }
     return () => {
       socket.disconnect();
     };

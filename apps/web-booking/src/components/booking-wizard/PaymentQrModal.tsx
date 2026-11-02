@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { Button, Modal, Typography } from 'antd';
 import dayjs from 'dayjs';
-import type { PaymentMethod } from '@limousine-workspace/shared-types';
+import type { PaymentMethod } from '@limousine-workspace/shared-types/legacy';
 
 function paymentLabel(m: PaymentMethod): string {
   switch (m) {
@@ -50,8 +50,7 @@ export function PaymentQrModal({
   onConfirm,
 }: PaymentQrModalProps) {
   const transferRef = useMemo(
-    () =>
-      `NL-${dayjs().format('YYYYMMDD')}-001 | NOVALIMO`,
+    () => `NL-${dayjs().format('YYYYMMDD')}-001 | NOVALIMO`,
     [],
   );
 
@@ -72,7 +71,11 @@ export function PaymentQrModal({
       open={open}
       onCancel={onCancel}
       footer={[
-        <Button key="b" onClick={onCancel} className="font-semibold text-[#64748b]">
+        <Button
+          key="b"
+          onClick={onCancel}
+          className="font-semibold text-[#64748b]"
+        >
           Đóng
         </Button>,
         <Button
@@ -110,8 +113,8 @@ export function PaymentQrModal({
 
           <div className="mt-5 rounded-xl bg-[#f1f5f9] px-4 py-3 text-sm text-[#0a0e1a]">
             <p className="font-bold">
-              <span className="text-[#64748b]">STK:</span> 0123 4567 890 — Vietcombank
-              — CTCP NovaLimo
+              <span className="text-[#64748b]">STK:</span> 0123 4567 890 —
+              Vietcombank — CTCP NovaLimo
             </p>
             <p className="mt-2 font-mono text-[13px] font-bold">
               <span className="font-sans font-bold text-[#64748b]">
@@ -123,10 +126,12 @@ export function PaymentQrModal({
 
           <div className="mt-5 space-y-2 border-t border-[#e5e7eb] pt-4 text-sm text-[#334155]">
             <p>
-              <span className="font-bold text-[#64748b]">Đón:</span> {pickupAddress}
+              <span className="font-bold text-[#64748b]">Đón:</span>{' '}
+              {pickupAddress}
             </p>
             <p>
-              <span className="font-bold text-[#64748b]">Trả:</span> {dropoffAddress}
+              <span className="font-bold text-[#64748b]">Trả:</span>{' '}
+              {dropoffAddress}
             </p>
             <p>
               <span className="font-bold text-[#64748b]">Chuyến:</span> Mã{' '}
@@ -156,15 +161,15 @@ export function PaymentQrModal({
           </div>
 
           <Typography.Paragraph className="!mb-0 !mt-4 !text-center !text-xs !leading-relaxed !text-[#94a3b8]">
-            Vé sẽ được xác nhận tự động sau khi chuyển khoản thành công (thời gian xử
-            lý có thể vài phút).
+            Vé sẽ được xác nhận tự động sau khi chuyển khoản thành công (thời
+            gian xử lý có thể vài phút).
           </Typography.Paragraph>
         </>
       ) : (
         <>
           <Typography.Paragraph className="!text-[15px] !leading-relaxed !text-[#334155]">
-            Bạn chọn thanh toán khi lên xe / tại nhà xe. Bấm xác nhận để tạo vé với
-            phương thức COD.
+            Bạn chọn thanh toán khi lên xe / tại nhà xe. Bấm xác nhận để tạo vé
+            với phương thức COD.
           </Typography.Paragraph>
           <div className="mt-4 rounded-xl bg-[#f1f5f9] px-4 py-3 text-sm font-bold text-[#0a0e1a]">
             Tổng: {unitPrice.toLocaleString('vi-VN')} đ

@@ -1,5 +1,5 @@
 import type { NavigatorScreenParams } from '@react-navigation/native';
-import type { DriverMyRunWithBookings } from '@limousine-workspace/shared-types';
+import type { DriverMyRunWithBookings } from '@limousine-workspace/shared-types/legacy';
 
 export type TripsStackParamList = {
   Home: undefined;

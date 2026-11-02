@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Typography } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 import 'dayjs/locale/vi';
-import type { TripBatch } from '@limousine-workspace/shared-types';
+import type { TripBatch } from '@limousine-workspace/shared-types/legacy';
 import { HOME_HERO_SLIDES, PEN_OVERLAY } from '../../lib/booking-pen-assets';
 import { parseRouteEndpoints, resolveRouteName } from '../../lib/route-parse';
 import { HomeBookingBar } from './HomeBookingBar';

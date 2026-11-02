@@ -2,15 +2,15 @@
 
 import React from 'react';
 import { Alert, Button } from 'antd';
-import type { Booking, BookingStatus } from '@limousine-workspace/shared-types';
+import type {
+  Booking,
+  BookingStatus,
+} from '@limousine-workspace/shared-types/legacy';
 import { bookingDisplayCode } from '../booking-wizard/booking-display-code';
 import { maskPhoneDisplay } from './phone-mask';
 
 function statusBadge(status: BookingStatus) {
-  const styles: Record<
-    BookingStatus,
-    { cls: string; label: string }
-  > = {
+  const styles: Record<BookingStatus, { cls: string; label: string }> = {
     WAITING: {
       cls: 'bg-[#fef9c3] text-[#854d0e] ring-1 ring-amber-200/90',
       label: 'Đang chờ xe',
@@ -112,9 +112,7 @@ export function TicketResultsPanel({
   return (
     <div className="rounded-[18px] border border-[#e8e8e8] bg-white p-8 shadow-[0_8px_32px_rgba(0,0,0,0.18)] sm:rounded-[20px] sm:p-10">
       <h2 className="text-lg font-black text-[#1e293b] sm:text-xl">
-        {searched
-          ? `Kết quả tra cứu (${masked})`
-          : 'Kết quả tra cứu'}
+        {searched ? `Kết quả tra cứu (${masked})` : 'Kết quả tra cứu'}
       </h2>
       <p className="mt-1 text-sm font-medium text-[#94a3b8]">
         {!searched
@@ -171,9 +169,13 @@ export function TicketResultsPanel({
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-col gap-0.5 sm:min-w-[132px] sm:text-center">
-                  <span className="text-sm font-semibold text-[#64748b]">—</span>
+                  <span className="text-sm font-semibold text-[#64748b]">
+                    —
+                  </span>
                   <span className="text-lg font-black leading-tight text-[#0a0e1a] sm:text-xl">
-                    {(b.total_amount ?? b.unit_price ?? 0).toLocaleString('vi-VN')}{' '}
+                    {(b.total_amount ?? b.unit_price ?? 0).toLocaleString(
+                      'vi-VN',
+                    )}{' '}
                     đ
                   </span>
                   <span className="hidden text-xs font-medium text-[#94a3b8] sm:block">

@@ -1,9 +1,14 @@
-import { RealtimeEvents } from './realtime-events';
+import { RealtimeEvents, realtimeRooms } from './realtime-events';
 
 describe('RealtimeEvents', () => {
-  it('giữ ổn định tên sự kiện socket (đồng bộ gateway)', () => {
-    expect(RealtimeEvents.tripBatchUpdated).toBe('trip_batch_updated');
-    expect(RealtimeEvents.driverChat).toBe('driver_chat');
-    expect(RealtimeEvents.shiftStarted).toBe('driver_shift_started');
+  it('keeps socket event names stable (shared by gateway and clients)', () => {
+    expect(RealtimeEvents.seatsChanged).toBe('seats_changed');
+    expect(RealtimeEvents.driverLocation).toBe('driver_location');
+    expect(RealtimeEvents.chatMessage).toBe('chat_message');
+  });
+
+  it('builds room names', () => {
+    expect(realtimeRooms.driver('42')).toBe('driver:42');
+    expect(realtimeRooms.batch('b1')).toBe('batch:b1');
   });
 });

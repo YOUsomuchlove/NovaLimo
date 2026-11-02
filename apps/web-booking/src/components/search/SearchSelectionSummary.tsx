@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Button, Typography } from 'antd';
 import dayjs from 'dayjs';
-import type { TripBatch } from '@limousine-workspace/shared-types';
+import type { TripBatch } from '@limousine-workspace/shared-types/legacy';
 import { formatRouteDash } from '../../lib/route-parse';
 import { formatTripTimeWindow } from './search-batch-demo';
 
@@ -42,8 +42,7 @@ export function SearchSelectionSummary({
           {timeWindow}
         </p>
         <p className="mt-4 text-[15px] font-extrabold text-white">
-          Limousine {capacity} chỗ{' '}
-          {capacity === 9 ? 'VIP' : 'Premium'}
+          Limousine {capacity} chỗ {capacity === 9 ? 'VIP' : 'Premium'}
         </p>
         <p className="mt-2 text-[13px] font-semibold text-nova-muted">
           Tuyến: {routeLine}

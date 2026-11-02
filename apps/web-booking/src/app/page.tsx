@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import type { TripBatch } from '@limousine-workspace/shared-types';
+import type { TripBatch } from '@limousine-workspace/shared-types/legacy';
 import { getApiBaseUrl } from '../lib/api';
 import { HomeFeaturesSection } from '../components/home/HomeFeaturesSection';
 import { HomeHeroSection } from '../components/home/HomeHeroSection';

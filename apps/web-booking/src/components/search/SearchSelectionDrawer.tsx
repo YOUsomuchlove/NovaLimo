@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Drawer } from 'antd';
-import type { TripBatch } from '@limousine-workspace/shared-types';
+import type { TripBatch } from '@limousine-workspace/shared-types/legacy';
 import { SearchSelectionSummary } from './SearchSelectionSummary';
 import { getBatchDemoMeta } from './search-batch-demo';
 

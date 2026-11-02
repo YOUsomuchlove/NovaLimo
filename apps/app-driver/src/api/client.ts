@@ -1,10 +1,16 @@
-import type { Cargo, DriverMyRunWithBookings, TripRunStatus } from '@limousine-workspace/shared-types';
+import type {
+  Cargo,
+  DriverMyRunWithBookings,
+  TripRunStatus,
+} from '@limousine-workspace/shared-types/legacy';
 
 const DEFAULT_API = 'http://localhost:3000/api';
 
 export function getApiBaseUrl(): string {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const env = (globalThis as any).process?.env?.EXPO_PUBLIC_API_URL as string | undefined;
+  const env = (globalThis as any).process?.env?.EXPO_PUBLIC_API_URL as
+    | string
+    | undefined;
   return (env || DEFAULT_API).replace(/\/$/, '');
 }
 
@@ -24,7 +30,10 @@ function authHeaders(token: string): HeadersInit {
   };
 }
 
-export async function loginDriver(phone: string, password: string): Promise<{ access_token: string }> {
+export async function loginDriver(
+  phone: string,
+  password: string,
+): Promise<{ access_token: string }> {
   const res = await fetch(`${getApiBaseUrl()}/auth/login/driver`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -54,7 +63,9 @@ export async function fetchRunDetail(
   return parseJson(res);
 }
 
-export async function fetchCurrentShift(token: string): Promise<{ id: string } | null> {
+export async function fetchCurrentShift(
+  token: string,
+): Promise<{ id: string } | null> {
   const res = await fetch(`${getApiBaseUrl()}/driver/shifts/current`, {
     headers: authHeaders(token),
   });

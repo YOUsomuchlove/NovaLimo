@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import type { TripBatch } from '@limousine-workspace/shared-types';
+import type { TripBatch } from '@limousine-workspace/shared-types/legacy';
 
 const CAPS = [9, 12] as const;
 

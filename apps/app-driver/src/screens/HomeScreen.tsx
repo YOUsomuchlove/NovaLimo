@@ -1,6 +1,11 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Location from 'expo-location';
-import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -10,7 +15,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import type { TripRunStatus } from '@limousine-workspace/shared-types';
+import type { TripRunStatus } from '@limousine-workspace/shared-types/legacy';
 import {
   fetchCurrentShift,
   fetchMyRuns,
@@ -78,7 +83,11 @@ export function HomeScreen({ navigation }: Props) {
         },
         async (loc) => {
           try {
-            await postDriverLocation(token, loc.coords.latitude, loc.coords.longitude);
+            await postDriverLocation(
+              token,
+              loc.coords.latitude,
+              loc.coords.longitude,
+            );
           } catch {
             /* ignore */
           }
@@ -135,7 +144,11 @@ export function HomeScreen({ navigation }: Props) {
           <Text style={styles.hint}>
             Bấm bắt đầu ca để gửi tín hiệu định vị (sau khi đã cấp quyền).
           </Text>
-          <Button title="Bắt đầu ca làm việc" onPress={() => void onStartShift()} color={C.gold} />
+          <Button
+            title="Bắt đầu ca làm việc"
+            onPress={() => void onStartShift()}
+            color={C.gold}
+          />
         </View>
       ) : null}
 
@@ -153,7 +166,10 @@ export function HomeScreen({ navigation }: Props) {
           <View style={styles.backlog}>
             <Text style={styles.backlogTitle}>Lối tắt</Text>
             <View style={styles.backlogRow}>
-              <Pressable style={styles.backlogBtn} onPress={() => navigation.navigate('Sos')}>
+              <Pressable
+                style={styles.backlogBtn}
+                onPress={() => navigation.navigate('Sos')}
+              >
                 <Text style={styles.backlogBtnText}>SOS</Text>
               </Pressable>
               <Pressable
@@ -162,10 +178,16 @@ export function HomeScreen({ navigation }: Props) {
               >
                 <Text style={styles.backlogBtnText}>Thông báo</Text>
               </Pressable>
-              <Pressable style={styles.backlogBtn} onPress={() => navigation.navigate('Income')}>
+              <Pressable
+                style={styles.backlogBtn}
+                onPress={() => navigation.navigate('Income')}
+              >
                 <Text style={styles.backlogBtnText}>Thu nhập</Text>
               </Pressable>
-              <Pressable style={styles.backlogBtn} onPress={() => navigation.navigate('Profile')}>
+              <Pressable
+                style={styles.backlogBtn}
+                onPress={() => navigation.navigate('Profile')}
+              >
                 <Text style={styles.backlogBtnText}>Hồ sơ</Text>
               </Pressable>
             </View>
@@ -175,11 +197,18 @@ export function HomeScreen({ navigation }: Props) {
           <Text style={styles.muted}>Không có chuyến trong mục này.</Text>
         }
         renderItem={({ item }) => (
-          <Pressable onPress={() => navigation.navigate('TripDetail', { run: item })}>
-            <ListCard title={item.route_name || '—'} subtitle={`${item.license_plate} · ${item.status}`}>
+          <Pressable
+            onPress={() => navigation.navigate('TripDetail', { run: item })}
+          >
+            <ListCard
+              title={item.route_name || '—'}
+              subtitle={`${item.license_plate} · ${item.status}`}
+            >
               <Text style={styles.muted}>
                 Xuất bến:{' '}
-                {item.departure_time ? new Date(item.departure_time).toLocaleString() : '—'}
+                {item.departure_time
+                  ? new Date(item.departure_time).toLocaleString()
+                  : '—'}
               </Text>
               <Text style={styles.muted}>
                 Khách: {item.passenger_count} · Hàng: {item.cargo_count}
@@ -201,12 +230,22 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   screenTitle: { fontFamily: FONT.bold, fontSize: 20, color: C.text },
-  screenSub: { fontFamily: FONT.regular, fontSize: 13, color: C.muted, marginTop: 2 },
+  screenSub: {
+    fontFamily: FONT.regular,
+    fontSize: 13,
+    color: C.muted,
+    marginTop: 2,
+  },
   box: { marginBottom: 12 },
   hint: { marginBottom: 8, color: C.muted, fontFamily: FONT.regular },
   err: { color: C.error, marginBottom: 8, fontFamily: FONT.regular },
   headerBtns: { flexDirection: 'row', gap: 4 },
-  backlog: { marginTop: 16, paddingTop: 12, borderTopWidth: 1, borderTopColor: C.stroke },
+  backlog: {
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: C.stroke,
+  },
   backlogTitle: {
     fontSize: 12,
     color: C.muted,
@@ -223,5 +262,10 @@ const styles = StyleSheet.create({
     backgroundColor: C.card,
   },
   backlogBtnText: { color: C.gold, fontFamily: FONT.semibold, fontSize: 12 },
-  muted: { color: C.muted, marginTop: 2, fontFamily: FONT.regular, fontSize: 13 },
+  muted: {
+    color: C.muted,
+    marginTop: 2,
+    fontFamily: FONT.regular,
+    fontSize: 13,
+  },
 });
