@@ -32,6 +32,12 @@ export interface TripBatch {
   route_name: string;
   departure_time: string; // ISO datetime
   status: TripBatchStatus;
+  /** Giá hiển thị trên web đặt vé (VND) — khi API/map có, thay thế ước tính demo */
+  list_price_vnd?: number;
+  /** Sức chứa xe (ghế) — khi API có, dùng cho filter & link đặt vé */
+  vehicle_capacity?: number;
+  /** Ghế còn trống (hoặc ước lượng từ server) */
+  seats_available?: number;
 }
 
 export type TripRunStatus = 'PENDING' | 'IN_PROGRESS' | 'FINISHED';

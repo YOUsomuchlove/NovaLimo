@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { BookingEntity } from '../entities/booking.entity';
 import { TripBatchEntity } from '../entities/trip-batch.entity';
-import { bookingToDto } from '../mappers/to-dto';
+import { bookingToDto, tripBatchToDto } from '../mappers/to-dto';
 import { EventsGateway } from '../events/events.gateway';
 import type { CreateBookingDto } from './dto/create-booking.dto';
 
@@ -30,9 +30,15 @@ export class BookingsService {
       },
       select: ['seat_label'],
     });
-    return rows
-      .map((r) => r.seat_label)
-      .filter((s): s is string => Boolean(s));
+    const out: string[] = [];
+    for (const r of rows) {
+      if (!r.seat_label) continue;
+      for (const part of r.seat_label.split(/\s*,\s*/)) {
+        const s = part.trim();
+        if (s) out.push(s);
+      }
+    }
+    return out;
   }
 
   async listByPhone(passenger_phone: string) {
@@ -50,14 +56,30 @@ export class BookingsService {
     if (!batch) throw new NotFoundException('Trip batch not found');
 
     if (dto.seat_label) {
-      const taken = await this.bookings.findOne({
+      const labels = dto.seat_label
+        .split(/\s*,\s*/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const takenRows = await this.bookings.find({
         where: {
           trip_batch_id: dto.trip_batch_id,
-          seat_label: dto.seat_label,
           status: Not('CANCELLED' as never),
         },
+        select: ['seat_label'],
       });
-      if (taken) throw new ConflictException('Seat already taken');
+      const bookedSet = new Set<string>();
+      for (const row of takenRows) {
+        if (!row.seat_label) continue;
+        for (const part of row.seat_label.split(/\s*,\s*/)) {
+          const s = part.trim();
+          if (s) bookedSet.add(s);
+        }
+      }
+      for (const seat of labels) {
+        if (bookedSet.has(seat)) {
+          throw new ConflictException(`Seat already taken: ${seat}`);
+        }
+      }
     }
 
     const unit = dto.unit_price ?? null;
@@ -89,12 +111,16 @@ export class BookingsService {
     );
     const out = bookingToDto(row);
     this.events.emitBookingStatusChanged(out);
-    this.events.emitTripBatchUpdated(batch.id, {
-      id: batch.id,
-      route_name: batch.route_name,
-      departure_time: batch.departure_time.toISOString(),
-      status: batch.status,
+    const batchFresh = await this.batches.findOne({
+      where: { id: dto.trip_batch_id },
     });
+    if (batchFresh) {
+      const booked = new Set(await this.takenSeats(batchFresh.id)).size;
+      this.events.emitTripBatchUpdated(
+        batchFresh.id,
+        tripBatchToDto(batchFresh, booked),
+      );
+    }
     return out;
   }
 
@@ -141,12 +167,11 @@ export class BookingsService {
       where: { id: saved.trip_batch_id },
     });
     if (batch) {
-      this.events.emitTripBatchUpdated(batch.id, {
-        id: batch.id,
-        route_name: batch.route_name,
-        departure_time: batch.departure_time.toISOString(),
-        status: batch.status,
-      });
+      const booked = new Set(await this.takenSeats(batch.id)).size;
+      this.events.emitTripBatchUpdated(
+        batch.id,
+        tripBatchToDto(batch, booked),
+      );
     }
     return out;
   }

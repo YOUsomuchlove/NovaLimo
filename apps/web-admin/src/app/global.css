@@ -1,26 +1,18 @@
 @import 'tailwindcss';
 @import '../../../../libs/shared-ui/src/lib/tokens/nova-limo-css-variables.css';
 
+/*
+  Tailwind v4 needs explicit sources when no tailwind.config.* exists.
+  Without these, utilities used from libs (e.g. `px-5`, `py-5`, `bg-nova-gold`) may not be generated.
+*/
+@source '../**/*.{ts,tsx,js,jsx,mdx}';
+/* Ensure ALL web-admin src files are scanned (including deep component folders). */
+@source '../../**/*.{ts,tsx,js,jsx,mdx}';
+@source '../../components/**/*.{ts,tsx,js,jsx,mdx}';
+@source '../../../../libs/shared-ui/src/**/*.{ts,tsx,js,jsx,mdx}';
+
 @theme {
   --color-nova-navy: #0b1020;
   --color-nova-gold: #d4af37;
   --color-nova-muted: #9ca6c4;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-}
-
-body {
-  margin: 0;
-  font-family:
-    var(--font-inter),
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
 }

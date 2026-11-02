@@ -42,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="vi" className={inter.variable}>
       <body
-        className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 antialiased`}
+        className={`${inter.className} min-h-screen bg-white text-slate-900 antialiased`}
       >
         <AppProviders>
           <SiteLayout>{children}</SiteLayout>

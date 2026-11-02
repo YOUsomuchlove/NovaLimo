@@ -7,22 +7,31 @@ import {
   Card,
   Checkbox,
   Col,
+  DatePicker,
   Form,
   Input,
   Row,
   Select,
   Typography,
 } from 'antd';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { PageSection } from '../../../components/blocks/PageSection';
-import { BookingPageScaffold } from '../../../components/layout/BookingPageScaffold';
-import { PEN_BG, PEN_OVERLAY } from '../../../lib/booking-pen-assets';
 
 type CargoForm = {
   route: string;
+  sendDate: Dayjs;
+  packageType: string;
   weight: string;
+  dimensions: string;
+  valueVnd: string;
+  codVnd: string;
   note: string;
   agree: boolean;
 };
+
+const controlClass =
+  'cargo-form-field h-12 w-full rounded-xl border-0 bg-[#f0f2f5] shadow-none [&_.ant-select-selector]:!min-h-12 [&_.ant-select-selector]:!rounded-xl [&_.ant-select-selector]:!border-0 [&_.ant-select-selector]:!bg-[#f0f2f5] [&_.ant-picker]:!min-h-12 [&_.ant-picker]:!rounded-xl [&_.ant-picker]:!border-0 [&_.ant-picker]:!bg-[#f0f2f5]';
 
 export default function CargoBookPage() {
   const router = useRouter();
@@ -38,46 +47,60 @@ export default function CargoBookPage() {
   }
 
   return (
-    <div className="bg-[#0B1020]">
-      <BookingPageScaffold
-        bgSrc={PEN_BG.cargoBook}
-        overlayClassName={PEN_OVERLAY.cargoBook}
-        minHeight="min-h-[220px]"
-      >
-        <PageSection className="!py-8 sm:!py-10">
-          <Typography.Title
-            level={2}
-            className="!mb-1 !text-2xl !font-black !text-white sm:!text-3xl md:!text-4xl"
-          >
-            Đặt gửi hàng
-          </Typography.Title>
-          <Typography.Text className="text-sm font-semibold text-[#B2CCFF] sm:text-base">
-            Điền thông tin kiện hàng — hệ thống sẽ báo giá ước tính và điều kiện áp dụng.
-          </Typography.Text>
-        </PageSection>
-      </BookingPageScaffold>
+    <div className="nova-dark-page-grid min-h-[calc(100vh-80px)]">
+      <PageSection className="!pb-6 !pt-10 sm:!pt-12">
+        <Typography.Title
+          level={2}
+          className="!mb-2 !text-3xl !font-black !tracking-tight !text-white sm:!text-4xl md:!text-[40px]"
+        >
+          Đặt gửi hàng
+        </Typography.Title>
+        <Typography.Text className="block max-w-2xl text-[15px] font-semibold leading-relaxed text-[#b2ccff]">
+          Điền thông tin kiện hàng — hệ thống sẽ báo giá ước tính và điều kiện
+          áp dụng.
+        </Typography.Text>
+      </PageSection>
 
-      <PageSection className="bg-[#0B1020] pb-16 pt-4">
-        <Card className="max-w-4xl rounded-3xl border-[#E5E7EB] shadow-md">
-          <Typography.Title level={4} className="!mt-0 !text-[#0B1020]">
+      <PageSection className="!pt-0 !pb-20">
+        <Card
+          variant="borderless"
+          className="max-w-4xl rounded-[18px] !bg-white !shadow-[0_4px_24px_rgba(0,0,0,0.12)]"
+          styles={{
+            body: { padding: '28px 24px 32px' },
+          }}
+        >
+          <Typography.Title
+            level={4}
+            className="!mb-6 !mt-0 !text-lg !font-black !text-[#0a0e18]"
+          >
             Thông tin gửi hàng
           </Typography.Title>
           <Form
             form={form}
             layout="vertical"
+            requiredMark={false}
             onFinish={onFinish}
-            initialValues={{ agree: false }}
+            initialValues={{
+              agree: false,
+              sendDate: dayjs(),
+            }}
           >
-            <Row gutter={16}>
+            <Row gutter={[20, 0]}>
               <Col xs={24} md={12}>
                 <Form.Item
                   name="route"
-                  label="Tuyến"
+                  label={
+                    <span className="text-[15px] font-bold text-[#0a0e18]">
+                      Tuyến
+                    </span>
+                  }
                   rules={[{ required: true, message: 'Chọn tuyến' }]}
                 >
                   <Select
                     size="large"
-                    placeholder="Chọn tuyến"
+                    placeholder="Chọn tuyến..."
+                    className={controlClass}
+                    popupMatchSelectWidth={false}
                     options={[
                       { value: 'HN — HP', label: 'Hà Nội — Hải Phòng' },
                       { value: 'HN — NB', label: 'Hà Nội — Ninh Bình' },
@@ -88,34 +111,162 @@ export default function CargoBookPage() {
               </Col>
               <Col xs={24} md={12}>
                 <Form.Item
-                  name="weight"
-                  label="Khối lượng (kg)"
-                  rules={[{ required: true, message: 'Nhập khối lượng' }]}
+                  name="sendDate"
+                  label={
+                    <span className="text-[15px] font-bold text-[#0a0e18]">
+                      Ngày gửi
+                    </span>
+                  }
+                  rules={[{ required: true, message: 'Chọn ngày gửi' }]}
                 >
-                  <Input size="large" placeholder="Ví dụ: 12" inputMode="decimal" />
+                  <DatePicker
+                    className={`${controlClass} w-full`}
+                    format="DD/MM/YYYY"
+                    placeholder="Ngày gửi — chọn ngày"
+                    disabledDate={(current) =>
+                      current ? current < dayjs().startOf('day') : false
+                    }
+                  />
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item name="note" label="Ghi chú / loại hàng">
-              <Input.TextArea rows={3} placeholder="Mô tả ngắn (demo)" />
+
+            <Row gutter={[20, 0]}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="packageType"
+                  label={
+                    <span className="text-[15px] font-bold text-[#0a0e18]">
+                      Loại kiện
+                    </span>
+                  }
+                  rules={[{ required: true, message: 'Chọn loại kiện' }]}
+                >
+                  <Select
+                    size="large"
+                    placeholder="Loại kiện..."
+                    className={controlClass}
+                    options={[
+                      { value: 'box', label: 'Thùng / kiện carton' },
+                      { value: 'bag', label: 'Bao tải' },
+                      { value: 'fragile', label: 'Hàng dễ vỡ (có nhãn)' },
+                    ]}
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="weight"
+                  label={
+                    <span className="text-[15px] font-bold text-[#0a0e18]">
+                      Khối lượng (kg)
+                    </span>
+                  }
+                  rules={[{ required: true, message: 'Nhập khối lượng' }]}
+                >
+                  <Input
+                    size="large"
+                    placeholder="Khối lượng (kg)"
+                    className="!h-12 !rounded-xl !border-0 !bg-[#f0f2f5] !px-4 !font-medium !text-[#1a1d26]"
+                    inputMode="decimal"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[20, 0]}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="dimensions"
+                  label={
+                    <span className="text-[15px] font-bold text-[#0a0e18]">
+                      Kích thước (DxRxC cm)
+                    </span>
+                  }
+                >
+                  <Input
+                    size="large"
+                    placeholder="Kích thước (DxRxC cm)"
+                    className="!h-12 !rounded-xl !border-0 !bg-[#f0f2f5] !px-4 !font-medium !text-[#1a1d26]"
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  name="valueVnd"
+                  label={
+                    <span className="text-[15px] font-bold text-[#0a0e18]">
+                      Giá trị hàng (VNĐ)
+                    </span>
+                  }
+                >
+                  <Input
+                    size="large"
+                    placeholder="Giá trị hàng (VNĐ)"
+                    className="!h-12 !rounded-xl !border-0 !bg-[#f0f2f5] !px-4 !font-medium !text-[#1a1d26]"
+                    inputMode="numeric"
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Form.Item
+              name="codVnd"
+              label={
+                <span className="text-[15px] font-bold text-[#0a0e18]">
+                  Thu hộ COD (VNĐ)
+                </span>
+              }
+            >
+              <Input
+                size="large"
+                placeholder="Thu hộ COD (VNĐ) — để trống nếu không dùng"
+                className="!h-12 !rounded-xl !border-0 !bg-[#f0f2f5] !px-4 !font-medium !text-[#1a1d26]"
+                inputMode="numeric"
+              />
             </Form.Item>
+
+            <Typography.Title
+              level={4}
+              className="!mb-4 !mt-10 !text-lg !font-black !text-[#0a0e18]"
+            >
+              Ghi chú & đồng ý
+            </Typography.Title>
+
+            <Form.Item name="note" className="!mb-4">
+              <Input.TextArea
+                rows={4}
+                placeholder="Ghi chú: hàng dễ vỡ, cần xếp riêng..."
+                className="!resize-y !rounded-xl !border-0 !bg-[#f0f2f5] !px-4 !py-3 !font-medium !text-[#1a1d26]"
+              />
+            </Form.Item>
+
             <Form.Item
               name="agree"
               valuePropName="checked"
+              className="!mb-8"
               rules={[
                 {
                   validator: (_, v) =>
-                    v ? Promise.resolve() : Promise.reject(new Error('Cần đồng ý')),
+                    v
+                      ? Promise.resolve()
+                      : Promise.reject(new Error('Cần xác nhận')),
                 },
               ]}
             >
-              <Checkbox>Tôi xác nhận thông tin khai báo trung thực (demo).</Checkbox>
+              <Checkbox>
+                <span className="text-[14px] font-medium leading-snug text-[#1a1d26]">
+                  Tôi đã đọc Điều khoản & Chính sách và xác nhận hàng không thuộc
+                  danh mục cấm.
+                </span>
+              </Checkbox>
             </Form.Item>
+
             <Button
               type="primary"
               htmlType="submit"
               size="large"
-              className="!font-black !text-[#0B1020]"
+              className="!h-11 !min-w-[160px] !rounded-[10px] !border-0 !bg-[#d4af37] !px-8 !text-[15px] !font-black !text-[#0a0e18] hover:!bg-[#c9a85c]"
             >
               Xem báo giá
             </Button>

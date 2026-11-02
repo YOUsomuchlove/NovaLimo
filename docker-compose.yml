@@ -1,3 +1,13 @@
+# NovaLimo — cơ sở: PostgreSQL + (tuỳ chọn) OSRM.
+# Full stack (API + Next): dùng thêm docker-compose.stack.yml
+#
+# Chỉ DB + OSRM:
+#   docker compose up -d
+# OSRM (cần ./tools/osrm-data/map.osrm):
+#   docker compose --profile osrm up -d
+
+name: novalimo
+
 services:
   postgres:
     image: postgis/postgis:16-3.4

@@ -6,9 +6,8 @@ import { App, ConfigProvider, theme } from 'antd';
 import viVN from 'antd/locale/vi_VN';
 
 /** NovaLimo Admin — khớp palette web-admin.pen (`halo` + sidebar). @see DESIGN-TOKENS-NOVALIMO.md */
-const novaNavy = NOVA_BRAND.navy;
 const novaGold = NOVA_BRAND.gold;
-const adminSider = NOVA_BRAND.adminSiderBg;
+const adminSiderNavy = NOVA_BRAND.navy;
 
 export const adminTheme = {
   token: {
@@ -28,18 +27,20 @@ export const adminTheme = {
   algorithm: theme.defaultAlgorithm,
   components: {
     Layout: {
-      headerBg: '#ffffff',
+      /** Để Tailwind / style trên `<Header>` quyết định (tránh token #fff đè console). */
+      headerBg: 'transparent',
       bodyBg: '#f1f5f9',
-      siderBg: adminSider,
-      triggerBg: adminSider,
+      siderBg: adminSiderNavy,
+      triggerBg: adminSiderNavy,
     },
     Menu: {
       darkItemBg: 'transparent',
-      darkItemSelectedBg: '#111827',
-      darkItemSelectedColor: novaGold,
-      darkItemHoverBg: 'rgba(255,255,255,0.06)',
-      darkItemColor: '#E5E7EB',
-      itemBorderRadius: 8,
+      /** Ô chọn tối, bo góc — mockup sidebar pen */
+      darkItemSelectedBg: 'rgba(255, 255, 255, 0.06)',
+      darkItemSelectedColor: '#ffffff',
+      darkItemHoverBg: 'rgba(255, 255, 255, 0.04)',
+      darkItemColor: '#e5e7eb',
+      itemBorderRadius: 12,
       iconSize: 16,
       fontSize: 13,
     },

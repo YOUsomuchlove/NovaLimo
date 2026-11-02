@@ -1,80 +1,127 @@
 'use client';
 
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Drawer,
-  Empty,
-  Row,
-  Slider,
-  Space,
-  Tag,
-  Typography,
-} from 'antd';
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+import { Alert, Button, Empty } from 'antd';
 import dayjs from 'dayjs';
+import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 import type { TripBatch } from '@limousine-workspace/shared-types';
 import { getApiBaseUrl } from '../../lib/api';
-import { PageSection } from '../../components/blocks/PageSection';
-import { BookingPageScaffold } from '../../components/layout/BookingPageScaffold';
-import { PEN_BG, PEN_OVERLAY } from '../../lib/booking-pen-assets';
+import { formatRouteDash } from '../../lib/route-parse';
+import { PEN_BG } from '../../lib/booking-pen-assets';
+import {
+  HOUR_PRESETS,
+  SearchFilterCard,
+} from '../../components/search/SearchFilterCard';
+import { SearchHeroSection } from '../../components/search/SearchHeroSection';
+import { SearchSelectionDrawer } from '../../components/search/SearchSelectionDrawer';
+import { SearchSelectionSummary } from '../../components/search/SearchSelectionSummary';
+import { SearchTripCard } from '../../components/search/SearchTripCard';
+import { getBatchDemoMeta } from '../../components/search/search-batch-demo';
 
-const HOUR_PRESETS: { label: string; value: [number, number] }[] = [
-  { label: 'Sáng (6–12h)', value: [6, 12] },
-  { label: 'Chiều (12–18h)', value: [12, 18] },
-  { label: 'Tối (18–22h)', value: [18, 22] },
-];
+function useLgUp() {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const mq = window.matchMedia('(min-width: 1024px)');
+      mq.addEventListener('change', onStoreChange);
+      return () => mq.removeEventListener('change', onStoreChange);
+    },
+    () => window.matchMedia('(min-width: 1024px)').matches,
+    () => false,
+  );
+}
 
 function SearchPageInner() {
   const searchParams = useSearchParams();
   const route = searchParams.get('route') ?? '';
   const dateStr = searchParams.get('date') ?? dayjs().format('YYYY-MM-DD');
   const apiUrl = getApiBaseUrl();
+  const lgUp = useLgUp();
 
   const [batches, setBatches] = useState<TripBatch[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [hourFilter, setHourFilter] = useState<[number, number]>([0, 24]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 800000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 3000000]);
   const [presetHours, setPresetHours] = useState<string[]>([]);
-  const [drawerBatch, setDrawerBatch] = useState<TripBatch | null>(null);
+  const [vehicleTypes, setVehicleTypes] = useState<string[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<TripBatch | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(`${apiUrl}/trip-batches`);
-        if (!res.ok) throw new Error('load');
-        const data = (await res.json()) as TripBatch[];
-        if (!cancelled) setBatches(data);
-      } catch {
-        if (!cancelled) setBatches([]);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+  const fetchSeq = useRef(0);
+
+  const loadTripBatches = useCallback(async () => {
+    const id = ++fetchSeq.current;
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const res = await fetch(`${apiUrl}/trip-batches`);
+      if (id !== fetchSeq.current) return;
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as TripBatch[];
+      setBatches(data);
+    } catch {
+      if (id !== fetchSeq.current) return;
+      setBatches([]);
+      setLoadError(
+        'Không tải được danh sách chuyến. Hãy kiểm tra API đang chạy (vd. `nx serve api-server`) và biến `NEXT_PUBLIC_API_URL` nếu cần.',
+      );
+    } finally {
+      if (id === fetchSeq.current) setLoading(false);
+    }
   }, [apiUrl]);
 
+  useEffect(() => {
+    void loadTripBatches();
+  }, [loadTripBatches]);
+
   const filtered = useMemo(() => {
+    const presetRanges = HOUR_PRESETS.filter((p) =>
+      presetHours.includes(p.label),
+    ).map((p) => p.value);
+
     return batches.filter((b) => {
       if (route && b.route_name !== route) return false;
       const d = dayjs(b.departure_time);
       if (!d.isSame(dayjs(dateStr), 'day')) return false;
       const h = d.hour() + d.minute() / 60;
-      if (h < hourFilter[0] || h > hourFilter[1]) return false;
-      const mockPrice = 350000 + (d.hour() % 5) * 10000;
+      if (presetRanges.length > 0) {
+        const inSlot = presetRanges.some(
+          ([lo, hi]) => h >= lo && h <= hi,
+        );
+        if (!inSlot) return false;
+      } else if (h < hourFilter[0] || h > hourFilter[1]) {
+        return false;
+      }
+      const { mockPrice, capacity } = getBatchDemoMeta(b);
       if (mockPrice < priceRange[0] || mockPrice > priceRange[1]) return false;
+      const capKey = String(capacity);
+      if (vehicleTypes.length > 0 && !vehicleTypes.includes(capKey)) return false;
       return b.status === 'OPEN';
     });
-  }, [batches, route, dateStr, hourFilter, priceRange]);
+  }, [
+    batches,
+    route,
+    dateStr,
+    hourFilter,
+    presetHours,
+    priceRange,
+    vehicleTypes,
+  ]);
 
-  function applyPresetHours(values: string[]) {
+  const routeTitle = route
+    ? formatRouteDash(route)
+    : 'tất cả tuyến';
+
+  const applyPresetHours = useCallback((values: string[]) => {
     setPresetHours(values);
     if (values.length === 0) {
       setHourFilter([0, 24]);
@@ -86,190 +133,136 @@ function SearchPageInner() {
     const min = Math.min(...ranges.map((r) => r[0]));
     const max = Math.max(...ranges.map((r) => r[1]));
     setHourFilter([min, max]);
-  }
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    setPresetHours([]);
+    setHourFilter([0, 24]);
+    setPriceRange([0, 3000000]);
+    setVehicleTypes([]);
+  }, []);
+
+  const handleSelectTrip = useCallback(
+    (b: TripBatch) => {
+      setSelectedBatch(b);
+      if (!lgUp) setDrawerOpen(true);
+    },
+    [lgUp],
+  );
+
+  const selectedMeta = selectedBatch ? getBatchDemoMeta(selectedBatch) : null;
 
   return (
-    <div className="bg-[#0B1020]">
-      {/* Frame Kl9cQ — nền ảnh + overlay; Drawer (Mở hé) khi xem nhanh */}
-      <BookingPageScaffold
-        bgSrc={PEN_BG.searchResults}
-        overlayClassName={PEN_OVERLAY.search}
-        minHeight="min-h-[240px]"
-      >
-        <PageSection className="!py-8 sm:!py-10">
-          <Typography.Title
-            level={2}
-            className="!mb-2 !text-2xl !font-black !text-white sm:!text-3xl md:!text-4xl"
-          >
-            Kết quả tìm kiếm chuyến xe
-          </Typography.Title>
-          <Typography.Paragraph className="!mb-0 text-sm font-semibold text-[#B2CCFF] sm:text-base">
-            {route ? `Tuyến: ${route}` : 'Tất cả tuyến'} · Ngày{' '}
-            {dayjs(dateStr).format('DD/MM/YYYY')}
-          </Typography.Paragraph>
-        </PageSection>
-      </BookingPageScaffold>
+    <div className="search-results-page relative min-h-screen bg-[#070b14]">
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <Image
+          src={PEN_BG.searchResults}
+          alt=""
+          fill
+          priority
+          className="object-cover object-center opacity-95"
+          sizes="100vw"
+        />
+        <div
+          className="absolute inset-0 bg-[#070b14]/86 backdrop-blur-[1px]"
+          aria-hidden
+        />
+      </div>
 
-      <PageSection className="bg-[#0B1020] pb-16 pt-2 sm:pt-4">
-        <Typography.Title
-          level={4}
-          className="!mb-1 !text-base !text-white sm:!text-lg md:!text-xl"
-        >
-          Chuyến phù hợp
-        </Typography.Title>
-        <Typography.Paragraph className="!mb-8 text-[#C8D4F0]">
-          Lọc theo khung giờ và mức giá (demo).
-        </Typography.Paragraph>
-
-        <Row gutter={[24, 24]}>
-          <Col xs={24} md={7} className="min-w-0">
-            <Card
-              title={
-                <span className="font-black text-[#0B1020]">Bộ lọc</span>
-              }
-              size="small"
-              loading={loading}
-              className="border-[#E5E7EB] shadow-sm"
-            >
-              <Typography.Text strong>Khung giờ</Typography.Text>
-              <Checkbox.Group
-                className="mt-2 flex flex-col gap-2"
-                value={presetHours}
-                onChange={applyPresetHours}
-                options={HOUR_PRESETS.map((p) => ({
-                  label: p.label,
-                  value: p.label,
-                }))}
-              />
-              <Typography.Text strong className="mb-2 mt-4 block">
-                Giờ (chi tiết)
-              </Typography.Text>
-              <Slider
-                range
-                min={0}
-                max={24}
-                step={0.5}
-                value={hourFilter}
-                onChange={(v) => setHourFilter(v as [number, number])}
-              />
-              <Typography.Text strong className="mb-2 mt-4 block">
-                Giá (₫) — demo
-              </Typography.Text>
-              <Slider
-                range
-                min={0}
-                max={800000}
-                step={10000}
-                value={priceRange}
-                onChange={(v) => setPriceRange(v as [number, number])}
-                tooltip={{
-                  formatter: (v) => `${(v ?? 0).toLocaleString('vi-VN')} ₫`,
-                }}
-              />
-            </Card>
-          </Col>
-
-          <Col xs={24} md={17}>
-            <Space direction="vertical" size="middle" className="w-full">
-              {filtered.length === 0 && !loading ? (
-                <Empty
-                  className="rounded-lg border border-[#2B283D] bg-[#0B1020]/60 py-12"
-                  description={
-                    <span className="text-[#B2CCFF]">
-                      Không có chuyến phù hợp
-                    </span>
-                  }
-                />
-              ) : null}
-              {filtered.map((b) => {
-                const dep = dayjs(b.departure_time);
-                const mockPrice = 350000 + (dep.hour() % 5) * 10000;
-                const capacity = 9 + (b.id.charCodeAt(0) % 2) * 3;
-                return (
-                  <Card
-                    key={b.id}
-                    size="small"
-                    className="border-[#E5E7EB] shadow-sm"
-                    title={
-                      <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                        <Space wrap size="small">
-                          <span className="font-bold">{dep.format('HH:mm')}</span>
-                          <Tag color="blue">{b.route_name}</Tag>
-                          <Tag>{b.status}</Tag>
-                        </Space>
-                        <Typography.Text
-                          strong
-                          className="shrink-0 text-base text-[#D4AF37] sm:text-right"
-                        >
-                          từ {mockPrice.toLocaleString('vi-VN')} ₫
-                        </Typography.Text>
-                      </div>
-                    }
-                  >
-                    <Typography.Paragraph type="secondary" className="!mb-3">
-                      Xe {capacity} chỗ · Còn chỗ (demo giá theo giờ)
-                    </Typography.Paragraph>
-                    <Space wrap>
-                      <Button
-                        type="default"
-                        className="border-[#2B283D] !text-[#0B1020]"
-                        onClick={() => setDrawerBatch(b)}
-                      >
-                        Xem nhanh (mở hé)
-                      </Button>
-                      <Link
-                        href={`/booking/${b.id}?capacity=${capacity}&price=${mockPrice}`}
-                      >
-                        <Button
-                          type="primary"
-                          className="!bg-[#D4AF37] !font-black !text-[#0B1020] hover:!bg-[#c9a85c]"
-                        >
-                          Chọn chuyến
-                        </Button>
-                      </Link>
-                    </Space>
-                  </Card>
-                );
-              })}
-            </Space>
-          </Col>
-        </Row>
-      </PageSection>
-
-      <Drawer
-        title={<span className="font-black text-[#0B1020]">Chi tiết chuyến</span>}
-        placement="right"
-        width={360}
-        open={drawerBatch !== null}
-        onClose={() => setDrawerBatch(null)}
-        styles={{
-          body: { background: '#0B1020', padding: 20 },
-          header: { background: '#0B1020', borderBottom: '1px solid #2B283D' },
-        }}
-        className="[&_.ant-drawer-title]:!text-white"
-      >
-        {drawerBatch ? (
-          <div className="text-[#E8EAEF]">
-            <p className="text-lg font-black text-[#D4AF37]">
-              {dayjs(drawerBatch.departure_time).format('HH:mm')}
-            </p>
-            <p className="mt-2 font-semibold text-white">{drawerBatch.route_name}</p>
-            <p className="mt-2 text-sm text-[#B2CCFF]">Trạng thái: {drawerBatch.status}</p>
-            <Link
-              href={`/booking/${drawerBatch.id}?capacity=${9 + (drawerBatch.id.charCodeAt(0) % 2) * 3}&price=${350000 + (dayjs(drawerBatch.departure_time).hour() % 5) * 10000}`}
-              onClick={() => setDrawerBatch(null)}
-            >
+      <div className="relative z-10 mx-auto max-w-[1320px] px-4 pb-20 pt-4 sm:px-6 md:px-8 lg:pt-6">
+        {loadError ? (
+          <Alert
+            type="error"
+            showIcon
+            className="mb-4 rounded-[14px] border-red-500/35 bg-red-950/40 text-red-100 [&_.ant-alert-message]:font-bold [&_.ant-alert-description]:text-red-100/90"
+            message="Lỗi tải dữ liệu"
+            description={loadError}
+            action={
               <Button
+                size="small"
                 type="primary"
-                block
-                className="mt-6 !bg-[#D4AF37] !font-black !text-[#0B1020]"
+                danger
+                ghost
+                className="font-bold"
+                onClick={() => void loadTripBatches()}
               >
-                Đặt vé chuyến này
+                Thử lại
               </Button>
-            </Link>
-          </div>
+            }
+          />
         ) : null}
-      </Drawer>
+        <SearchHeroSection tripCount={filtered.length} routeTitle={routeTitle} />
+
+        <div className="mt-2 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(260px,300px)_minmax(0,1fr)_minmax(260px,300px)] lg:items-start lg:gap-8">
+          <aside className="min-w-0 lg:max-w-[300px]">
+            <SearchFilterCard
+              loading={loading}
+              presetHours={presetHours}
+              onPresetHoursChange={(v) => applyPresetHours(v as string[])}
+              priceRange={priceRange}
+              onPriceRangeChange={setPriceRange}
+              vehicleTypes={vehicleTypes}
+              onVehicleTypesChange={setVehicleTypes}
+              onReset={resetFilters}
+            />
+          </aside>
+
+          <main className="min-w-0 space-y-4">
+            {!loadError && filtered.length === 0 && !loading ? (
+              <Empty
+                className="rounded-[18px] border border-white/10 bg-white/[0.06] py-14"
+                description={
+                  <span className="text-sm font-medium text-white/70">
+                    Không có chuyến phù hợp
+                  </span>
+                }
+              />
+            ) : null}
+            {filtered.map((b) => {
+              const { mockPrice, capacity, seatsLeft } = getBatchDemoMeta(b);
+              return (
+                <SearchTripCard
+                  key={b.id}
+                  departureTime={b.departure_time}
+                  mockPrice={mockPrice}
+                  capacity={capacity}
+                  seatsLeft={seatsLeft}
+                  onSelect={() => handleSelectTrip(b)}
+                />
+              );
+            })}
+          </main>
+
+          <aside className="hidden min-h-0 lg:block">
+            <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-hidden rounded-[18px] border border-[#1c2436] bg-[#0a0e18] shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+              {selectedBatch && selectedMeta ? (
+                <SearchSelectionSummary
+                  batch={selectedBatch}
+                  mockPrice={selectedMeta.mockPrice}
+                  capacity={selectedMeta.capacity}
+                  seatsLeft={selectedMeta.seatsLeft}
+                />
+              ) : (
+                <div className="flex min-h-[420px] flex-col items-center justify-center gap-3 px-8 text-center">
+                  <p className="text-base font-bold text-white/90">
+                    Chọn chuyến
+                  </p>
+                  <p className="text-sm font-medium leading-relaxed text-white/55">
+                    Nhấn &quot;Chọn chuyến&quot; trên một thẻ để xem tóm tắt và
+                    xác nhận đặt vé.
+                  </p>
+                </div>
+              )}
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <SearchSelectionDrawer
+        open={drawerOpen && !lgUp}
+        batch={selectedBatch}
+        onClose={() => setDrawerOpen(false)}
+      />
     </div>
   );
 }
@@ -278,7 +271,9 @@ export default function SearchPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-8 text-center text-slate-600">Đang tải…</div>
+        <div className="min-h-[40vh] bg-[#070b14] p-8 text-center text-white/60">
+          Đang tải…
+        </div>
       }
     >
       <SearchPageInner />

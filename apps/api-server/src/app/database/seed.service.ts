@@ -167,8 +167,14 @@ export class SeedService implements OnModuleInit {
           route_name: 'Hà Nội → Nội Bài',
           departure_time: tomorrow,
           status: 'OPEN',
+          list_price_vnd: 350000,
+          vehicle_capacity: 9,
         }),
       );
+    } else {
+      batch.list_price_vnd = batch.list_price_vnd ?? 350000;
+      batch.vehicle_capacity = batch.vehicle_capacity ?? 9;
+      await this.batches.save(batch);
     }
 
     let run = await this.runs.findOne({

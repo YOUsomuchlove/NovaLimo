@@ -9,7 +9,7 @@ import { PEN_BG, PEN_OVERLAY } from '../lib/booking-pen-assets';
 
 export default function NotFound() {
   return (
-    <div className="min-h-[70vh] bg-[#0B1020]">
+    <div className="min-h-[70vh] bg-nova-bg">
       <BookingPageScaffold
         bgSrc={PEN_BG.notFound}
         overlayClassName={PEN_OVERLAY.notFound}
@@ -22,14 +22,14 @@ export default function NotFound() {
           >
             404
           </Typography.Title>
-          <Typography.Paragraph className="!mb-8 max-w-xl text-base font-semibold text-[#B2CCFF] sm:text-lg">
+          <Typography.Paragraph className="!mb-8 max-w-xl text-base font-semibold text-nova-muted sm:text-lg">
             Trang bạn tìm không tồn tại hoặc đã được di chuyển.
           </Typography.Paragraph>
           <Link href="/">
             <Button
               type="primary"
               size="large"
-              className="!h-[52px] !min-w-[200px] !rounded-[14px] !font-black !text-[#0B1020]"
+              className="!h-[52px] !min-w-[200px] !rounded-[var(--radius-nova-md)] !font-black !text-nova-bg !bg-nova-gold hover:!bg-nova-gold-hover"
             >
               Về trang chủ
             </Button>

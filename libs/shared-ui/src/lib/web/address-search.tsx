@@ -14,12 +14,20 @@ export function AddressSearchInput({
   value,
   onAddressChange,
   onLocationCommit,
+  className,
+  inputClassName,
+  suffix,
 }: {
   apiBaseUrl: string;
   placeholder?: string;
   value: string;
   onAddressChange: (address: string) => void;
   onLocationCommit: (loc: { lat: number; lng: number; address: string }) => void;
+  /** className trên AutoComplete (wrapper). */
+  className?: string;
+  /** className trên ô Input. */
+  inputClassName?: string;
+  suffix?: React.ReactNode;
 }) {
   const [options, setOptions] = useState<Option[]>([]);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -67,7 +75,7 @@ export function AddressSearchInput({
 
   return (
     <AutoComplete
-      className="w-full"
+      className={['w-full', className].filter(Boolean).join(' ')}
       options={options}
       value={value}
       onSearch={(q) => debounced(q)}
@@ -82,7 +90,11 @@ export function AddressSearchInput({
         });
       }}
     >
-      <Input placeholder={placeholder ?? 'Nhập địa chỉ (gợi ý OpenStreetMap)'} />
+      <Input
+        placeholder={placeholder ?? 'Nhập địa chỉ (gợi ý OpenStreetMap)'}
+        className={inputClassName}
+        suffix={suffix}
+      />
     </AutoComplete>
   );
 }

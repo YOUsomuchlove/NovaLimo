@@ -36,22 +36,29 @@ function CargoResultsInner() {
             Kết quả báo giá
           </Typography.Title>
           <Typography.Text className="text-sm font-semibold text-[#B2CCFF] sm:text-base">
-            Ước tính theo khung kiện bạn nhập — phí cuối có thể điều chỉnh khi kiểm tra
-            thực tế tại bến.
+            Ước tính theo khung kiện bạn nhập — phí cuối có thể điều chỉnh khi
+            kiểm tra thực tế tại bến.
           </Typography.Text>
         </PageSection>
       </BookingPageScaffold>
 
       <PageSection className="bg-[#0B1020] pb-16 pt-4">
-        <Card className="w-full max-w-4xl rounded-[20px] border-[#E5E7EB] shadow-md">
+        <Card
+          variant="borderless"
+          className="w-full max-w-4xl rounded-[20px] border border-[#E5E7EB] bg-white shadow-md"
+        >
           <Typography.Title level={4} className="!mt-0 !text-[#0B1020]">
             Phương án gợi ý
           </Typography.Title>
           <p className="text-[#616167]">
             Tuyến <strong>{route}</strong> · {weight} kg — Tiêu chuẩn{' '}
-            <strong className="text-[#D4AF37]">{standard.toLocaleString('vi-VN')} ₫</strong>{' '}
+            <strong className="text-[#D4AF37]">
+              {standard.toLocaleString('vi-VN')} ₫
+            </strong>{' '}
             · Nhanh (+4h){' '}
-            <strong className="text-[#D4AF37]">{fast.toLocaleString('vi-VN')} ₫</strong>
+            <strong className="text-[#D4AF37]">
+              {fast.toLocaleString('vi-VN')} ₫
+            </strong>
           </p>
           <Space className="mt-4" wrap>
             <Tag color="success">Đủ điều kiện gửi</Tag>
@@ -89,9 +96,7 @@ function CargoResultsInner() {
 export default function CargoResultsPage() {
   return (
     <Suspense
-      fallback={
-        <div className="p-8 text-center text-slate-600">Đang tải…</div>
-      }
+      fallback={<div className="p-8 text-center text-slate-600">Đang tải…</div>}
     >
       <CargoResultsInner />
     </Suspense>

@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import type { TripBatchStatus } from '@limousine-workspace/shared-types';
 import { AdminJwtGuard } from '../auth/admin-jwt.guard';
+import type { TripBatchEntity } from '../entities/trip-batch.entity';
 import { TripBatchesService } from './trip-batches.service';
 import { TripBatchCreateDto, TripBatchUpdateDto } from './dto/trip-batch-mutate.dto';
 
@@ -33,11 +34,14 @@ export class TripBatchesController {
   @Post()
   @UseGuards(AdminJwtGuard)
   create(@Body() dto: TripBatchCreateDto) {
-    return this.batches.create({
+    const data: Partial<TripBatchEntity> = {
       route_name: dto.route_name,
       departure_time: new Date(dto.departure_time),
       status: dto.status ?? 'OPEN',
-    });
+    };
+    if (dto.list_price_vnd != null) data.list_price_vnd = dto.list_price_vnd;
+    if (dto.vehicle_capacity != null) data.vehicle_capacity = dto.vehicle_capacity;
+    return this.batches.create(data);
   }
 
   @Patch(':id')

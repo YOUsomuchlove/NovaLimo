@@ -5,6 +5,7 @@ import { TripBatchEntity } from '../entities/trip-batch.entity';
 import { TripRunEntity } from '../entities/trip-run.entity';
 import { VehicleEntity } from '../entities/vehicle.entity';
 import { AdminController } from './admin.controller';
+import { AdminUploadsController } from './admin-uploads.controller';
 import { AdminService } from './admin.service';
 
 @Module({
@@ -16,7 +17,7 @@ import { AdminService } from './admin.service';
       TripRunEntity,
     ]),
   ],
-  controllers: [AdminController],
+  controllers: [AdminController, AdminUploadsController],
   providers: [AdminService],
 })
 export class AdminModule {}

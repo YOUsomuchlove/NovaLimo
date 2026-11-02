@@ -1,63 +1,97 @@
 'use client';
 
 import Link from 'next/link';
+import { Mail, MapPin, Phone } from 'lucide-react';
+import {
+  FOOTER_DESCRIPTION,
+  SITE_ADDRESS,
+  SITE_EMAIL,
+  SITE_HOTLINE_DISPLAY,
+  SITE_HOTLINE_TEL,
+} from '../../lib/site-contact';
 
-/** Khối footer ~380px nền #0B1020 — pen `footer` / `foot` */
+/**
+ * Booking Footer — khớp frame n6z7m (web-bôking.pen): viền vàng trên, 3 cột, typography.
+ */
 export function SiteFooter() {
+  const year = new Date().getFullYear();
+  const linkClass =
+    'block text-sm font-medium text-nova-text no-underline transition-colors hover:text-nova-gold';
+
   return (
-    <footer
-      className="min-h-[380px] bg-[#0B1020] px-4 py-12 text-[#B8BCC8] md:px-8"
-      role="contentinfo"
-    >
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-8 md:flex-row md:justify-between">
-        <div>
-          <p className="text-lg font-black text-white">NovaLimo</p>
-          <p className="mt-2 max-w-sm text-sm leading-relaxed">
-            Đặt vé limousine tuyến cố định, đón trả tận nơi. Hỗ trợ 24/7.
+    <footer className="bg-[#0B1020]" role="contentinfo">
+      <div className="mx-auto max-w-[1440px] border-t border-[#D4AF37] px-4 pb-10 pt-12 md:px-16">
+        <div className="grid gap-12 md:grid-cols-3 md:gap-10">
+          <div>
+            <p className="text-[20px] font-extrabold text-white">NovaLimo</p>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-nova-muted">
+              {FOOTER_DESCRIPTION}
+            </p>
+          </div>
+          <div>
+            <p className="mb-4 text-sm font-bold text-nova-gold">Liên kết</p>
+            <nav className="flex flex-col gap-2" aria-label="Liên kết nhanh">
+              <Link href="/" className={linkClass}>
+                Trang Chủ
+              </Link>
+              <Link href="/about" className={linkClass}>
+                Giới Thiệu
+              </Link>
+              <Link href="/pricing" className={linkClass}>
+                Bảng Giá
+              </Link>
+              <Link href="/contact" className={linkClass}>
+                Liên Hệ
+              </Link>
+              <Link href="/cargo" className={linkClass}>
+                Ký gửi hàng
+              </Link>
+            </nav>
+          </div>
+          <div>
+            <p className="mb-4 text-sm font-bold text-nova-gold">Liên Hệ</p>
+            <ul className="list-none space-y-2 p-0 text-sm font-medium text-nova-text">
+              <li>
+                <span className="inline-flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-[#D4AF37]" aria-hidden />
+                  Hotline:{' '}
+                </span>
+                <a
+                  href={`tel:${SITE_HOTLINE_TEL}`}
+                  className="font-medium text-nova-text no-underline hover:text-nova-gold"
+                >
+                  {SITE_HOTLINE_DISPLAY}
+                </a>
+              </li>
+              <li>
+                <span className="inline-flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-[#D4AF37]" aria-hidden />
+                  Email:{' '}
+                </span>
+                <a
+                  href={`mailto:${SITE_EMAIL}`}
+                  className="text-nova-text no-underline hover:text-nova-gold"
+                >
+                  {SITE_EMAIL}
+                </a>
+              </li>
+              <li className="flex items-start gap-2 leading-relaxed">
+                <MapPin
+                  className="mt-0.5 h-4 w-4 shrink-0 text-[#D4AF37]"
+                  aria-hidden
+                />
+                <span>Địa chỉ VP: {SITE_ADDRESS}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-10 max-w-[1312px] border-t border-nova-footer-rule pt-6">
+          <p className="text-center text-xs leading-relaxed text-nova-copyright">
+            © {year} NovaLimo. All rights reserved.
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-3">
-          <div className="flex flex-col gap-2">
-            <span className="font-semibold text-[#E8EAEF]">Dịch vụ</span>
-            <Link href="/search" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              Tìm chuyến
-            </Link>
-            <Link href="/cargo" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              Ký gửi hàng
-            </Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="font-semibold text-[#E8EAEF]">Công ty</span>
-            <Link href="/about" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              Giới thiệu
-            </Link>
-            <Link href="/pricing" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              Bảng giá
-            </Link>
-            <Link href="/contact" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              Liên hệ
-            </Link>
-          </div>
-          <div className="flex flex-col gap-2">
-            <span className="font-semibold text-[#E8EAEF]">Pháp lý</span>
-            <Link href="/terms" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              Điều khoản
-            </Link>
-            <Link href="/privacy" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              Bảo mật
-            </Link>
-            <Link href="/faq" className="text-[#B8BCC8] no-underline hover:text-[#D4AF37]">
-              FAQ
-            </Link>
-          </div>
-        </div>
       </div>
-      <p className="mx-auto mt-12 max-w-[1440px] border-t border-white/10 pt-8 text-center text-xs text-[#8B90A0]">
-        © {new Date().getFullYear()} NovaLimo. Hotline{' '}
-        <a href="tel:19003528" className="text-[#D4AF37] no-underline">
-          1900 xxxx
-        </a>
-      </p>
     </footer>
   );
 }

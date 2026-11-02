@@ -1,87 +1,244 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Alert, Card, Table, Tabs, Typography } from 'antd';
+import React, { useMemo, useState } from 'react';
+import Image from 'next/image';
+import { Table } from 'antd';
+import type { ColumnsType } from 'antd/es/table';
 import { PageSection } from '../../components/blocks/PageSection';
-import { BookingPageScaffold } from '../../components/layout/BookingPageScaffold';
-import { PEN_BG, PEN_OVERLAY } from '../../lib/booking-pen-assets';
+import { PricePolicyNote } from '../../components/pricing/PricePolicyNote';
+import { PricingHeroSection } from '../../components/pricing/PricingHeroSection';
+import { PEN_BG } from '../../lib/booking-pen-assets';
 
-const columns = [
-  { title: 'Khung giờ', dataIndex: 'slot', key: 'slot' },
-  {
-    title: 'Giá một chiều (từ)',
-    dataIndex: 'price',
-    key: 'price',
-    render: (p: number) => (
-      <span className="font-black text-[#D4AF37]">{p.toLocaleString('vi-VN')} ₫</span>
-    ),
-  },
-  { title: 'Ghi chú', dataIndex: 'note', key: 'note' },
-];
+type SeatKind = 'vip' | 'edge';
 
-const DATA: Record<string, { slot: string; price: number; note: string }[]> = {
-  'HN — HP': [
-    { slot: '06:00 – 09:00', price: 350000, note: 'Cao điểm sáng' },
-    { slot: '09:00 – 16:00', price: 330000, note: 'Giờ thường' },
-    { slot: '16:00 – 22:00', price: 370000, note: 'Cao điểm chiều' },
-  ],
-  'HN — NB': [
-    { slot: '06:00 – 22:00', price: 280000, note: 'Demo' },
-    { slot: 'Ưu đãi cuối tuần', price: 260000, note: 'Theo chính sách' },
-  ],
+type PriceRow = {
+  key: string;
+  vehicle: string;
+  seatKind: SeatKind;
+  seatLabel: string;
+  price: number;
+  note: string;
 };
 
+const ROUTES: {
+  id: string;
+  tabLabel: string;
+  viewerLine: string;
+  rows: PriceRow[];
+}[] = [
+  {
+    id: 'hn-qn',
+    tabLabel: 'Hà Nội — Quảng Ninh',
+    viewerLine: 'Đang xem — Hà Nội ⇄ Quảng Ninh',
+    rows: [
+      {
+        key: '1',
+        vehicle: 'Limousine 9 chỗ',
+        seatKind: 'vip',
+        seatLabel: 'Ghế VIP (Giữa)',
+        price: 300000,
+        note: 'Ghế giữa dãy — ưu tiên không gian rộng, phù hợp hành khách cần chỗ ngồi thoải mái.',
+      },
+      {
+        key: '2',
+        vehicle: 'Limousine 9 chỗ',
+        seatKind: 'edge',
+        seatLabel: 'Ghế Đầu / Cuối',
+        price: 280000,
+        note: 'Hàng ghế đầu hoặc cuối — lối đi thuận tiện, phù hợp di chuyển ngắn.',
+      },
+      {
+        key: '3',
+        vehicle: 'Limousine 12 chỗ',
+        seatKind: 'vip',
+        seatLabel: 'Ghế VIP (Giữa)',
+        price: 340000,
+        note: 'Khoang rộng — phù hợp gia đình / doanh nhân cần không gian riêng tư.',
+      },
+      {
+        key: '4',
+        vehicle: 'Limousine 12 chỗ',
+        seatKind: 'edge',
+        seatLabel: 'Ghế Đầu / Cuối',
+        price: 320000,
+        note: 'Phù hợp đoàn nhỏ — giá cố định theo vị trí ghế trên sơ đồ.',
+      },
+    ],
+  },
+  {
+    id: 'hn-sp',
+    tabLabel: 'Hà Nội — Sapa',
+    viewerLine: 'Đang xem — Hà Nội ⇄ Sapa',
+    rows: [
+      {
+        key: 's1',
+        vehicle: 'Limousine 9 chỗ',
+        seatKind: 'vip',
+        seatLabel: 'Ghế VIP (Giữa)',
+        price: 380000,
+        note: 'Tuyến đèo dài — ghế VIP trang bị massage nhẹ, không gian chỗ để chân rộng.',
+      },
+      {
+        key: 's2',
+        vehicle: 'Limousine 12 chỗ',
+        seatKind: 'edge',
+        seatLabel: 'Ghế Đầu / Cuối',
+        price: 360000,
+        note: 'Ổn định trên cung đường dốc — phù hợp hành khách dễ say xe.',
+      },
+    ],
+  },
+  {
+    id: 'hn-hp',
+    tabLabel: 'Hà Nội — Hải Phòng',
+    viewerLine: 'Đang xem — Hà Nội ⇄ Hải Phòng',
+    rows: [
+      {
+        key: 'h1',
+        vehicle: 'Limousine 9 chỗ',
+        seatKind: 'vip',
+        seatLabel: 'Ghế VIP (Giữa)',
+        price: 290000,
+        note: 'Tuyến ngắn — ghế VIP ưu tiên yên tĩnh và cổng sạc đầy đủ.',
+      },
+      {
+        key: 'h2',
+        vehicle: 'Limousine 12 chỗ',
+        seatKind: 'edge',
+        seatLabel: 'Ghế Đầu / Cuối',
+        price: 270000,
+        note: 'Giờ chạy linh hoạt — phù hợp công tác / về quê nhanh.',
+      },
+    ],
+  },
+];
+
+function SeatBadge({ kind, label }: { kind: SeatKind; label: string }) {
+  const cls =
+    kind === 'vip'
+      ? 'bg-[#fef3c7] text-[#92400e] ring-1 ring-amber-200/80'
+      : 'bg-[#e0f2fe] text-[#075985] ring-1 ring-sky-200/80';
+  return (
+    <span
+      className={`inline-block rounded-full px-3 py-1 text-xs font-bold sm:text-[13px] ${cls}`}
+    >
+      {label}
+    </span>
+  );
+}
+
 export default function PricingPage() {
-  const [tab, setTab] = useState('HN — HP');
+  const [activeId, setActiveId] = useState(ROUTES[0].id);
+  const active = useMemo(
+    () => ROUTES.find((r) => r.id === activeId) ?? ROUTES[0],
+    [activeId],
+  );
+
+  const columns: ColumnsType<PriceRow> = [
+    {
+      title: 'Loại xe',
+      dataIndex: 'vehicle',
+      key: 'vehicle',
+      width: '22%',
+      render: (v: string) => (
+        <span className="font-bold text-[#0a0e1a]">{v}</span>
+      ),
+    },
+    {
+      title: 'Vị trí ghế',
+      dataIndex: 'seatLabel',
+      key: 'seat',
+      width: '24%',
+      render: (_: string, row) => (
+        <SeatBadge kind={row.seatKind} label={row.seatLabel} />
+      ),
+    },
+    {
+      title: 'Mức giá',
+      dataIndex: 'price',
+      key: 'price',
+      width: '18%',
+      render: (p: number) => (
+        <span className="text-base font-black text-[#0a0e1a] sm:text-lg">
+          {p.toLocaleString('vi-VN')} đ
+        </span>
+      ),
+    },
+    {
+      title: 'Ghi chú',
+      dataIndex: 'note',
+      key: 'note',
+      render: (t: string) => (
+        <span className="text-[13px] leading-relaxed text-[#475569] sm:text-sm">
+          {t}
+        </span>
+      ),
+    },
+  ];
 
   return (
-    <div className="bg-[#0B1020]">
-      <BookingPageScaffold
-        bgSrc={PEN_BG.pricing}
-        overlayClassName={PEN_OVERLAY.pricing}
-        minHeight="min-h-[260px]"
-      >
-        <PageSection className="!py-8 sm:!py-10">
-          <Typography.Title
-            level={2}
-            className="!mb-2 !text-2xl !font-black tracking-tight !text-white sm:!text-3xl md:!text-4xl"
-          >
-            Bảng giá tuyến đường
-          </Typography.Title>
-          <Typography.Paragraph className="!mb-0 text-sm font-semibold text-[#C8D4F0] sm:text-base">
-            Niêm yết theo tuyến · Giá một chiều · Chọn tab để xem từng tuyến.
-          </Typography.Paragraph>
-        </PageSection>
-      </BookingPageScaffold>
+    <div className="relative min-h-screen bg-[#0B121E]">
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <Image
+          src={PEN_BG.pricing}
+          alt=""
+          fill
+          className="object-cover opacity-[0.22]"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[#0B121E]/90" aria-hidden />
+      </div>
 
-      <PageSection className="bg-[#0B1020] pb-16 pt-2">
-        <Tabs
-          activeKey={tab}
-          onChange={setTab}
-          items={['HN — HP', 'HN — NB'].map((k) => ({
-            key: k,
-            label: k,
-            children: null,
-          }))}
-          className="pricing-tabs [&_.ant-tabs-nav]:mb-6 [&_.ant-tabs-nav]:rounded-[14px] [&_.ant-tabs-nav]:border [&_.ant-tabs-nav]:border-[#FFFFFF18] [&_.ant-tabs-nav]:bg-[#0D1528] [&_.ant-tabs-nav]:p-1 [&_.ant-tabs-tab]:!text-[#E8EAEF] [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:!text-[#D4AF37]"
-        />
-        <Card className="overflow-hidden rounded-[20px] border-[#E8E8E8] shadow-xl">
-          <Table
-            size="middle"
-            pagination={false}
-            columns={columns}
-            dataSource={DATA[tab] ?? []}
-            rowKey="slot"
-          />
-        </Card>
-        <Alert
-          className="mt-6 border-[#E8D4A0] bg-[#FFF9E8] text-[#0B1020]"
-          message="Chính sách giá"
-          description="Giá vé có thể thay đổi theo ngày lễ và vị trí ghế — giá thực tế khi chọn chuyến là chính xác nhất."
-          type="warning"
-          showIcon
-        />
-      </PageSection>
+      <div className="relative z-10">
+        <PricingHeroSection />
+
+        <PageSection className="pb-16 pt-2 md:pt-4">
+          <div className="mx-auto max-w-[1200px]">
+            <div className="mb-6 flex flex-wrap gap-2 sm:mb-8 sm:gap-3">
+              {ROUTES.map((r) => {
+                const on = r.id === activeId;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setActiveId(r.id)}
+                    className={`rounded-xl border px-4 py-2.5 text-xs font-black transition-colors sm:px-5 sm:py-3 sm:text-sm ${
+                      on
+                        ? 'border-nova-gold bg-nova-gold text-nova-bg shadow-[0_4px_20px_rgba(234,179,8,0.35)]'
+                        : 'border-white/15 bg-[#111a2a] text-white hover:border-white/25 hover:bg-[#162032]'
+                    }`}
+                  >
+                    {r.tabLabel}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-white shadow-[0_16px_48px_rgba(0,0,0,0.35)] sm:rounded-2xl">
+              <div className="border-b border-[#e8dfd0] bg-[#f5f0e6] px-4 py-3 text-sm font-bold text-[#3d3428] sm:px-6 sm:py-3.5 sm:text-[15px]">
+                <span className="mr-2" aria-hidden>
+                  ℹ️
+                </span>
+                {active.viewerLine}
+              </div>
+              <Table<PriceRow>
+                size="middle"
+                pagination={false}
+                columns={columns}
+                dataSource={active.rows}
+                rowKey="key"
+                scroll={{ x: 640 }}
+                className="pricing-route-table [&_.ant-table]:!bg-white [&_.ant-table-thead>tr>th]:!border-b-[#e5e7eb] [&_.ant-table-thead>tr>th]:!bg-[#faf8f5] [&_.ant-table-thead>tr>th]:!py-4 [&_.ant-table-thead>tr>th]:!text-xs [&_.ant-table-thead>tr>th]:!font-black [&_.ant-table-thead>tr>th]:!uppercase [&_.ant-table-thead>tr>th]:!tracking-wide [&_.ant-table-thead>tr>th]:!text-[#64748b] [&_.ant-table-tbody>tr>td]:!py-4 [&_.ant-table-tbody>tr>td]:!align-top"
+                rowClassName={(_, index) =>
+                  index % 2 === 1 ? '!bg-[#fafafa]' : '!bg-white'
+                }
+              />
+            </div>
+
+            <PricePolicyNote />
+          </div>
+        </PageSection>
+      </div>
     </div>
   );
 }

@@ -19,4 +19,11 @@ export class TripBatchEntity {
     default: 'OPEN',
   })
   status!: TripBatchStatusDb;
+
+  /** Giá vé gợi ý trên web đặt vé (VND / ghế hoặc tổng tùy nghiệp vụ — hiện dùng cho 1 ghế). */
+  @Column({ type: 'int', default: 350000 })
+  list_price_vnd!: number;
+
+  @Column({ type: 'int', default: 9 })
+  vehicle_capacity!: number;
 }

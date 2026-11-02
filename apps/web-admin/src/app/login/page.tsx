@@ -3,7 +3,7 @@ import { AdminLoginClient } from './AdminLoginClient';
 
 function LoginFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#050814] text-slate-400">
+    <div className="flex min-h-screen items-center justify-center bg-[#0B1020] text-slate-400">
       Đang tải…
     </div>
   );

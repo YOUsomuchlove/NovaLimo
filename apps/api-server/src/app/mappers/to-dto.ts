@@ -6,13 +6,26 @@ import { TripBatchEntity } from '../entities/trip-batch.entity';
 import { TripRunEntity } from '../entities/trip-run.entity';
 import { VehicleEntity } from '../entities/vehicle.entity';
 
-export function tripBatchToDto(b: TripBatchEntity): TripBatch {
-  return {
+/**
+ * @param bookedSeatLabels — số ghế đã bán (đếm nhãn ghế duy nhất). Nếu bỏ qua, không gửi `seats_available`.
+ */
+export function tripBatchToDto(
+  b: TripBatchEntity,
+  bookedSeatLabels?: number,
+): TripBatch {
+  const cap = b.vehicle_capacity ?? 9;
+  const dto: TripBatch = {
     id: b.id,
     route_name: b.route_name,
     departure_time: b.departure_time.toISOString(),
     status: b.status,
+    list_price_vnd: b.list_price_vnd,
+    vehicle_capacity: cap,
   };
+  if (bookedSeatLabels !== undefined) {
+    dto.seats_available = Math.max(0, cap - bookedSeatLabels);
+  }
+  return dto;
 }
 
 export function bookingToDto(b: BookingEntity): Booking {

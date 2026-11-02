@@ -12,7 +12,7 @@ export function AdminDarkPanel({
 }) {
   return (
     <div
-      className={`rounded-xl border border-[#1F2937] bg-[#020617] p-4 text-slate-100 ${className ?? ''}`}
+      className={`rounded-xl text-slate-100 ${className ?? ''}`}
     >
       {children}
     </div>

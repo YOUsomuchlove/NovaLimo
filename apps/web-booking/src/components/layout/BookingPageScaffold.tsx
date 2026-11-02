@@ -19,6 +19,8 @@ export type BookingPageScaffoldProps = {
   contentClassName?: string;
   /** Ưu tiên LCP cho trang đích */
   priority?: boolean;
+  /** Thêm vào next/image (vd. blur nền hero thành công) */
+  imageClassName?: string;
 };
 
 /**
@@ -33,22 +35,22 @@ export function BookingPageScaffold({
   className,
   contentClassName,
   priority = false,
+  imageClassName,
 }: BookingPageScaffoldProps) {
   return (
-    <div className={cn('relative w-full overflow-hidden', minHeight, className)}>
+    <div
+      className={cn('relative w-full overflow-hidden', minHeight, className)}
+    >
       <div className="pointer-events-none absolute inset-0">
         <Image
           src={bgSrc}
           alt=""
           fill
           priority={priority}
-          className="object-cover object-center"
+          className={cn('object-cover object-center', imageClassName)}
           sizes="100vw"
         />
-        <div
-          className={cn('absolute inset-0', overlayClassName)}
-          aria-hidden
-        />
+        <div className={cn('absolute inset-0', overlayClassName)} aria-hidden />
       </div>
       <div className={cn('relative z-10', contentClassName)}>{children}</div>
     </div>

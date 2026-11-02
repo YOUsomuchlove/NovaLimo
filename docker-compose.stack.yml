@@ -1,19 +1,30 @@
-# Chạy full stack: DB + API + web booking + web admin (build trong Docker).
-# Lệnh: docker compose -f docker-compose.yml -f docker-compose.stack.yml up --build
+# Full stack: DB + API + web booking + web admin (build trong Docker).
 #
-# Nếu `npm install` trong build bị ECONNRESET (mạng không ổn), thử build lần lượt:
-#   docker compose -f docker-compose.yml -f docker-compose.stack.yml build api
-#   docker compose -f docker-compose.yml -f docker-compose.stack.yml build web-booking web-admin
-#   docker compose -f docker-compose.yml -f docker-compose.stack.yml up -d
-# Hoặc: npm run docker:stack:build:sequential && npm run docker:stack:up
+# Lệnh:
+#   docker compose -f docker-compose.yml -f docker-compose.stack.yml up --build
+# Nền:
+#   docker compose -f docker-compose.yml -f docker-compose.stack.yml up -d --build
+#
+# Nếu `npm install` trong build bị ECONNRESET, build lần lượt:
+#   npm run docker:stack:build:sequential && npm run docker:stack:up
 #
 # Sau khi lên:
 #   - API:     http://localhost:3000/api
 #   - Booking: http://localhost:3001
 #   - Admin:   http://localhost:3002
 #
-# NEXT_PUBLIC_API_URL phải là URL mà **trình duyệt** truy cập được tới API
-# (mặc định localhost:3000). Khi deploy domain khác, build lại với build-arg / env file.
+# Biến môi trường (khuyến nghị): copy .env.example → .env ở root repo.
+# Docker Compose tự đọc .env để thay ${JWT_SECRET}, ${NEXT_PUBLIC_API_URL}, …
+# Lưu ý: DATABASE_URL trong .env hay là localhost — API trong container phải dùng host
+# `postgres` (đã cố định bên dưới), không lấy từ .env để tránh lỗi kết nối DB.
+#
+# NEXT_PUBLIC_API_URL — URL mà trình duyệt gọi được tới API (mặc định localhost:3000).
+# Build Next embed giá trị này; đổi domain thì set trong .env rồi build lại image.
+#
+# OSRM cùng stack (profile osrm trong docker-compose.yml):
+#   docker compose -f docker-compose.yml -f docker-compose.stack.yml --profile osrm up -d --build
+# Trong .env đặt: OSRM_BASE_URL=http://osrm:5000
+# (Không bật profile osrm thì để trống hoặc không set OSRM_BASE_URL.)
 
 services:
   api:
@@ -27,14 +38,27 @@ services:
       - '3000:3000'
     environment:
       NODE_ENV: production
-      # Bắt buộc để TypeORM tạo bảng: production tắt synchronize mặc định, repo chưa có migration full schema.
-      TYPEORM_SYNCHRONIZE: 'true'
+      PORT: '3000'
+      # TypeORM: production thường tắt synchronize; repo dùng sync khi chưa có migration đầy đủ.
+      TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE:-true}
+      TYPEORM_LOGGING: ${TYPEORM_LOGGING:-false}
+      # Mạng Docker: host là service `postgres`, không dùng localhost.
       DATABASE_URL: postgresql://novalimo:novalimo@postgres:5432/novalimo
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       OSRM_BASE_URL: ${OSRM_BASE_URL:-}
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3000/api',(r)=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 60s
 
   web-booking:
     build:
@@ -49,7 +73,8 @@ services:
     ports:
       - '3001:3000'
     depends_on:
-      - api
+      api:
+        condition: service_healthy
 
   web-admin:
     build:
@@ -64,4 +89,5 @@ services:
     ports:
       - '3002:3000'
     depends_on:
-      - api
+      api:
+        condition: service_healthy

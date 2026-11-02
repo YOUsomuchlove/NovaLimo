@@ -1,30 +1,18 @@
 'use client';
 
-import { Card, Col, Row, Statistic } from 'antd';
 import { AdminShell } from '@limousine-workspace/shared-ui';
-import { AdminPenMeta } from '../../components/AdminPenMeta';
+import { AdminConsoleHeaderExtras } from '../../components/AdminConsoleHeaderExtras';
+import { DashboardConsoleView } from '../../components/dashboard/DashboardConsoleView';
 
 export default function DashboardPage() {
   return (
-    <AdminShell title="Dashboard">
-      <AdminPenMeta id="nvDash" name="NovaLimo Admin · Dashboard & Analytics" />
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} lg={8}>
-          <Card className="border-slate-200 shadow-sm">
-            <Statistic title="Chuyến hôm nay" value={0} />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={8}>
-          <Card className="border-slate-200 shadow-sm">
-            <Statistic title="Đơn chờ xử lý" value={0} />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} lg={8}>
-          <Card className="border-slate-200 shadow-sm">
-            <Statistic title="Xe đang chạy" value={0} />
-          </Card>
-        </Col>
-      </Row>
+    <AdminShell
+      title="Bảng điều khiển"
+      subtitle="Tổng quan doanh thu & vận hành trong ngày"
+      consoleChrome
+      headerExtra={<AdminConsoleHeaderExtras />}
+    >
+      <DashboardConsoleView />
     </AdminShell>
   );
 }

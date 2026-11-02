@@ -55,7 +55,14 @@ export const PEN_BG = {
     'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=max&w=1920&q=80',
 } as const;
 
-/** Độ che phủ rgba theo pen (tên node: Page Dark Overlay, Info Overlay, …) */
+/** Carousel trang chủ — frame ez7OG `Carousel Background` (web-bôking.pen) + biến thể */
+export const HOME_HERO_SLIDES = [
+  '/media/carousel-background.png',
+  '/media/carousel-background.png',
+  '/media/carousel-background.png',
+] as const;
+
+/** Độ che phủ rgba theo pen (Kl9cQ `Page Dark Overlay`: #0B1020CC) */
 export const PEN_OVERLAY = {
   search: 'bg-[#0B1020]/80',
   seat: 'bg-[#0B1020]/80',

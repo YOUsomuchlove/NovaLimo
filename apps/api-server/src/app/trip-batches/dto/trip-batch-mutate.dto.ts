@@ -1,4 +1,13 @@
-import { IsDateString, IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 import type { TripBatchStatus } from '@limousine-workspace/shared-types';
 
 export class TripBatchCreateDto {
@@ -12,6 +21,18 @@ export class TripBatchCreateDto {
   @IsOptional()
   @IsEnum(['OPEN', 'CLUSTERED', 'COMPLETED'] as const)
   status?: TripBatchStatus;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(500000000)
+  list_price_vnd?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(60)
+  vehicle_capacity?: number;
 }
 
 export class TripBatchUpdateDto {
@@ -27,4 +48,16 @@ export class TripBatchUpdateDto {
   @IsOptional()
   @IsEnum(['OPEN', 'CLUSTERED', 'COMPLETED'] as const)
   status?: TripBatchStatus;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(500000000)
+  list_price_vnd?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(60)
+  vehicle_capacity?: number;
 }
