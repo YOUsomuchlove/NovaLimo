@@ -1,4 +1,6 @@
+import { BackofficeModule } from './backoffice/backoffice.module';
 import { BookingModule } from './booking/booking.module';
+import { CargoModule } from './cargo/cargo.module';
 import { CatalogModule } from './catalog/catalog.module';
 import { NotifyModule } from './notify/notify.module';
 import { OpsModule } from './ops/ops.module';
@@ -17,4 +19,6 @@ export const FEATURE_MODULES = [
   TripsModule,
   BookingModule,
   OpsModule,
+  CargoModule,
+  BackofficeModule,
 ];
