@@ -43,7 +43,11 @@ export class RealtimeGateway implements OnGatewayConnection {
       ?.token;
     if (!token) return; // anonymous: public rooms only
     try {
-      const user = await this.jwt.verifyAsync<AuthUser>(token);
+      const user = await this.jwt.verifyAsync<AuthUser & { aud?: unknown }>(
+        token,
+      );
+      if (user.aud || (user.kind !== 'STAFF' && user.kind !== 'DRIVER'))
+        throw new Error('not an access token');
       socket.data.user = user;
       await socket.join(
         user.kind === 'STAFF'

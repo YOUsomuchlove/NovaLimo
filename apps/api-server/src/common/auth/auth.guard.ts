@@ -34,7 +34,21 @@ export class AuthGuard implements CanActivate {
 
     if (token) {
       try {
-        req.user = await this.jwt.verifyAsync<AuthUser>(token);
+        const claims = await this.jwt.verifyAsync<
+          Partial<AuthUser> & { aud?: unknown }
+        >(token);
+        // Only first-party access tokens: other tokens we sign (e.g. OTP lookup) carry an audience.
+        if (
+          claims.aud ||
+          typeof claims.sub !== 'string' ||
+          (claims.kind !== 'STAFF' && claims.kind !== 'DRIVER')
+        )
+          throw new Error('not an access token');
+        req.user = {
+          sub: claims.sub,
+          kind: claims.kind,
+          perms: Array.isArray(claims.perms) ? claims.perms : [],
+        };
       } catch {
         if (!isPublic)
           throw new UnauthorizedException({
