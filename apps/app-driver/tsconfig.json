@@ -9,7 +9,28 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "moduleResolution": "bundler",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@limousine-workspace/shared-types": [
+        "libs/shared-types/src/index.ts"
+      ],
+      "@limousine-workspace/utils-core": [
+        "libs/utils-core/src/index.ts"
+      ],
+      "@limousine-workspace/utils-map": [
+        "libs/utils-map/src/index.ts"
+      ],
+      "@limousine-workspace/shared-ui": [
+        "libs/shared-ui/src/index.ts"
+      ],
+      "@/*": [
+        "apps/app-driver/src/*"
+      ]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "index.js"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "index.js"
+  ]
 }

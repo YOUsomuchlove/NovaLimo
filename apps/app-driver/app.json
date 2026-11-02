@@ -11,15 +11,29 @@
       "resizeMode": "contain",
       "backgroundColor": "#020617"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.novalimo.driver"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#020617"
-      }
+      },
+      "package": "com.novalimo.driver"
     },
-    "plugins": ["expo-font", "expo-location", ["expo-camera", { "cameraPermission": "Quét QR chứng từ hàng hóa." }], "expo-notifications"]
+    "plugins": [
+      "expo-font",
+      "expo-location",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Quét QR chứng từ hàng hóa."
+        }
+      ],
+      "expo-notifications"
+    ]
   }
 }

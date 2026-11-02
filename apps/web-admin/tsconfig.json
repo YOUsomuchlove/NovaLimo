@@ -17,7 +17,8 @@
       "@limousine-workspace/shared-types": ["libs/shared-types/src/index.ts"],
       "@limousine-workspace/utils-core": ["libs/utils-core/src/index.ts"],
       "@limousine-workspace/utils-map": ["libs/utils-map/src/index.ts"],
-      "@limousine-workspace/shared-ui": ["libs/shared-ui/src/index.ts"]
+      "@limousine-workspace/shared-ui": ["libs/shared-ui/src/index.ts"],
+      "@/*": ["apps/web-admin/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
