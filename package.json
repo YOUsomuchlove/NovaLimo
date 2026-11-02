@@ -14,7 +14,12 @@
     "docker:stack": "docker compose -f docker-compose.yml -f docker-compose.stack.yml up --build",
     "docker:stack:build": "docker compose -f docker-compose.yml -f docker-compose.stack.yml build",
     "docker:stack:build:sequential": "docker compose -f docker-compose.yml -f docker-compose.stack.yml build api && docker compose -f docker-compose.yml -f docker-compose.stack.yml build web-booking web-admin",
-    "docker:stack:up": "docker compose -f docker-compose.yml -f docker-compose.stack.yml up -d"
+    "docker:stack:up": "docker compose -f docker-compose.yml -f docker-compose.stack.yml up -d",
+    "typecheck:all": "nx run-many --target=typecheck --all",
+    "test:all": "nx run-many --target=test --all",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
   },
   "private": true,
   "devDependencies": {
@@ -24,6 +29,7 @@
     "@expo/cli": "~54.0.16",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
+    "@next/eslint-plugin-next": "^16.1.6",
     "@nx/devkit": "22.6.3",
     "@nx/eslint": "22.6.3",
     "@nx/eslint-plugin": "22.6.3",
@@ -55,10 +61,16 @@
     "babel-preset-expo": "~54.0.7",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "husky": "^9.1.7",
     "jest": "^30.0.2",
     "jest-environment-node": "^30.0.2",
     "jest-util": "^30.0.2",
     "jsonc-eslint-parser": "^2.1.0",
+    "lint-staged": "^17.6.0",
     "metro-config": "~0.83.0",
     "metro-resolver": "~0.83.0",
     "nx": "22.6.3",
@@ -127,5 +139,14 @@
     "socket.io": "^4.8.3",
     "socket.io-client": "^4.8.3",
     "typeorm": "^0.3.28"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,mjs,cjs}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

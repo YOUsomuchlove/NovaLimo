@@ -3,3 +3,7 @@
 /coverage
 /.nx/cache
 /.nx/workspace-data
+**/.next
+**/.expo
+package-lock.json
+*.pen
