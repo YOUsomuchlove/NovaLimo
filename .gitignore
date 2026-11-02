@@ -65,3 +65,8 @@ npm-debug.*
 web-build/
 cache/
 
+
+# Scratch / test artefacts
+term-tmp/
+test-results/
+playwright-report/
