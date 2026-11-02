@@ -5,79 +5,64 @@
 @import '../../../../libs/design-tokens/src/generated/tokens.css';
 @import '../../../../libs/shared-ui/src/ds/styles/base.css';
 
-/*
-  Tailwind v4 needs explicit sources when no tailwind.config.* exists.
-  Without these, utilities like `bg-nova-bg`, `px-4`, `md:px-16`, ... won't be generated,
-  and the UI will look “unstyled” (missing header/footer/hero styling).
-*/
-@source '../**/*.{ts,tsx,js,jsx,mdx}';
-@source '../../components/**/*.{ts,tsx,js,jsx,mdx}';
-@source '../../../../libs/shared-ui/src/**/*.{ts,tsx,js,jsx,mdx}';
+/* Tailwind v4 has no config file here — list every folder that contains class names. */
+@source '../**/*.{ts,tsx}';
+@source '../../../../libs/shared-ui/src/ds/**/*.{ts,tsx}';
 
-@theme {
-  --color-nova-bg: #0b1020;
-  --color-nova-gold: #d4af37;
-  --color-nova-gold-hover: #c9a85c;
-  --color-nova-gold-dim: #b8922a;
-  --color-nova-muted: #b2ccff;
-  --color-nova-text: #e8eaef;
-  --color-nova-text-subtle: #f2f3f0;
-  --color-nova-navy: #0b1020;
-  --color-nova-navy-light: #1a182e;
-  --color-nova-footer-rule: #1a182e;
-  --color-nova-copyright: #888799;
-
-  --radius-nova-sm: 8px;
-  --radius-nova-md: 14px;
-  --radius-nova-lg: 20px;
-  --radius-nova-xl: 24px;
-  --radius-nova-2xl: 32px;
-
-  --shadow-nova-header: 0 4px 18px rgb(0 0 0 / 0.22);
-  --shadow-nova-cta: 0 3px 16px rgb(0 0 0 / 0.22);
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--nl-canvas);
+    color: var(--nl-fg);
+    font-feature-settings: 'cv11', 'ss01';
+  }
 }
 
-/* Spacing (PageSection): py-6 px-4 → sm:py-8 sm:px-6 → md:px-12 md:py-10 → lg:px-16. Breakpoints: sm/md/lg/xl per Tailwind. */
-
-html {
-  -webkit-text-size-adjust: 100%;
+/* Long-form text (legal pages, FAQ answers) */
+.nl-prose {
+  color: var(--nl-fg-secondary);
+  line-height: 1.75;
+}
+.nl-prose h2 {
+  margin: 2.5rem 0 0.75rem;
+  color: var(--nl-fg);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.nl-prose h3 {
+  margin: 1.75rem 0 0.5rem;
+  color: var(--nl-fg);
+  font-weight: 600;
+}
+.nl-prose p,
+.nl-prose ul {
+  margin: 0.75rem 0;
+}
+.nl-prose ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.nl-prose li + li {
+  margin-top: 0.375rem;
+}
+.nl-prose a {
+  color: var(--nl-brand-fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-/* Trang tìm kiếm — slider mức giá (track vàng, nút tối) */
-.search-price-slider .ant-slider-rail {
-  background: rgb(10 14 24 / 0.1);
-  height: 6px;
-}
-.search-price-slider .ant-slider-track {
-  background-color: var(--color-nova-gold) !important;
-  height: 6px;
-}
-.search-price-slider .ant-slider-handle::after {
-  background-color: #0a0e18;
-  box-shadow: 0 0 0 2px var(--color-nova-gold);
-  width: 16px;
-  height: 16px;
+/* Gold hairline used under section eyebrows and on hero cards */
+.nl-gold-rule {
+  background: linear-gradient(90deg, transparent, var(--nl-brand), transparent);
+  height: 1px;
 }
 
-/* Nền tối + lưới nhẹ (trang đặt gửi hàng, vùng dưới hero ký gửi) */
-.nova-dark-page-grid {
-  background-color: #0a0e18;
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.034) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.034) 1px, transparent 1px);
-  background-size: 26px 26px;
-}
-
-body {
-  margin: 0;
-  font-family:
-    var(--font-inter),
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
+/* Soft radial glow behind heroes */
+.nl-glow {
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgb(212 175 55 / 0.14), transparent 70%),
+    radial-gradient(50% 50% at 90% 10%, rgb(96 165 250 / 0.08), transparent 70%);
 }

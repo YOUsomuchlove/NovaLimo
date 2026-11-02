@@ -3,8 +3,11 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { palette } from '@limousine-workspace/design-tokens';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { SiteLayout } from '../components/site/SiteLayout';
-import { AppProviders } from './providers';
+import type { ReactNode } from 'react';
+import { SiteFooter } from '../components/site/SiteFooter';
+import { SiteHeader } from '../components/site/SiteHeader';
+import { DEFAULT_SETTINGS, SITE_URL, publicApi, safe } from '../lib/api';
+import { Providers } from './providers';
 
 const inter = Inter({
   subsets: ['latin', 'vietnamese'],
@@ -15,42 +18,69 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
-  themeColor: palette.navy[800],
+  themeColor: palette.navy[900],
+  colorScheme: 'dark',
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'NovaLimo — Đặt vé xe Limousine',
-    template: '%s | NovaLimo',
+    default: 'NovaLimo — Đặt vé xe Limousine đón trả tận nơi',
+    template: '%s · NovaLimo',
   },
   description:
-    'Đặt vé xe limousine tuyến cố định, đón trả tận nơi. NovaLimo — quản lý và điều phối thông minh.',
+    'Đặt vé limousine Hà Nội – Hạ Long, Nội Bài, Hải Phòng. Đón trả tận nơi, chọn ghế trực tuyến, thanh toán VietQR, xác nhận tức thì.',
+  applicationName: 'NovaLimo',
   openGraph: {
-    title: 'NovaLimo — Đặt vé xe Limousine',
-    description:
-      'Đặt vé nhanh trên điện thoại hoặc máy tính. Hỗ trợ đón trả tận nơi.',
-    locale: 'vi_VN',
     type: 'website',
+    locale: 'vi_VN',
+    siteName: 'NovaLimo',
+    title: 'NovaLimo — Đặt vé xe Limousine đón trả tận nơi',
+    description: 'Chọn ghế trực tuyến, đón tận nhà, thanh toán VietQR.',
   },
   robots: { index: true, follow: true },
+  alternates: { canonical: '/' },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
+  const settings = await safe(publicApi.settings(), DEFAULT_SETTINGS);
   return (
-    <html lang="vi" data-theme="light" className={inter.variable}>
-      <body
-        className={`${inter.className} min-h-screen bg-white text-slate-900 antialiased`}
-      >
+    <html lang="vi" data-theme="dark" className={inter.variable}>
+      <body className="min-h-dvh font-sans antialiased">
+        <a
+          href="#main"
+          className="sr-only rounded-control bg-brand px-4 py-2 text-on-brand focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[1300]"
+        >
+          Bỏ qua tới nội dung
+        </a>
         <AntdRegistry layer>
-          <AppProviders>
-            <SiteLayout>{children}</SiteLayout>
-          </AppProviders>
+          <Providers>
+            <SiteHeader hotline={settings.company.hotline} />
+            <main id="main" className="min-h-[60dvh]">
+              {children}
+            </main>
+            <SiteFooter company={settings.company} />
+          </Providers>
         </AntdRegistry>
+        <script
+          type="application/ld+json"
+          // Organization structured data for search engines.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'TravelAgency',
+              name: settings.company.name,
+              url: SITE_URL,
+              telephone: settings.company.hotline,
+              email: settings.company.email,
+              address: settings.company.address,
+            }),
+          }}
+        />
       </body>
     </html>
   );

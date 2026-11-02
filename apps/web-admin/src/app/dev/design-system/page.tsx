@@ -979,7 +979,7 @@ function BookingSection() {
   );
   const base = 350_000;
   const priceOf = (cell: { tier?: string }) =>
-    cell.tier === 'vip' ? base + 50_000 : base;
+    cell.tier === 'VIP' ? base + 50_000 : base;
   const all = SEAT_LAYOUTS[layout].rows
     .flat()
     .filter((c): c is NonNullable<typeof c> => !!c);

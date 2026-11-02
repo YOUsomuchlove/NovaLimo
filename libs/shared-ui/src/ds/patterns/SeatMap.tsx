@@ -1,11 +1,10 @@
 'use client';
 
+import type { SeatTier } from '@limousine-workspace/shared-types';
 import { formatVnd } from '@limousine-workspace/utils-core';
 import { Armchair, Crown, Lock } from 'lucide-react';
 import { useMemo } from 'react';
 import { cn } from '../utils/cn';
-
-export type SeatTier = 'standard' | 'vip';
 
 export interface SeatCell {
   label: string;
@@ -19,19 +18,19 @@ export interface SeatLayout {
   rows: (SeatCell | null)[][];
 }
 
-const s = (label: string, tier: SeatTier = 'standard'): SeatCell => ({
+const s = (label: string, tier: SeatTier = 'STANDARD'): SeatCell => ({
   label,
   tier,
 });
 
-/** Fallback layouts until `vehicle_types` exists on the API (phase 2). */
+/** Sample layouts (design-system page, tests). Real layouts come from `vehicle_types.seat_layout`. */
 export const SEAT_LAYOUTS = {
   limousine9: {
     id: 'limousine9',
     name: 'Limousine 9 chỗ',
     rows: [
-      [s('A1', 'vip'), null, s('A2', 'vip')],
-      [s('B1', 'vip'), null, s('B2', 'vip')],
+      [s('A1', 'VIP'), null, s('A2', 'VIP')],
+      [s('B1', 'VIP'), null, s('B2', 'VIP')],
       [s('C1'), s('C2'), s('C3')],
       [s('D1'), null, s('D2')],
     ],
@@ -40,8 +39,8 @@ export const SEAT_LAYOUTS = {
     id: 'limousine12',
     name: 'Limousine 12 chỗ',
     rows: [
-      [s('A1', 'vip'), null, s('A2', 'vip')],
-      [s('B1', 'vip'), null, s('B2', 'vip')],
+      [s('A1', 'VIP'), null, s('A2', 'VIP')],
+      [s('B1', 'VIP'), null, s('B2', 'VIP')],
       [s('C1'), s('C2'), s('C3')],
       [s('D1'), null, s('D2')],
       [s('E1'), s('E2'), s('E3')],
@@ -126,7 +125,7 @@ export function SeatMap({
             const blocked =
               disabled || unavailable || (!isSelected && limitReached);
             const price = priceOf?.(cell);
-            const vip = cell.tier === 'vip';
+            const vip = cell.tier === 'VIP';
             const aria = [
               `Ghế ${cell.label}`,
               vip ? 'VIP' : null,
