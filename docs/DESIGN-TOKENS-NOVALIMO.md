@@ -1,38 +1,52 @@
-# NovaLimo — Design tokens (Pencil → code)
+# NovaLimo — Design system (GĐ 1)
 
-Single source of truth for colors/radius/font: **`@limousine-workspace/utils-core`** → `nova-limo-design-tokens.ts`.
+Nguồn sự thật duy nhất cho màu, chữ, khoảng cách, bo góc, bóng và chuyển động: **`libs/design-tokens`**.
+Xem trực quan tại **`/dev/design-system`** trong web-admin (`npx next dev apps/web-admin --port 3002`).
 
-## Brand (marketing / Admin / Booking / Driver)
+## Kiến trúc
 
-| Token | Hex | Nguồn thiết kế |
-|-------|-----|----------------|
-| Navy | `#0B1020` | web-admin.pen sidebar, web-bôking.pen header |
-| Navy deep | `#020617` | app-mobile.pen full-screen bg |
-| Gold (primary CTA) | `#D4AF37` | CTA, tab active, Ant Design `colorPrimary` |
-| Gold hover | `#c9a227` | Link hover (booking shell) |
-| Layout bg (web) | `#f1f5f9` | Admin/Booking content area |
-
-## Pencil variables (`web-bôking.pen`)
-
-File Pencil định nghĩa thêm theme Light/Dark với biến shadcn-like (`--primary`, `--card`, `--radius-m`, …). Khi build UI **Ant Design**, ưu tiên map **Nova brand** (gold/navy) qua `ConfigProvider`; các biến Pencil dùng cho component tailwind-shadcn nếu có.
-
-Trích từ Pencil (Dark ví dụ): `--background` `#131124`, `--card` `#1A182E`, `--foreground` `#E8E8EA`, `--radius-m` `24`.
-
-## CSS `:root` (Next.js)
-
-Import optional:
-
-```css
-/* libs/shared-ui/src/lib/tokens/nova-limo-css-variables.css */
+```
+libs/design-tokens        palette.ts (hex — nơi DUY NHẤT có mã màu) → semantic.ts (theme dark/light)
+                          scales.ts (type, spacing, radius, motion, z-index, breakpoints, layout)
+                          css.ts → src/generated/tokens.css   (nx run design-tokens:generate)
+                          rn.ts  → rnTheme cho app tài xế
+libs/shared-ui            Design system web (Admin + Booking): primitives, patterns, antd theme
+libs/shared-ui/legacy     Component cũ — chỉ dùng cho màn chưa rebuild, sẽ xóa sau GĐ 5
+libs/shared-mobile-ui     Kit React Native cho app-driver
 ```
 
-Hoặc gọi `novaLimoCssVariablesBlock()` từ utils-core trong `global.css`.
+## Dùng trong code
 
-## Pixel verification
+| Nơi                | Cách dùng                                                                                                                                                                                                                                                                                                 |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tailwind (web)     | `bg-canvas`, `bg-surface-1/2/3`, `text-fg`, `text-fg-muted`, `border-border-subtle`, `bg-brand`, `text-on-brand`, `text-brand-fg`, `bg-success-bg text-success-fg`, `rounded-control/card/panel/sheet`, `shadow-e1/e2/e3/brand`, `text-ui` (13px), `text-display`, `ease-nova`, palette `navy-*` `gold-*` |
+| antd               | `NovaThemeProvider mode="dark" \| "light"` (theme sinh từ token, locale vi_VN)                                                                                                                                                                                                                            |
+| Theme theo vùng    | Đặt `data-theme="light"` hoặc `"dark"` trên bất kỳ phần tử nào; biến `--nl-*` đổi theo                                                                                                                                                                                                                    |
+| React Native       | `import { c, sp, r, type } from '@limousine-workspace/shared-mobile-ui'`                                                                                                                                                                                                                                  |
+| Giá trị thô (hiếm) | `import { palette, darkTheme } from '@limousine-workspace/design-tokens'`                                                                                                                                                                                                                                 |
 
-1. Pencil MCP: `get_variables`, `get_screenshot` trên frame cần kiểm tra.
-2. So khớp font **Inter** (web + Expo `Inter_*`).
+**Cấm** viết mã hex trong `apps/**` và `shared-ui`: ESLint `designTokenGuard` đang cảnh báo, sẽ chuyển thành lỗi sau GĐ 4.
 
-## Liên kết
+## Màu chính
 
-- [Bảng Mapping Route ↔ Màn thiết kế](../hệ%20thống%20quản%20lý%20xe%20limosin/New/Bảng%20Mapping%20Route%20Code%20↔%20Màn%20Thiết%20Kế.md) (đường dẫn tương đối từ repo nếu có thư mục `New/`)
+| Token         | Dark                  | Light           | Ghi chú                            |
+| ------------- | --------------------- | --------------- | ---------------------------------- |
+| canvas        | navy-900 `#05070F`    | slate-50        | nền trang                          |
+| surface-1     | navy-800 `#0B1020`    | white           | card, header (neo theo pen)        |
+| surface-2 / 3 | `#111827` / `#1A2236` | slate-100 / 200 | input, hover, bảng                 |
+| brand         | gold-500 `#D4AF37`    | gold-500        | CTA chính (neo theo pen)           |
+| brand-fg      | gold-400              | gold-800        | chữ / link vàng, đạt tương phản AA |
+| on-brand      | navy-800              | navy-800        | chữ trên nút vàng                  |
+
+Tương phản WCAG AA được kiểm tra tự động trong `libs/design-tokens/src/lib/tokens.spec.ts`.
+
+## Ghi chú kỹ thuật
+
+- **Cascade layers:** `global.css` của mỗi app khai báo `@layer theme, base, antd, components, utilities;` và bọc `<AntdRegistry layer>`. Nhờ đó class Tailwind thắng style antd mà không cần `!important` (đây là gốc rễ của các override `!` trong code cũ).
+- **Bản đồ:** MapLibre + OpenFreeMap (`fiord` cho dark, `positron` cho light), không cần API key. Có thể đổi qua prop `styleUrl`.
+- **Font:** Inter qua `next/font` (biến `--font-inter`) cho web; `@expo-google-fonts/inter` cho mobile.
+- **Màu categorical** (`categorical` trong design-tokens): dùng cho biểu đồ và màu riêng từng xe trên bản đồ điều phối/giám sát.
+
+## Đối chiếu Pencil
+
+Màu neo (`#0B1020`, `#D4AF37`, Inter) lấy từ `web-admin.pen`, `web-bôking.pen`, `app-mobile.pen`. Khi mở được Pencil, chạy `get_variables` để so lại thang màu, rồi cập nhật `palette.ts` và chạy `nx run design-tokens:generate`.

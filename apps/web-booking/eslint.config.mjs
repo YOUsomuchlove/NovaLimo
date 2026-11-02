@@ -14,6 +14,8 @@ export default [
     rules: {
       ...nextPlugin.configs.recommended.rules,
       ...nextPlugin.configs['core-web-vitals'].rules,
+      // App Router only — this rule looks for a pages/ directory.
+      '@next/next/no-html-link-for-pages': 'off',
     },
   },
   { ignores: ['.next/**', 'next-env.d.ts'] },

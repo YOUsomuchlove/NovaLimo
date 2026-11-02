@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { Tabs, Typography } from 'antd';
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminConsoleHeaderExtras } from '../../components/AdminConsoleHeaderExtras';
 
 const panelShell =
@@ -38,7 +38,9 @@ export default function ReportsPage() {
                   Báo cáo doanh thu theo tuyến / ngày (placeholder).
                 </Typography.Paragraph>
                 <div className="mt-5 flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-white/[0.08] bg-[#0b0e14]">
-                  <span className="text-[13px] font-medium text-[#6b7280]">Biểu đồ</span>
+                  <span className="text-[13px] font-medium text-[#6b7280]">
+                    Biểu đồ
+                  </span>
                 </div>
               </ReportPanel>
             ),
@@ -55,7 +57,9 @@ export default function ReportsPage() {
                   Hiệu suất chuyến, tỷ lệ đúng giờ (placeholder).
                 </Typography.Paragraph>
                 <div className="mt-5 flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-white/[0.08] bg-[#0b0e14]">
-                  <span className="text-[13px] font-medium text-[#6b7280]">Biểu đồ</span>
+                  <span className="text-[13px] font-medium text-[#6b7280]">
+                    Biểu đồ
+                  </span>
                 </div>
               </ReportPanel>
             ),
@@ -72,7 +76,9 @@ export default function ReportsPage() {
                   Hiệu suất tài xế, lương / thưởng (placeholder).
                 </Typography.Paragraph>
                 <div className="mt-5 flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-white/[0.08] bg-[#0b0e14]">
-                  <span className="text-[13px] font-medium text-[#6b7280]">Biểu đồ</span>
+                  <span className="text-[13px] font-medium text-[#6b7280]">
+                    Biểu đồ
+                  </span>
                 </div>
               </ReportPanel>
             ),
@@ -89,7 +95,9 @@ export default function ReportsPage() {
                   Đối soát COD, kiện hàng (placeholder).
                 </Typography.Paragraph>
                 <div className="mt-5 flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-white/[0.08] bg-[#0b0e14]">
-                  <span className="text-[13px] font-medium text-[#6b7280]">Biểu đồ</span>
+                  <span className="text-[13px] font-medium text-[#6b7280]">
+                    Biểu đồ
+                  </span>
                 </div>
               </ReportPanel>
             ),

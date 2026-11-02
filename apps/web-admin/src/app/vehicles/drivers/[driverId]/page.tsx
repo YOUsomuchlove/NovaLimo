@@ -3,7 +3,7 @@
 import { Card } from 'antd';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../../../components/AdminPenMeta';
 
 export default function DriverDetailPage() {

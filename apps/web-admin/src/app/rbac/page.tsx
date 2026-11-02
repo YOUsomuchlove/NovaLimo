@@ -2,13 +2,16 @@
 
 import { Card, Tabs, Typography } from 'antd';
 import Link from 'next/link';
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../components/AdminPenMeta';
 
 export default function RbacPage() {
   return (
     <AdminShell title="Phân quyền">
-      <AdminPenMeta id="nvRbacUsers" name="RBAC — Users / Roles / Permissions" />
+      <AdminPenMeta
+        id="nvRbacUsers"
+        name="RBAC — Users / Roles / Permissions"
+      />
       <Typography.Paragraph className="!mb-4">
         <Link href="/audit">Audit Log</Link>
       </Typography.Paragraph>
@@ -37,7 +40,9 @@ export default function RbacPage() {
             label: 'Permissions',
             children: (
               <Card className="border-slate-200">
-                <Typography.Text type="secondary">nvRbacPermissions</Typography.Text>
+                <Typography.Text type="secondary">
+                  nvRbacPermissions
+                </Typography.Text>
               </Card>
             ),
           },

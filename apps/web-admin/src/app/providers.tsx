@@ -1,3 +1,3 @@
 'use client';
 
-export { AdminProviders as AppProviders } from '@limousine-workspace/shared-ui';
+export { AdminProviders as AppProviders } from '@limousine-workspace/shared-ui/legacy';

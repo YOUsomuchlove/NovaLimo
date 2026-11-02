@@ -8,12 +8,17 @@ import React, {
   useState,
 } from 'react';
 import { Form, Grid, Typography, message } from 'antd';
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
 import type { PaymentMethod } from '@limousine-workspace/shared-types';
 import {
   priceForSeat,
   type SeatCapacity,
-} from '@limousine-workspace/shared-ui';
+} from '@limousine-workspace/shared-ui/legacy';
 import { getApiBaseUrl } from '../../../lib/api';
 import { PageSection } from '../../../components/blocks/PageSection';
 import { BookingCheckoutStep } from '../../../components/booking-wizard/BookingCheckoutStep';
@@ -248,8 +253,8 @@ function BookingWizardInner() {
             </Typography.Text>
           ) : step === 0 ? (
             <Typography.Text className="max-w-2xl text-sm font-semibold text-nova-muted sm:text-base">
-              Chọn ghế cho Limousine 9/12 chỗ · Hiển thị trạng thái trống / đã bán
-              / đang chọn
+              Chọn ghế cho Limousine 9/12 chỗ · Hiển thị trạng thái trống / đã
+              bán / đang chọn
             </Typography.Text>
           ) : step === 1 ? (
             <Typography.Text className="max-w-2xl text-sm font-semibold text-white/90 sm:text-base">

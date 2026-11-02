@@ -2,7 +2,7 @@
 
 import { Card } from 'antd';
 import { useParams } from 'next/navigation';
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../../../components/AdminPenMeta';
 
 export default function CargoEditPage() {

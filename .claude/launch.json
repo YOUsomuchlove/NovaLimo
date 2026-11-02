@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-admin",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "apps/web-admin", "--port", "3002"],
+      "port": 3002
+    },
+    {
+      "name": "web-booking",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "dev", "apps/web-booking", "--port", "3001"],
+      "port": 3001
+    }
+  ]
+}

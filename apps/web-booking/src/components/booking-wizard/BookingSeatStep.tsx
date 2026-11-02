@@ -2,7 +2,10 @@
 
 import React from 'react';
 import { Button } from 'antd';
-import { priceForSeat, type SeatCapacity } from '@limousine-workspace/shared-ui';
+import {
+  priceForSeat,
+  type SeatCapacity,
+} from '@limousine-workspace/shared-ui/legacy';
 import { BookingSeatCabMap } from './booking-seat-cab-map';
 
 export type BookingSeatStepProps = {
@@ -77,10 +80,7 @@ export function BookingSeatStep({
             colorClass="border border-[#d1d5db] bg-white"
             label="Ghế trống"
           />
-          <LegendItem
-            colorClass="border-0 bg-[#d4ac0d]"
-            label="Đang chọn"
-          />
+          <LegendItem colorClass="border-0 bg-[#d4ac0d]" label="Đang chọn" />
           <LegendItem
             colorClass="border border-[#c0392b] bg-[#e6b0aa]"
             label="Đã bán"
@@ -118,7 +118,9 @@ export function BookingSeatStep({
       </div>
 
       <div className="rounded-[24px] border border-white/10 bg-white p-4 shadow-[0_16px_48px_rgba(0,0,0,0.28)] sm:rounded-[28px] sm:p-6 md:p-8">
-        <h3 className="text-lg font-black text-[#0a0e18] sm:text-xl">{title}</h3>
+        <h3 className="text-lg font-black text-[#0a0e18] sm:text-xl">
+          {title}
+        </h3>
         <p className="mt-1 text-[13px] font-semibold text-[#64748b] sm:text-sm">
           {sub}
         </p>
@@ -146,9 +148,7 @@ export function BookingSeatStep({
                 </span>
               </>
             ) : (
-              <span className="font-semibold text-white/45">
-                Chưa chọn ghế
-              </span>
+              <span className="font-semibold text-white/45">Chưa chọn ghế</span>
             )}
           </p>
           <p className="text-base font-black text-nova-gold sm:text-lg">
@@ -158,8 +158,8 @@ export function BookingSeatStep({
             </span>
           </p>
           <p className="text-[11px] font-medium leading-relaxed text-white/45 sm:text-xs">
-            (Click &apos;Tiếp tục&apos; để chuyển sang bước Nhập thông tin / Thanh
-            toán)
+            (Click &apos;Tiếp tục&apos; để chuyển sang bước Nhập thông tin /
+            Thanh toán)
           </p>
         </div>
         <div className="mt-4 shrink-0 lg:mt-0">

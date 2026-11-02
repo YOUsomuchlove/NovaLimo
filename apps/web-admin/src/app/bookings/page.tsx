@@ -1,7 +1,10 @@
 'use client';
 
 import { Card, Table, Typography } from 'antd';
-import { AdminDarkPanel, AdminShell } from '@limousine-workspace/shared-ui';
+import {
+  AdminDarkPanel,
+  AdminShell,
+} from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../components/AdminPenMeta';
 
 const cols = [
@@ -12,9 +15,14 @@ const cols = [
 export default function BookingsPage() {
   return (
     <AdminShell title="Đơn hàng">
-      <AdminPenMeta id="nvOrdPage" name="NovaLimo Admin · Quản lý Đơn hàng & Ký gửi Hàng hóa" />
+      <AdminPenMeta
+        id="nvOrdPage"
+        name="NovaLimo Admin · Quản lý Đơn hàng & Ký gửi Hàng hóa"
+      />
       <Card className="mb-4 border-slate-200" title="Đơn vé & ký gửi (tổng)">
-        <Typography.Text type="secondary">Bảng chính — bám layout Main trong pen.</Typography.Text>
+        <Typography.Text type="secondary">
+          Bảng chính — bám layout Main trong pen.
+        </Typography.Text>
       </Card>
       <Typography.Paragraph className="!text-xs text-slate-500">
         Panel phase 2 (ký gửi) — <code className="font-mono">nvOrdPanel2</code>

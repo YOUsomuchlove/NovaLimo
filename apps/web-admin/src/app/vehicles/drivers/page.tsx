@@ -1,6 +1,6 @@
 'use client';
 
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../../components/AdminPenMeta';
 import { AdminConsoleHeaderExtras } from '../../../components/AdminConsoleHeaderExtras';
 import { FleetManagementView } from '../../../components/vehicles/FleetManagementView';
@@ -14,7 +14,10 @@ export default function DriversListPage() {
       consoleChrome
       headerExtra={<AdminConsoleHeaderExtras />}
     >
-      <AdminPenMeta id="Xox9m" name="panelDrivers — danh sách tài xế (cùng nhóm nvFleet)" />
+      <AdminPenMeta
+        id="Xox9m"
+        name="panelDrivers — danh sách tài xế (cùng nhóm nvFleet)"
+      />
       <FleetManagementView initialTab="drivers" />
     </AdminShell>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, Tabs, Typography } from 'antd';
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../components/AdminPenMeta';
 
 export default function CallCenterPage() {

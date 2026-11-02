@@ -4,7 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Typography } from 'antd';
 import { RealtimeEvents } from '@limousine-workspace/utils-core';
 import { io, type Socket } from 'socket.io-client';
-import { AdminMapPlaceholder, AdminShell } from '@limousine-workspace/shared-ui';
+import {
+  AdminMapPlaceholder,
+  AdminShell,
+} from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../components/AdminPenMeta';
 import { getSocketBaseUrl } from '../../lib/api';
 
@@ -57,11 +60,15 @@ export default function MonitorPage() {
 
   return (
     <AdminShell title="Giám sát">
-      <AdminPenMeta id="nvGsMap" name="NovaLimo Admin · Giám sát Hành trình (Command Center)" />
+      <AdminPenMeta
+        id="nvGsMap"
+        name="NovaLimo Admin · Giám sát Hành trình (Command Center)"
+      />
       <Typography.Paragraph type="secondary" className="max-w-3xl">
         Lắng nghe sự kiện realtime từ server (namespace{' '}
-        <code className="rounded bg-slate-200 px-1">/realtime</code>). Vị trí xe trên bản đồ cần luồng
-        dữ liệu từ app tài xế — bản đồ đầy đủ sẽ bổ sung sau.
+        <code className="rounded bg-slate-200 px-1">/realtime</code>). Vị trí xe
+        trên bản đồ cần luồng dữ liệu từ app tài xế — bản đồ đầy đủ sẽ bổ sung
+        sau.
       </Typography.Paragraph>
 
       <Row gutter={[16, 16]}>

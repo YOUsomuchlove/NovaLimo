@@ -1,4 +1,6 @@
 import './global.css';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { palette } from '@limousine-workspace/design-tokens';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { SiteLayout } from '../components/site/SiteLayout';
@@ -14,7 +16,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#0b1020',
+  themeColor: palette.navy[800],
 };
 
 export const metadata: Metadata = {
@@ -40,13 +42,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" className={inter.variable}>
+    <html lang="vi" data-theme="light" className={inter.variable}>
       <body
         className={`${inter.className} min-h-screen bg-white text-slate-900 antialiased`}
       >
-        <AppProviders>
-          <SiteLayout>{children}</SiteLayout>
-        </AppProviders>
+        <AntdRegistry layer>
+          <AppProviders>
+            <SiteLayout>{children}</SiteLayout>
+          </AppProviders>
+        </AntdRegistry>
       </body>
     </html>
   );

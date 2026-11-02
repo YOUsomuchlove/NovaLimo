@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Input, Select, Table, Tabs, Typography } from 'antd';
 import type { TableColumnsType } from 'antd';
-import { AdminDarkPanel } from '@limousine-workspace/shared-ui';
+import { AdminDarkPanel } from '@limousine-workspace/shared-ui/legacy';
 
 export type FleetTabKey = 'vehicles' | 'drivers';
 
@@ -101,9 +101,6 @@ const TW = {
     '[&_.ant-table-tbody_tr.ant-table-row:hover_td.ant-table-cell]:bg-white/4!',
     // Pagination layout + colors
     '[&_.ant-pagination]:mt-4',
-    // 3-column layout: total (left) | pages (center) | options (right)
-    '[&_.ant-pagination]:grid',
-    '[&_.ant-pagination]:grid-cols-[1fr_auto_1fr]',
     '[&_.ant-pagination]:items-center',
     '[&_.ant-pagination]:gap-3',
     '[&_.ant-pagination]:text-white/70',
@@ -231,7 +228,9 @@ function StatusTag({
           ? 'border-rose-500/25 bg-[#240b14] text-rose-200'
           : 'border-slate-400/25 bg-white/5 text-slate-200';
   return (
-    <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${cls}`}>
+    <span
+      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-semibold ${cls}`}
+    >
       {children}
     </span>
   );
@@ -258,7 +257,9 @@ export function FleetManagementView({
 }) {
   const [tab, setTab] = useState<FleetTabKey>(initialTab);
   const [query, setQuery] = useState('');
-  const [status, setStatus] = useState<'all' | 'ready' | 'running' | 'maint'>('all');
+  const [status, setStatus] = useState<'all' | 'ready' | 'running' | 'maint'>(
+    'all',
+  );
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -396,7 +397,9 @@ export function FleetManagementView({
       title: 'Biển số',
       dataIndex: 'licensePlate',
       key: 'licensePlate',
-      render: (v: string) => <span className="font-semibold text-slate-100">{v}</span>,
+      render: (v: string) => (
+        <span className="font-semibold text-slate-100">{v}</span>
+      ),
     },
     { title: 'Loại xe', dataIndex: 'vehicleType', key: 'vehicleType' },
     { title: 'Sức chứa', dataIndex: 'seats', key: 'seats', width: 90 },
@@ -444,7 +447,14 @@ export function FleetManagementView({
 
   const driverColumns: TableColumnsType<DriverRow> = [
     { title: 'Ảnh', key: 'image', width: 72, render: () => <AvatarStub /> },
-    { title: 'Họ tên', dataIndex: 'name', key: 'name', render: (v: string) => <span className="font-semibold text-slate-100">{v}</span> },
+    {
+      title: 'Họ tên',
+      dataIndex: 'name',
+      key: 'name',
+      render: (v: string) => (
+        <span className="font-semibold text-slate-100">{v}</span>
+      ),
+    },
     { title: 'SĐT', dataIndex: 'phone', key: 'phone', width: 120 },
     { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'Tài khoản', dataIndex: 'username', key: 'username', width: 140 },
@@ -455,7 +465,11 @@ export function FleetManagementView({
       key: 'mobileApp',
       width: 110,
       render: (v: DriverRow['mobileApp']) =>
-        v === 'Đã cấp' ? <StatusTag tone="green">{v}</StatusTag> : <StatusTag tone="amber">{v}</StatusTag>,
+        v === 'Đã cấp' ? (
+          <StatusTag tone="green">{v}</StatusTag>
+        ) : (
+          <StatusTag tone="amber">{v}</StatusTag>
+        ),
     },
     {
       title: 'Trạng thái',
@@ -477,7 +491,11 @@ export function FleetManagementView({
       key: 'account',
       width: 120,
       render: (v: DriverRow['account']) =>
-        v === 'Hoạt động' ? <StatusTag tone="green">{v}</StatusTag> : <StatusTag tone="red">Đã khóa</StatusTag>,
+        v === 'Hoạt động' ? (
+          <StatusTag tone="green">{v}</StatusTag>
+        ) : (
+          <StatusTag tone="red">Đã khóa</StatusTag>
+        ),
     },
     {
       title: 'Thao tác',
@@ -504,7 +522,8 @@ export function FleetManagementView({
     },
   ];
 
-  const ctaHref = tab === 'vehicles' ? '/vehicles/new' : '/vehicles/drivers/new';
+  const ctaHref =
+    tab === 'vehicles' ? '/vehicles/new' : '/vehicles/drivers/new';
   const ctaLabel = tab === 'vehicles' ? 'Thêm Xe Mới' : 'Thêm Tài xế Mới';
   const total = tab === 'vehicles' ? totalVehicles : totalDrivers;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
@@ -576,7 +595,8 @@ export function FleetManagementView({
             </div>
           </div>
           <Typography.Text className="mt-2 block px-4 text-[11px] font-medium text-white/40">
-            Hiển thị {rangeStart}-{rangeEnd} / {total} kết quả • Dữ liệu trong tổng số xe đăng ký
+            Hiển thị {rangeStart}-{rangeEnd} / {total} kết quả • Dữ liệu trong
+            tổng số xe đăng ký
           </Typography.Text>
         </div>
 
@@ -631,4 +651,3 @@ export function FleetManagementView({
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 'use client';
 
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminConsoleHeaderExtras } from '../../components/AdminConsoleHeaderExtras';
 import { DashboardConsoleView } from '../../components/dashboard/DashboardConsoleView';
 

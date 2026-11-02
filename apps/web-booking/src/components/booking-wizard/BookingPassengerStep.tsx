@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { SearchOutlined } from '@ant-design/icons';
-import { AddressSearchInput } from '@limousine-workspace/shared-ui';
+import { AddressSearchInput } from '@limousine-workspace/shared-ui/legacy';
 import { Button, Form, FormInstance, Input, Typography, message } from 'antd';
 import { BookingPassengerMapPanel } from './BookingPassengerMapPanel';
 
@@ -239,9 +239,7 @@ export function BookingPassengerStep({
                 })
               }
               inputClassName={inputCls}
-              suffix={
-                <SearchOutlined className="text-[#94a3b8]" aria-hidden />
-              }
+              suffix={<SearchOutlined className="text-[#94a3b8]" aria-hidden />}
             />
           </div>
           <div>
@@ -252,9 +250,7 @@ export function BookingPassengerStep({
               apiBaseUrl={apiBaseUrl}
               placeholder="Tìm địa chỉ trả…"
               value={dropoff.address}
-              onAddressChange={(a) =>
-                setDropoff((p) => ({ ...p, address: a }))
-              }
+              onAddressChange={(a) => setDropoff((p) => ({ ...p, address: a }))}
               onLocationCommit={(x) =>
                 setDropoff({
                   address: x.address,
@@ -262,9 +258,7 @@ export function BookingPassengerStep({
                 })
               }
               inputClassName={inputCls}
-              suffix={
-                <SearchOutlined className="text-[#94a3b8]" aria-hidden />
-              }
+              suffix={<SearchOutlined className="text-[#94a3b8]" aria-hidden />}
             />
           </div>
         </div>

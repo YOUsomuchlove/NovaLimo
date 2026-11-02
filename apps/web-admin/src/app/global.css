@@ -1,5 +1,9 @@
+/* antd sits between Tailwind's base and utilities so utility classes win without !important. */
+@layer theme, base, antd, components, utilities;
+
 @import 'tailwindcss';
-@import '../../../../libs/shared-ui/src/lib/tokens/nova-limo-css-variables.css';
+@import '../../../../libs/design-tokens/src/generated/tokens.css';
+@import '../../../../libs/shared-ui/src/ds/styles/base.css';
 
 /*
   Tailwind v4 needs explicit sources when no tailwind.config.* exists.

@@ -1,7 +1,7 @@
 # NovaLimo — Kế hoạch xây dựng lại (Rebuild Plan)
 
 > Lập ngày 02/11/2026, sau khi rà soát toàn bộ repo: `apps/api-server`, `apps/web-admin`, `apps/web-booking`, `apps/app-driver`, `libs/*` và bộ đặc tả trong `hệ thống quản lý xe limosin/New/`.
-> **Tiến độ:** GĐ 0 xong trên nhánh `rebuild` (trừ 0.2: xuất ảnh Pencil, vì app Pencil chưa mở). Bản snapshot code cũ: tag `legacy-v0`.
+> **Tiến độ:** GĐ 0 ✅ (trừ 0.2: xuất ảnh Pencil, vì app chưa mở) · GĐ 1 ✅ design system (`libs/design-tokens`, `shared-ui`, `shared-mobile-ui`, trang `/dev/design-system`). Nhánh `rebuild`; snapshot code cũ: tag `legacy-v0`.
 >
 > Mục tiêu: **đúng thiết kế Pencil** (`web-admin.pen`, `web-bôking.pen`, `app-mobile.pen`, `app-mobile-chat-shift.pen`), **đẹp và chuyên nghiệp hơn bản vẽ**, và **chạy thật end-to-end**, không còn mock.
 

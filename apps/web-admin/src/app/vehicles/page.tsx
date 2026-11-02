@@ -1,6 +1,6 @@
 'use client';
 
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../components/AdminPenMeta';
 import { AdminConsoleHeaderExtras } from '../../components/AdminConsoleHeaderExtras';
 import { FleetManagementView } from '../../components/vehicles/FleetManagementView';
@@ -13,7 +13,10 @@ export default function VehiclesPage() {
       consoleChrome
       headerExtra={<AdminConsoleHeaderExtras />}
     >
-      <AdminPenMeta id="nvFleet" name="NovaLimo Admin · Quản lý Đội xe & Tài xế" />
+      <AdminPenMeta
+        id="nvFleet"
+        name="NovaLimo Admin · Quản lý Đội xe & Tài xế"
+      />
       <FleetManagementView initialTab="vehicles" />
     </AdminShell>
   );

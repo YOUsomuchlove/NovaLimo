@@ -1,0 +1,85 @@
+/*
+ * NovaLimo design-system base styles. Import after tailwindcss + tokens.css:
+ *   @import '../../../../libs/shared-ui/src/ds/styles/base.css';
+ */
+
+@layer base {
+  ::selection {
+    background: var(--nl-brand-subtle);
+    color: var(--nl-fg);
+  }
+
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--nl-focus-ring);
+    outline-offset: 2px;
+  }
+}
+
+/* Skeleton shimmer */
+.nl-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--nl-surface-2) 0%,
+    var(--nl-surface-3) 50%,
+    var(--nl-surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: nl-shimmer 1.4s var(--ease-nova) infinite;
+}
+
+@keyframes nl-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* Thin themed scrollbars inside panels */
+.nl-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--nl-border-strong) transparent;
+}
+
+/* Hatched fill for seats on hold */
+.nl-hatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--nl-warning-bg) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+/* MapLibre controls on dark surfaces */
+.maplibregl-ctrl-group {
+  background: var(--nl-surface-2) !important;
+  border: 1px solid var(--nl-border-default);
+  box-shadow: var(--nl-shadow-e2) !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top-color: var(--nl-border-subtle) !important;
+}
+[data-theme='dark'] .maplibregl-ctrl-icon,
+:root:not([data-theme='light']) .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.2);
+}
+.maplibregl-ctrl-attrib {
+  background: var(--nl-overlay) !important;
+  color: var(--nl-fg-muted);
+  font-size: 10px;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--nl-fg-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

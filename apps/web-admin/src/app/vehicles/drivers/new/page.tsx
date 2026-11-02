@@ -11,8 +11,8 @@ import {
 import { App, Button, Form, Input, Select, Upload } from 'antd';
 import type { UploadProps } from 'antd';
 import ImgCrop from 'antd-img-crop';
-import { AdminShell } from '@limousine-workspace/shared-ui';
-import { AdminDarkPanel } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
+import { AdminDarkPanel } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../../../components/AdminPenMeta';
 import { authFetch, getApiBaseUrl } from '../../../../lib/api';
 
@@ -118,7 +118,9 @@ export default function DriverCreatePage() {
       accept: 'image/jpeg,image/png,image/webp',
       showUploadList: false,
       beforeUpload: (file) => {
-        const isAllowed = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
+        const isAllowed = ['image/jpeg', 'image/png', 'image/webp'].includes(
+          file.type,
+        );
         if (!isAllowed) {
           message.error('Chỉ hỗ trợ JPG/PNG/WEBP');
           return Upload.LIST_IGNORE;
@@ -136,10 +138,13 @@ export default function DriverCreatePage() {
           setAvatarUploading(true);
           const fd = new FormData();
           fd.append('file', file as Blob);
-          const res = await authFetch(`${getApiBaseUrl()}/admin/uploads/avatar`, {
-            method: 'POST',
-            body: fd,
-          });
+          const res = await authFetch(
+            `${getApiBaseUrl()}/admin/uploads/avatar`,
+            {
+              method: 'POST',
+              body: fd,
+            },
+          );
           if (!res.ok) {
             let msg = `Upload thất bại (${res.status})`;
             try {
@@ -181,7 +186,9 @@ export default function DriverCreatePage() {
       <div className="mx-auto w-full max-w-[1120px]">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
           <div className="space-y-3">
-            <div className="text-[12px] font-semibold text-white/55">Ảnh đại diện</div>
+            <div className="text-[12px] font-semibold text-white/55">
+              Ảnh đại diện
+            </div>
             <div className={cx(TW.surface, 'p-6')}>
               <div className="flex flex-col items-center">
                 <div className="relative flex size-[168px] items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10">
@@ -224,7 +231,8 @@ export default function DriverCreatePage() {
                   </Button>
                 </div>
                 <p className="mt-4 text-center text-[11px] font-medium leading-relaxed text-white/35">
-                  Ảnh sẽ hiển thị trong danh sách tài xế và trên ứng dụng di động (nếu cấp).
+                  Ảnh sẽ hiển thị trong danh sách tài xế và trên ứng dụng di
+                  động (nếu cấp).
                 </p>
               </div>
             </div>
@@ -233,32 +241,48 @@ export default function DriverCreatePage() {
           <div className="space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className={TW.sectionTitle}>Hồ sơ &amp; tài khoản tài xế</div>
+                <div className={TW.sectionTitle}>
+                  Hồ sơ &amp; tài khoản tài xế
+                </div>
                 <div className={TW.sectionSub}>
-                  Mật khẩu được đặt dạng ẩn ký tự khi nhập. Admin có thể cấp lại khi cần.
+                  Mật khẩu được đặt dạng ẩn ký tự khi nhập. Admin có thể cấp lại
+                  khi cần.
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Link href="/vehicles/drivers" className="inline-flex">
                   <Button className={TW.ghostBtn}>Hủy</Button>
                 </Link>
-                <Button type="primary" className={TW.primaryBtn} htmlType="button">
+                <Button
+                  type="primary"
+                  className={TW.primaryBtn}
+                  htmlType="button"
+                >
                   Tạo tài xế
                 </Button>
               </div>
             </div>
 
             <AdminDarkPanel className={cx(TW.surface, 'p-6')}>
-              <Form layout="vertical" requiredMark={false} className="driver-create-form">
+              <Form
+                layout="vertical"
+                requiredMark={false}
+                className="driver-create-form"
+              >
                 <div className="space-y-6">
                   <section className="space-y-3">
-                    <div className="text-[12px] font-bold text-white/80">Thông tin liên hệ</div>
+                    <div className="text-[12px] font-bold text-white/80">
+                      Thông tin liên hệ
+                    </div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <Form.Item
                         label={<span className={TW.label}>Họ và tên</span>}
                         name="fullName"
                       >
-                        <Input className={TW.input} placeholder="Nguyễn Văn..." />
+                        <Input
+                          className={TW.input}
+                          placeholder="Nguyễn Văn..."
+                        />
                       </Form.Item>
                       <Form.Item
                         label={<span className={TW.label}>Số điện thoại</span>}
@@ -271,7 +295,10 @@ export default function DriverCreatePage() {
                         name="email"
                         className="md:col-span-2"
                       >
-                        <Input className={TW.input} placeholder="ten.tx@novalimo.vn" />
+                        <Input
+                          className={TW.input}
+                          placeholder="ten.tx@novalimo.vn"
+                        />
                       </Form.Item>
                     </div>
                   </section>
@@ -279,19 +306,31 @@ export default function DriverCreatePage() {
                   <div className="h-px w-full bg-white/6" />
 
                   <section className="space-y-3">
-                    <div className="text-[12px] font-bold text-white/80">Tài khoản ứng dụng</div>
+                    <div className="text-[12px] font-bold text-white/80">
+                      Tài khoản ứng dụng
+                    </div>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <Form.Item
                         label={<span className={TW.label}>Tên đăng nhập</span>}
                         name="username"
                       >
-                        <Input className={TW.input} placeholder="ten.tx.driver" />
+                        <Input
+                          className={TW.input}
+                          placeholder="ten.tx.driver"
+                        />
                       </Form.Item>
                       <Form.Item
-                        label={<span className={TW.label}>Mật khẩu (ký tự hiển thị đầy đủ)</span>}
+                        label={
+                          <span className={TW.label}>
+                            Mật khẩu (ký tự hiển thị đầy đủ)
+                          </span>
+                        }
                         name="password"
                       >
-                        <Input.Password className={TW.input} placeholder="••••••••••" />
+                        <Input.Password
+                          className={TW.input}
+                          placeholder="••••••••••"
+                        />
                       </Form.Item>
                     </div>
                   </section>
@@ -300,7 +339,9 @@ export default function DriverCreatePage() {
 
                   <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <Form.Item
-                      label={<span className={TW.label}>Trạng thái tài khoản</span>}
+                      label={
+                        <span className={TW.label}>Trạng thái tài khoản</span>
+                      }
                       name="accountStatus"
                     >
                       <Select
@@ -308,7 +349,10 @@ export default function DriverCreatePage() {
                         classNames={{ popup: { root: TW.selectPopup } }}
                         placeholder="Chọn trạng thái"
                         options={[
-                          { value: 'active', label: 'Hoạt động (có thể khóa sau khi tạo)' },
+                          {
+                            value: 'active',
+                            label: 'Hoạt động (có thể khóa sau khi tạo)',
+                          },
                           { value: 'locked', label: 'Đã khóa' },
                         ]}
                       />
@@ -331,8 +375,13 @@ export default function DriverCreatePage() {
                   </section>
 
                   <section className="space-y-3">
-                    <div className="text-[12px] font-bold text-white/80">Ghi chú</div>
-                    <Form.Item name="note" label={<span className={TW.label}>Ghi chú</span>}>
+                    <div className="text-[12px] font-bold text-white/80">
+                      Ghi chú
+                    </div>
+                    <Form.Item
+                      name="note"
+                      label={<span className={TW.label}>Ghi chú</span>}
+                    >
                       <Input.TextArea
                         rows={3}
                         className={TW.textarea}

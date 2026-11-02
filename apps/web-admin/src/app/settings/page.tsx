@@ -1,13 +1,16 @@
 'use client';
 
 import { Card, Tabs, Typography } from 'antd';
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../components/AdminPenMeta';
 
 export default function SettingsPage() {
   return (
     <AdminShell title="Cấu hình">
-      <AdminPenMeta id="nvCfgRoutesStops" name="Cấu hình — nhóm tab (5 màn pen)" />
+      <AdminPenMeta
+        id="nvCfgRoutesStops"
+        name="Cấu hình — nhóm tab (5 màn pen)"
+      />
       <Tabs
         items={[
           {
@@ -15,7 +18,9 @@ export default function SettingsPage() {
             label: 'Tuyến / điểm',
             children: (
               <Card className="border-slate-200">
-                <Typography.Text type="secondary">nvCfgRoutesStops</Typography.Text>
+                <Typography.Text type="secondary">
+                  nvCfgRoutesStops
+                </Typography.Text>
               </Card>
             ),
           },
@@ -24,7 +29,9 @@ export default function SettingsPage() {
             label: 'Khung giờ',
             children: (
               <Card className="border-slate-200">
-                <Typography.Text type="secondary">nvCfgTimeSlots</Typography.Text>
+                <Typography.Text type="secondary">
+                  nvCfgTimeSlots
+                </Typography.Text>
               </Card>
             ),
           },
@@ -42,7 +49,9 @@ export default function SettingsPage() {
             label: 'COD',
             children: (
               <Card className="border-slate-200">
-                <Typography.Text type="secondary">nvCfgCodPolicy</Typography.Text>
+                <Typography.Text type="secondary">
+                  nvCfgCodPolicy
+                </Typography.Text>
               </Card>
             ),
           },
@@ -51,7 +60,9 @@ export default function SettingsPage() {
             label: 'Thông báo',
             children: (
               <Card className="border-slate-200">
-                <Typography.Text type="secondary">nvCfgNotifications</Typography.Text>
+                <Typography.Text type="secondary">
+                  nvCfgNotifications
+                </Typography.Text>
               </Card>
             ),
           },

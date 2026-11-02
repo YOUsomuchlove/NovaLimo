@@ -1,4 +1,6 @@
 import './global.css';
+import { AntdRegistry } from '@ant-design/nextjs-registry';
+import { palette } from '@limousine-workspace/design-tokens';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { AppProviders } from './providers';
@@ -12,7 +14,7 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0B1020',
+  themeColor: palette.navy[800],
 };
 
 export const metadata: Metadata = {
@@ -24,13 +26,19 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="vi" className={inter.variable}>
+    <html lang="vi" data-theme="dark" className={inter.variable}>
       <body
         className={`${inter.className} min-h-screen bg-nova-navy text-slate-900 antialiased`}
       >
-        <AppProviders>{children}</AppProviders>
+        <AntdRegistry layer>
+          <AppProviders>{children}</AppProviders>
+        </AntdRegistry>
       </body>
     </html>
   );

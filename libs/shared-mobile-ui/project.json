@@ -1,0 +1,15 @@
+{
+  "name": "shared-mobile-ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared-mobile-ui/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/shared-mobile-ui/tsconfig.json --noEmit"
+      }
+    }
+  }
+}

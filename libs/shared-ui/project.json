@@ -10,7 +10,10 @@
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/shared-ui/**/*.ts", "libs/shared-ui/**/*.tsx"]
+        "lintFilePatterns": [
+          "libs/shared-ui/**/*.ts",
+          "libs/shared-ui/**/*.tsx"
+        ]
       }
     },
     "build": {
@@ -21,6 +24,12 @@
         "main": "libs/shared-ui/src/index.ts",
         "tsConfig": "libs/shared-ui/tsconfig.lib.json",
         "assets": ["libs/shared-ui/*.md"]
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc -p libs/shared-ui/tsconfig.lib.json --noEmit"
       }
     }
   }

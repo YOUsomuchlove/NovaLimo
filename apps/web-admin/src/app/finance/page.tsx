@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, Typography } from 'antd';
-import { AdminShell } from '@limousine-workspace/shared-ui';
+import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { AdminPenMeta } from '../../components/AdminPenMeta';
 
 export default function FinancePage() {
@@ -9,7 +9,9 @@ export default function FinancePage() {
     <AdminShell title="Tài chính">
       <AdminPenMeta id="nvFinance" name="NovaLimo Admin · Quản lý Tài chính" />
       <Card className="border-slate-200">
-        <Typography.Text type="secondary">Bảng tài chính — bám pen.</Typography.Text>
+        <Typography.Text type="secondary">
+          Bảng tài chính — bám pen.
+        </Typography.Text>
       </Card>
     </AdminShell>
   );

@@ -1,72 +1,53 @@
 /**
- * NovaLimo — design tokens (single source of truth for hex/radius/font).
- * Brand palette aligns with Pencil: web-admin.pen, web-bôking.pen, app-mobile.pen
- * (marketing surfaces use navy #0B1020 + gold #D4AF37 + Inter).
- *
- * Pencil variable themes (web-bôking.pen) expose additional shadcn-like tokens
- * (`--primary` etc.); Nova brand overrides primary CTA to gold in Ant Design themes.
+ * @deprecated Legacy token names kept only so pre-rebuild screens keep compiling.
+ * New code imports from `@limousine-workspace/design-tokens` (semantic tokens) instead.
+ * Values are derived from the design-tokens palette — there are no hex literals here any more.
+ * Delete this file once the last legacy screen is rebuilt (end of phase 5).
  */
+import {
+  darkTheme,
+  fontFamily,
+  palette,
+  radius,
+} from '@limousine-workspace/design-tokens';
+
 export const NOVA_BRAND = {
-  navy: '#0B1020',
-  /** web-admin.pen — Sidebar fill */
-  adminSiderBg: '#050814',
-  /** web-admin.pen — Sidebar stroke */
-  adminSiderStroke: '#1F2937',
-  navyDeep: '#020617',
-  gold: '#D4AF37',
-  goldDim: '#b8922a',
-  goldHover: '#c9a227',
-  white: '#FFFFFF',
-  textOnDark: '#F9FAFB',
-  muted: '#94A3B8',
-  stroke: '#334155',
-  slateLayoutBg: '#f1f5f9',
-  slateText: '#0f172a',
-  slateMuted: '#64748b',
-  info: '#2563EB',
-  success: '#22C55E',
-  warning: '#EAB308',
-  error: '#EF4444',
+  navy: palette.navy[800],
+  adminSiderBg: palette.navy[900],
+  adminSiderStroke: palette.slate[800],
+  navyDeep: palette.navy[950],
+  gold: palette.gold[500],
+  goldDim: palette.gold[600],
+  goldHover: palette.gold[400],
+  white: palette.white,
+  textOnDark: palette.slate[50],
+  muted: palette.slate[400],
+  stroke: palette.slate[700],
+  slateLayoutBg: palette.slate[100],
+  slateText: palette.slate[900],
+  slateMuted: palette.slate[500],
+  info: palette.blue[600],
+  success: palette.green[500],
+  warning: palette.amber[500],
+  error: palette.red[500],
 } as const;
 
-/** Driver app dark surfaces — app-mobile.pen */
 export const NOVA_DRIVER = {
-  bg: NOVA_BRAND.navyDeep,
-  card: NOVA_BRAND.navy,
-  cardElevated: '#111827',
-  tabBar: NOVA_BRAND.navy,
-  overlay: 'rgba(2, 6, 23, 0.92)',
+  bg: palette.navy[950],
+  card: palette.navy[800],
+  cardElevated: palette.navy[700],
+  tabBar: palette.navy[800],
+  overlay: darkTheme.overlay,
 } as const;
 
 export const NOVA_RADIUS = {
-  /** AntD admin default */
   admin: 8,
-  /** Booking buttons / cards */
-  bookingLg: 14,
-  bookingCard: 20,
-  /** Driver app — app-mobile.pen */
+  bookingLg: radius.card,
+  bookingCard: radius.panel,
   driverCard: 16,
-  driverTabBar: 20,
+  driverTabBar: radius.panel,
   driverInput: 12,
   pill: 999,
 } as const;
 
-export const NOVA_FONT_STACK =
-  "'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
-
-/** CSS custom properties for Next.js global.css imports */
-export function novaLimoCssVariablesBlock(): string {
-  return `:root {
-  --nl-navy: ${NOVA_BRAND.navy};
-  --nl-navy-deep: ${NOVA_BRAND.navyDeep};
-  --nl-gold: ${NOVA_BRAND.gold};
-  --nl-gold-dim: ${NOVA_BRAND.goldDim};
-  --nl-text-on-dark: ${NOVA_BRAND.textOnDark};
-  --nl-muted: ${NOVA_BRAND.muted};
-  --nl-stroke: ${NOVA_BRAND.stroke};
-  --nl-layout-bg: ${NOVA_BRAND.slateLayoutBg};
-  --nl-font: ${NOVA_FONT_STACK};
-  --nl-radius-admin: ${NOVA_RADIUS.admin}px;
-  --nl-radius-booking: ${NOVA_RADIUS.bookingLg}px;
-}`;
-}
+export const NOVA_FONT_STACK = fontFamily.sans;

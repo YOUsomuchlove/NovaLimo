@@ -6,7 +6,7 @@ import {
   isVipSeat,
   priceForSeat,
   type SeatCapacity,
-} from '@limousine-workspace/shared-ui';
+} from '@limousine-workspace/shared-ui/legacy';
 
 export type SeatTileState = 'available' | 'sold' | 'selected';
 
@@ -155,7 +155,10 @@ export function BookingSeatCabMap({
             >
               <span
                 className="text-[11px] font-black tracking-wide text-nova-gold sm:text-xs"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+                style={{
+                  writingMode: 'vertical-rl',
+                  transform: 'rotate(180deg)',
+                }}
               >
                 Lối đi
               </span>
@@ -188,7 +191,10 @@ export function BookingSeatCabMap({
             >
               <span
                 className="text-[11px] font-black tracking-wide text-nova-gold sm:text-xs"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
+                style={{
+                  writingMode: 'vertical-rl',
+                  transform: 'rotate(180deg)',
+                }}
               >
                 Lối đi
               </span>

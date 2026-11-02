@@ -11,14 +11,20 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "plugins": [{ "name": "next" }],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "baseUrl": "../..",
     "paths": {
+      "@/*": ["apps/web-admin/src/*"],
+      "@limousine-workspace/design-tokens": ["libs/design-tokens/src/index.ts"],
       "@limousine-workspace/shared-types": ["libs/shared-types/src/index.ts"],
-      "@limousine-workspace/utils-core": ["libs/utils-core/src/index.ts"],
-      "@limousine-workspace/utils-map": ["libs/utils-map/src/index.ts"],
       "@limousine-workspace/shared-ui": ["libs/shared-ui/src/index.ts"],
-      "@/*": ["apps/web-admin/src/*"]
+      "@limousine-workspace/shared-ui/legacy": ["libs/shared-ui/src/legacy.ts"],
+      "@limousine-workspace/utils-core": ["libs/utils-core/src/index.ts"],
+      "@limousine-workspace/utils-map": ["libs/utils-map/src/index.ts"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
