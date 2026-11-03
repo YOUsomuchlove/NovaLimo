@@ -60,18 +60,27 @@ export class PricingService {
       : null;
   }
 
-  /** Lowest current base fare per route (public route listing). */
-  async fromPrices(date: string): Promise<Map<string, number>> {
+  /** Lowest current base fare (and its VIP surcharge) per route — public listing. */
+  async fromPrices(
+    date: string,
+  ): Promise<Map<string, { base: number; vip: number }>> {
     const rows = await this.rules
       .createQueryBuilder('p')
-      .select('p.route_id', 'route_id')
-      .addSelect('MIN(p.base_price_vnd)', 'min')
+      .select('DISTINCT ON (p.route_id) p.route_id', 'route_id')
+      .addSelect('p.base_price_vnd', 'base')
+      .addSelect('p.vip_surcharge_vnd', 'vip')
       .where('p.is_active')
       .andWhere('(p.valid_from IS NULL OR p.valid_from <= :date)', { date })
       .andWhere('(p.valid_to IS NULL OR p.valid_to >= :date)', { date })
-      .groupBy('p.route_id')
-      .getRawMany<{ route_id: string; min: string }>();
-    return new Map(rows.map((r) => [r.route_id, Number(r.min)]));
+      .orderBy('p.route_id')
+      .addOrderBy('p.base_price_vnd', 'ASC')
+      .getRawMany<{ route_id: string; base: number; vip: number }>();
+    return new Map(
+      rows.map((r) => [
+        r.route_id,
+        { base: Number(r.base), vip: Number(r.vip) },
+      ]),
+    );
   }
 }
 

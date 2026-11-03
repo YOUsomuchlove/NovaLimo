@@ -22,7 +22,7 @@ export function PlacePicker({
 }) {
   const custom = !value?.stop_id;
   return (
-    <fieldset className="flex flex-col gap-3">
+    <fieldset className="flex min-w-0 flex-col gap-3">
       <legend className="mb-3 text-sm font-medium text-fg-secondary">
         {label}
         <span className="ml-0.5 text-danger-fg">*</span>

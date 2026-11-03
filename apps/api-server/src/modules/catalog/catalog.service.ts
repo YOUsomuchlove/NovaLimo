@@ -228,14 +228,17 @@ export class CatalogService {
       : [];
     const prices = opts.withPrices
       ? await this.pricing.fromPrices(vnDateString())
-      : new Map<string, number>();
+      : new Map<string, { base: number; vip: number }>();
     return routes.map((r) =>
       toRouteDto(r, {
         ...(opts.withStops
           ? { stops: stops.filter((s) => s.route_id === r.id).map(toStopDto) }
           : {}),
         ...(opts.withPrices
-          ? { from_price_vnd: prices.get(r.id) ?? null }
+          ? {
+              from_price_vnd: prices.get(r.id)?.base ?? null,
+              vip_surcharge_vnd: prices.get(r.id)?.vip ?? null,
+            }
           : {}),
       }),
     );

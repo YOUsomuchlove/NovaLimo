@@ -139,6 +139,8 @@ export interface RouteDto {
   stops?: StopDto[];
   /** Cheapest current base fare (public listing) */
   from_price_vnd?: number | null;
+  /** VIP seat surcharge of that fare */
+  vip_surcharge_vnd?: number | null;
 }
 
 export interface TimeSlotDto {
