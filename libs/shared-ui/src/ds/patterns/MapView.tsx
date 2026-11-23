@@ -19,6 +19,7 @@ export interface MapMarker {
   /** Hover title */
   title?: string;
   kind?: 'pickup' | 'dropoff' | 'vehicle' | 'default';
+  tone?: 'brand' | 'info' | 'success' | 'danger' | 'warning' | 'neutral';
   /** Index into the categorical palette (vehicle colour) */
   colorIndex?: number;
   onClick?: () => void;
@@ -35,6 +36,10 @@ export interface MapRoute {
 export interface MapViewProps {
   markers?: MapMarker[];
   routes?: MapRoute[];
+  /** Convenience single polyline as `{ lat, lng }[]` */
+  polyline?: { lat: number; lng: number }[];
+  /** Optional height in px or CSS units (defaults to 320px if no h-* class) */
+  height?: number | string;
   center?: [number, number];
   zoom?: number;
   /** Fit bounds to markers/routes whenever they change */
@@ -91,6 +96,8 @@ function markerElement(m: MapMarker): HTMLElement {
 export function MapView({
   markers = [],
   routes = [],
+  polyline,
+  height,
   center = DEFAULT_CENTER,
   zoom = 12,
   fitToContent = true,
@@ -98,6 +105,19 @@ export function MapView({
   styleUrl,
   className,
 }: MapViewProps) {
+  const effectiveRoutes: MapRoute[] =
+    polyline && polyline.length > 1
+      ? [
+          ...routes,
+          {
+            id: 'polyline-main',
+            coordinates: polyline.map(
+              (p) => [p.lng, p.lat] as [number, number],
+            ),
+            colorIndex: 0,
+          },
+        ]
+      : routes;
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
   const markerRefs = useRef<MlMarker[]>([]);
@@ -130,7 +150,6 @@ export function MapView({
       map.current = null;
       setReady(false);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- map is created once; content effects below react to props
   }, [theme, styleUrl]);
 
   // markers
@@ -157,7 +176,7 @@ export function MapView({
     Object.keys(style.sources)
       .filter((id) => id.startsWith('route-'))
       .forEach((id) => m.removeSource(id));
-    routes.forEach((r) => {
+    effectiveRoutes.forEach((r) => {
       const id = `route-${r.id}`;
       m.addSource(id, {
         type: 'geojson',
@@ -190,7 +209,7 @@ export function MapView({
         },
       });
     });
-  }, [ready, routes]);
+  }, [ready, effectiveRoutes]);
 
   // fit
   useEffect(() => {
@@ -199,7 +218,7 @@ export function MapView({
     if (!ready || !m || !ml || !fitToContent) return;
     const pts: [number, number][] = [
       ...markers.map((mk) => [mk.lng, mk.lat] as [number, number]),
-      ...routes.flatMap((r) => r.coordinates),
+      ...effectiveRoutes.flatMap((r) => r.coordinates),
     ];
     if (pts.length === 0) return;
     if (pts.length === 1) {
@@ -211,12 +230,14 @@ export function MapView({
       new ml.LngLatBounds(pts[0], pts[0]),
     );
     m.fitBounds(bounds, { padding: 56, maxZoom: 15, duration: 600 });
-  }, [ready, markers, routes, fitToContent]);
+  }, [ready, markers, effectiveRoutes, fitToContent]);
 
   return (
     <div
+      style={height !== undefined ? { height } : undefined}
       className={cn(
         'relative overflow-hidden rounded-card border border-border-subtle bg-surface-2',
+        height === undefined && 'min-h-[300px]',
         className,
       )}
     >

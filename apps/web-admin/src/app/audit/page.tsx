@@ -1,18 +1,21 @@
-'use client';
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { AdminShell } from '../../components/shell/AdminShell';
+import { RbacConsoleView } from '../rbac/page';
 
-import { Card, Typography } from 'antd';
-import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
-import { AdminPenMeta } from '../../components/AdminPenMeta';
+export const metadata: Metadata = {
+  title: 'Audit Log',
+};
 
 export default function AuditPage() {
   return (
-    <AdminShell title="Audit Log">
-      <AdminPenMeta id="nvAuditLog" name="NovaLimo Admin · Audit Log" />
-      <Card className="border-slate-200">
-        <Typography.Text type="secondary">
-          Bảng nhật ký thao tác — bám pen.
-        </Typography.Text>
-      </Card>
+    <AdminShell
+      title="Audit Log"
+      subtitle="Nhật ký hoạt động quản trị · Lọc theo tài nguyên · Xuất báo cáo kiểm toán"
+    >
+      <Suspense fallback={null}>
+        <RbacConsoleView defaultTab="audit" />
+      </Suspense>
     </AdminShell>
   );
 }

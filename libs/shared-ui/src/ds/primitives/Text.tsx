@@ -12,15 +12,20 @@ import { cn } from '../utils/cn';
 export function Money({
   value,
   compact,
+  signed,
   className,
 }: {
   value: number;
   compact?: boolean;
+  signed?: boolean;
   className?: string;
 }) {
+  const formatted = formatVnd(Math.abs(value), { compact });
+  const prefix = value < 0 ? '− ' : signed && value > 0 ? '+ ' : '';
   return (
     <span className={cn('tabular-nums whitespace-nowrap', className)}>
-      {formatVnd(value, { compact })}
+      {prefix}
+      {formatted}
     </span>
   );
 }
@@ -51,17 +56,26 @@ export function Phone({
 export function DateTime({
   value,
   format = 'datetime',
+  mode,
   className,
 }: {
-  value: Date | string | number;
+  value: Date | string | number | null | undefined;
   format?: 'datetime' | 'date' | 'time';
+  mode?: 'datetime' | 'date' | 'time';
   className?: string;
 }) {
+  if (value === null || value === undefined || value === '') {
+    return <span className={cn('text-fg-muted', className)}>—</span>;
+  }
   const d = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(d.getTime())) {
+    return <span className={cn('text-fg-muted', className)}>—</span>;
+  }
+  const fmt = mode ?? format;
   const text =
-    format === 'date'
+    fmt === 'date'
       ? formatDate(d)
-      : format === 'time'
+      : fmt === 'time'
         ? formatTime(d)
         : formatDateTime(d);
   return (

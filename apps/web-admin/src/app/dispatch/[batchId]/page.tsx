@@ -1,21 +1,22 @@
 'use client';
 
-import { Card, Typography } from 'antd';
-import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
 import { useParams } from 'next/navigation';
-import { AdminPenMeta } from '../../../components/AdminPenMeta';
+import { SmartDispatchBoard } from '../../../components/dispatch/SmartDispatchBoard';
+import { AdminShell } from '../../../components/shell/AdminShell';
 
 export default function DispatchBatchPage() {
   const { batchId } = useParams<{ batchId: string }>();
+
   return (
-    <AdminShell title={`Điều phối · ${batchId}`}>
-      <AdminPenMeta
-        id="nvSmartDispPage"
-        name="Chi tiết batch / điều phối (cùng nhóm frame)"
-      />
-      <Card className="border-slate-200">
-        <Typography.Text>Batch ID: {batchId}</Typography.Text>
-      </Card>
+    <AdminShell
+      title="Smart Dispatching"
+      subtitle="Trip_Batches · Drag & Drop Trip_Runs · Xuất lệnh đến Mobile App"
+      breadcrumbs={[
+        { label: 'Điều phối', href: '/dispatch' },
+        { label: 'Chi tiết lô chuyến' },
+      ]}
+    >
+      <SmartDispatchBoard initialBatchId={batchId} />
     </AdminShell>
   );
 }

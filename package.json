@@ -7,6 +7,7 @@
     "dev:api": "nx serve api-server",
     "dev:admin": "nx dev web-admin",
     "dev:booking": "nx dev web-booking",
+    "dev:driver": "nx run app-driver:start",
     "build:all": "nx run-many --target=build --all",
     "lint:all": "nx run-many --target=lint --all",
     "verify:integration": "node tools/verify-integration.mjs",

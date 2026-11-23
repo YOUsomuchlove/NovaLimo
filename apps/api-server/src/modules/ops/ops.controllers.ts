@@ -104,6 +104,14 @@ export class RunsAdminController {
     return this.runs.board(id);
   }
 
+  /** Auto-cluster & assign bookings in a batch across vehicles (CVRP + 2-opt TSP). */
+  @Staff('dispatch.manage')
+  @Post('dispatch/batches/:id/auto-plan')
+  @HttpCode(200)
+  autoPlan(@Id() id: string) {
+    return this.runs.autoPlan(id);
+  }
+
   /** Drag & drop: move bookings into a run (or back to the queue with `trip_run_id: null`). */
   @Staff('dispatch.manage')
   @Post('dispatch/assign')

@@ -50,13 +50,16 @@ test.describe('Web Booking — đặt vé & thanh toán', () => {
     request,
   }) => {
     const target = await findBookableTrip(request);
-    test.skip(!target, 'Không có chuyến còn ghế trong 7 ngày tới');
+    if (!target) {
+      test.skip(true, 'Không có chuyến còn ghế trong 7 ngày tới');
+      return;
+    }
 
     await page.goto(
-      `/search?route=${target!.route}&date=${target!.date}&seats=1`,
+      `/search?route=${target.route}&date=${target.date}&seats=1`,
     );
-    await page.locator(`a[href="/booking/${target!.trip}"]`).first().click();
-    await expect(page).toHaveURL(new RegExp(`/booking/${target!.trip}$`));
+    await page.locator(`a[href="/booking/${target.trip}"]`).first().click();
+    await expect(page).toHaveURL(new RegExp(`/booking/${target.trip}$`));
 
     // Seat step — pick the first free seat and hold it.
     await page

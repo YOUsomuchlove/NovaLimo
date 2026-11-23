@@ -5,18 +5,38 @@
 @import '../../../../libs/design-tokens/src/generated/tokens.css';
 @import '../../../../libs/shared-ui/src/ds/styles/base.css';
 
-/*
-  Tailwind v4 needs explicit sources when no tailwind.config.* exists.
-  Without these, utilities used from libs (e.g. `px-5`, `py-5`, `bg-nova-gold`) may not be generated.
-*/
+/* Tailwind v4 needs explicit sources when no tailwind.config.* exists. */
 @source '../**/*.{ts,tsx,js,jsx,mdx}';
-/* Ensure ALL web-admin src files are scanned (including deep component folders). */
 @source '../../**/*.{ts,tsx,js,jsx,mdx}';
-@source '../../components/**/*.{ts,tsx,js,jsx,mdx}';
 @source '../../../../libs/shared-ui/src/**/*.{ts,tsx,js,jsx,mdx}';
 
-@theme {
-  --color-nova-navy: #0b1020;
-  --color-nova-gold: #d4af37;
-  --color-nova-muted: #9ca6c4;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--nl-canvas);
+    color: var(--nl-fg);
+    font-feature-settings: 'cv11', 'ss01';
+  }
+}
+
+/* Print stylesheet for Manifest (/trip-runs/[id]/manifest) and Vouchers */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .print-sheet {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: white !important;
+    color: black !important;
+  }
 }

@@ -50,21 +50,21 @@ export default async function AboutPage() {
   return (
     <>
       <PageHero
+        tone="emerald"
         eyebrow="Về NovaLimo"
         title="Hành trình đẳng cấp, bắt đầu từ cửa nhà bạn"
         lead="Chúng tôi xây dựng NovaLimo để mỗi chuyến đi liên tỉnh đều riêng tư, đúng giờ và dễ chịu như ngồi xe gia đình."
       />
       <Section>
         <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-sheet border border-border-subtle">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-panel border border-border-subtle bg-surface-1 shadow-e2">
             <Image
-              src="/media/carousel-background.png"
-              alt="Nội thất ghế limousine NovaLimo"
+              src="/media/fleet-exterior.jpg"
+              alt="Xe limousine NovaLimo đón khách tại sảnh khách sạn"
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-canvas/70 to-transparent" />
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-fg">
@@ -109,13 +109,13 @@ export default async function AboutPage() {
       <Section
         eyebrow="Giá trị"
         title="Điều chúng tôi cam kết"
-        className="border-t border-border-subtle bg-surface-1/30"
+        className="nl-surface-linen border-t border-border-subtle"
       >
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {VALUES.map((v) => (
             <div
               key={v.title}
-              className="rounded-panel border border-border-subtle bg-surface-1 p-6"
+              className="rounded-panel border border-border-subtle bg-surface-1 p-6 shadow-e1"
             >
               <v.icon className="size-6 text-brand-fg" />
               <h3 className="mt-4 font-semibold text-fg">{v.title}</h3>

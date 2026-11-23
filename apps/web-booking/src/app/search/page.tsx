@@ -7,6 +7,7 @@ import { TripSearchForm } from '../../components/home/TripSearchForm';
 import { TripResults } from '../../components/search/TripResults';
 import { Container } from '../../components/site/Section';
 import { publicApi, safe } from '../../lib/api';
+import { DEMO_ROUTES } from '../../lib/demo-data';
 
 export const metadata: Metadata = {
   title: 'Kết quả tìm chuyến',
@@ -35,7 +36,8 @@ export default async function SearchPage({
       ? sp.date
       : today;
   const seats = Math.min(6, Math.max(1, Number(sp.seats) || 1));
-  const routes = await safe(publicApi.routes(), []);
+  const liveRoutes = await safe(publicApi.routes(), []);
+  const routes = liveRoutes.length ? liveRoutes : DEMO_ROUTES;
   const route = routes.find((r) => r.id === sp.route);
 
   const href = (d: string) =>
@@ -55,7 +57,7 @@ export default async function SearchPage({
 
   return (
     <>
-      <div className="nl-glow border-b border-border-subtle">
+      <div className="nl-hero-sky border-b border-border-subtle">
         <Container className="py-8 sm:py-10">
           <Link
             href="/"
@@ -73,7 +75,7 @@ export default async function SearchPage({
               'Tìm chuyến xe'
             )}
           </h1>
-          <div className="mt-6 rounded-sheet border border-border-default bg-surface-1/70 p-4 backdrop-blur-xl sm:p-5">
+          <div className="mt-6 rounded-sheet border border-border-default bg-surface-1/95 p-4 shadow-e2 backdrop-blur-xl sm:p-5">
             <TripSearchForm
               routes={routes}
               initial={{ route_id: route?.id, date, seats }}

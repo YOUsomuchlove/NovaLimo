@@ -8,6 +8,7 @@ import {
   type TripRunStatus,
 } from '@limousine-workspace/shared-types';
 import { RealtimeEvents } from '@limousine-workspace/utils-core';
+import { planDispatchClusters } from '@limousine-workspace/utils-map';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -634,6 +635,140 @@ export class RunsService {
       },
       runs: await this.toDtos(runs),
       bookings: bookings.map(mapBooking),
+    };
+  }
+
+  /**
+   * Smart Dispatch (PostGIS coordinates + CVRP clustering + 2-opt TSP stop ordering).
+   * Auto-provisions PENDING runs if the batch has none yet and available fleet/drivers exist.
+   */
+  async autoPlan(batchId: string) {
+    const batch = await this.batches.findOne({
+      where: { id: batchId },
+      relations: { route: true, vehicle_type: true },
+    });
+    if (!batch) throw new NotFoundException('Không tìm thấy lô chuyến');
+    if (['COMPLETED', 'CANCELLED'].includes(batch.status)) {
+      throw new DomainError(409, 'BATCH_CLOSED', 'Lô chuyến đã đóng');
+    }
+
+    let runs = await this.runQuery()
+      .where('run.trip_batch_id = :id', { id: batchId })
+      .andWhere("run.status IN ('PENDING', 'DISPATCHED')")
+      .orderBy('run.code')
+      .getMany();
+
+    if (runs.length === 0) {
+      const vehicles = await this.vehicles.find({
+        where: { status: In(['AVAILABLE', 'IN_USE']) },
+        relations: { vehicle_type: true },
+        order: { created_at: 'ASC' },
+      });
+      // Prefer vehicles matching the batch's vehicle_type_id first
+      vehicles.sort(
+        (a, b) =>
+          (a.vehicle_type_id === batch.vehicle_type_id ? 0 : 1) -
+          (b.vehicle_type_id === batch.vehicle_type_id ? 0 : 1),
+      );
+      const drivers = await this.users.find({
+        where: { kind: 'DRIVER', status: 'ACTIVE' },
+        order: { created_at: 'ASC' },
+      });
+
+      const targetCount = Math.max(1, batch.planned_vehicles);
+      let created = 0;
+      for (const v of vehicles) {
+        if (created >= targetCount) break;
+        for (const d of drivers) {
+          try {
+            await this.assertResources(batch, v.id, d.id);
+            await this.runs.save(
+              this.runs.create({
+                trip_batch_id: batch.id,
+                vehicle_id: v.id,
+                driver_id: d.id,
+                code: `R-${batch.code.split('-').slice(0, 3).join('')}-${randomCode(3)}`,
+              }),
+            );
+            created++;
+            break;
+          } catch {
+            // Skip clashing vehicle or driver
+          }
+        }
+      }
+
+      runs = await this.runQuery()
+        .where('run.trip_batch_id = :id', { id: batchId })
+        .andWhere("run.status IN ('PENDING', 'DISPATCHED')")
+        .orderBy('run.code')
+        .getMany();
+    }
+
+    const bookings = await this.bookings.find({
+      where: {
+        trip_batch_id: batchId,
+        status: In(['PENDING_PAYMENT', 'CONFIRMED']),
+      },
+      relations: { seats: true },
+      order: { created_at: 'ASC' },
+    });
+
+    const plan = planDispatchClusters(
+      bookings.map((b) => ({
+        id: b.id,
+        seats: (b.seats ?? [])
+          .filter((s) => s.is_active)
+          .map((s) => s.seat_label),
+        pickup: fromPoint(b.pickup_point),
+        dropoff: fromPoint(b.dropoff_point),
+      })),
+      runs.map((r) => ({
+        id: r.id,
+        capacity:
+          r.vehicle.vehicle_type?.capacity ?? batch.vehicle_type.capacity,
+      })),
+    );
+
+    await this.runs.manager.transaction(async (m) => {
+      for (const pr of plan.runs) {
+        await m.update(TripRunEntity, pr.run_id, {
+          planned_distance_km: pr.planned_distance_km,
+        });
+        const dropIndex = new Map(
+          pr.dropoff_order.map((id, idx) => [id, idx + 1]),
+        );
+        for (const [idx, bookingId] of pr.pickup_order.entries()) {
+          await m.update(BookingEntity, bookingId, {
+            trip_run_id: pr.run_id,
+            pickup_order: idx + 1,
+            dropoff_order: dropIndex.get(bookingId) ?? idx + 1,
+          });
+        }
+      }
+      if (plan.unassigned.length > 0) {
+        await m.update(
+          BookingEntity,
+          { id: In(plan.unassigned.map((u) => u.booking_id)) },
+          { trip_run_id: null, pickup_order: null, dropoff_order: null },
+        );
+      }
+      if (
+        batch.status === 'OPEN' &&
+        plan.runs.some((r) => r.booking_ids.length > 0)
+      ) {
+        await m.update(TripBatchEntity, batch.id, { status: 'CLUSTERED' });
+      }
+    });
+
+    for (const r of runs) {
+      this.realtime.toOps(RealtimeEvents.tripRunUpdated, { id: r.id });
+    }
+
+    return {
+      board: await this.board(batchId),
+      unassigned: plan.unassigned,
+      runs_planned: plan.runs.length,
     };
   }
 

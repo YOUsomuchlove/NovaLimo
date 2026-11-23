@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 import { cn } from '../utils/cn';
 
 export interface StepItem {
-  title: ReactNode;
+  title?: ReactNode;
+  label?: ReactNode;
   description?: ReactNode;
 }
 
@@ -27,7 +28,9 @@ export function Stepper({
       <div className="sm:hidden">
         <p className="text-ui text-fg-muted">
           Bước {current + 1}/{steps.length} ·{' '}
-          <span className="font-medium text-fg">{steps[current]?.title}</span>
+          <span className="font-medium text-fg">
+            {steps[current]?.title ?? steps[current]?.label}
+          </span>
         </p>
         <div className="mt-2 h-1 overflow-hidden rounded-full bg-surface-3">
           <div
@@ -75,7 +78,7 @@ export function Stepper({
                       state === 'todo' ? 'text-fg-muted' : 'text-fg',
                     )}
                   >
-                    {s.title}
+                    {s.title ?? s.label}
                   </span>
                   {s.description && (
                     <span className="block text-xs text-fg-muted">

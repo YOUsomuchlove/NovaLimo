@@ -34,7 +34,10 @@ export const envSchema = z
     UPLOADS_DIR: z.string().default('uploads'),
     PUBLIC_BASE_URL: z.string().url().default('http://localhost:3000'),
 
-    OSRM_BASE_URL: z.string().url().optional(),
+    OSRM_BASE_URL: z.preprocess(
+      (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+      z.string().url().optional(),
+    ),
     DISPATCH_CLUSTER_EPS_M: z.coerce.number().positive().default(500),
 
     GEOCODER_USER_AGENT: z.string().default('NovaLimo/1.0 (ops@novalimo.vn)'),

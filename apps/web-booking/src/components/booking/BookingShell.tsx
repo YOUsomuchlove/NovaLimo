@@ -72,7 +72,10 @@ function TripSummary() {
   const prices = live?.prices ?? draft.seat_prices ?? {};
   const total = seats.reduce((s, l) => s + (prices[l] ?? trip.price_vnd), 0);
   return (
-    <Card variant="elevated" className="flex flex-col gap-5">
+    <Card
+      variant="default"
+      className="flex flex-col gap-5 border-border-default shadow-e2"
+    >
       <div>
         <p className="text-xs font-semibold uppercase tracking-[0.14em] text-fg-muted">
           Chuyến của bạn

@@ -14,15 +14,17 @@ const inter = Inter({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: palette.navy[800],
+  themeColor: palette.navy[900],
+  colorScheme: 'dark',
 };
 
 export const metadata: Metadata = {
   title: {
     default: 'NovaLimo Admin',
-    template: '%s | NovaLimo Admin',
+    template: '%s · NovaLimo Admin',
   },
-  description: 'Quản trị và điều hành NovaLimo — điều phối, chuyến, đơn hàng.',
+  description:
+    'Trung tâm quản trị và điều hành NovaLimo — điều phối thông minh, quản lý đội xe, đơn vé, ký gửi hàng hóa và tài chính.',
   robots: { index: false, follow: false },
 };
 
@@ -34,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="vi" data-theme="dark" className={inter.variable}>
       <body
-        className={`${inter.className} min-h-screen bg-nova-navy text-slate-900 antialiased`}
+        className={`${inter.className} min-h-dvh bg-canvas font-sans text-fg antialiased`}
       >
         <AntdRegistry layer>
           <AppProviders>{children}</AppProviders>

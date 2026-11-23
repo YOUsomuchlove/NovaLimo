@@ -1,14 +1,39 @@
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import React from 'react';
+import * as Location from 'expo-location';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   ImageBackground,
+  Linking,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
+import { SwipeToConfirm } from '@limousine-workspace/shared-mobile-ui';
+import type {
+  DriverRunDetailDto,
+  DriverStopDto,
+  LatLng,
+} from '@limousine-workspace/shared-types';
+import {
+  estimateEtaMinutes,
+  googleMapsDirectionsUrl,
+  googleMapsPlaceUrl,
+  roadDistanceKm,
+} from '@limousine-workspace/utils-map';
+import {
+  deliverCargo,
+  dropoffBooking,
+  fetchRunDetail,
+  finishRun,
+  markNoShowBooking,
+  pickupBooking,
+  pickupCargo,
+} from '../api/client';
 import { ScreenShell } from '../components/ScreenShell';
+import { useAuth } from '../context/AuthContext';
 import type { TripsStackParamList } from '../navigation/types';
 import { C, FONT } from '../theme/tokens';
 
@@ -16,19 +41,178 @@ type Props = NativeStackScreenProps<TripsStackParamList, 'ActiveNav'>;
 
 const MAP = require('../../assets/images/osm-tile-nav.png');
 
-/** mbDrvNavPickup — map + sheet đón */
-export function ActiveNavigationScreen({ navigation: _nav }: Props) {
+function isStopActionable(stop: DriverStopDto): boolean {
+  if (stop.ref_type === 'BOOKING') {
+    if (stop.kind === 'PICKUP') return stop.status === 'CONFIRMED';
+    if (stop.kind === 'DROPOFF') return stop.status === 'PICKED_UP';
+  }
+  if (stop.ref_type === 'CARGO') {
+    if (stop.kind === 'PICKUP') return stop.status === 'CREATED';
+    if (stop.kind === 'DROPOFF')
+      return stop.status === 'PICKED_UP' || stop.status === 'IN_TRANSIT';
+  }
+  return false;
+}
+
+/** mbDrvNavPickup — map + sheet đón/trả khách thực tế */
+export function ActiveNavigationScreen({ navigation, route }: Props) {
+  const { token } = useAuth();
+  const { runId } = route.params;
+  const [detail, setDetail] = useState<DriverRunDetailDto | null>(null);
+  const [driverLoc, setDriverLoc] = useState<LatLng | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [acting, setActing] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    if (!token) return;
+    setLoading(true);
+    setErr(null);
+    try {
+      const data = await fetchRunDetail(token, runId);
+      setDetail(data);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Lỗi tải lộ trình');
+    } finally {
+      setLoading(false);
+    }
+  }, [token, runId]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const perm = await Location.getForegroundPermissionsAsync();
+        if (perm.status === 'granted') {
+          const pos = await Location.getCurrentPositionAsync({});
+          setDriverLoc({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, []);
+
+  const nextStop = useMemo(() => {
+    return detail?.stops.find(isStopActionable) ?? null;
+  }, [detail]);
+
+  const etaInfo = useMemo(() => {
+    if (!nextStop) return null;
+    const origin = driverLoc ?? detail?.stops[0]?.location;
+    if (!origin) return null;
+    const dist = roadDistanceKm(origin, nextStop.location);
+    const min = estimateEtaMinutes(dist, 32);
+    return { distKm: dist.toFixed(1), min };
+  }, [nextStop, driverLoc, detail]);
+
+  const onOpenDirections = () => {
+    if (!nextStop) return;
+    const url = driverLoc
+      ? googleMapsDirectionsUrl(driverLoc, nextStop.location)
+      : googleMapsPlaceUrl(nextStop.location);
+    void Linking.openURL(url);
+  };
+
+  const onCallStop = () => {
+    if (!nextStop?.phone) return;
+    void Linking.openURL(`tel:${nextStop.phone}`);
+  };
+
+  const onConfirmStop = async () => {
+    if (!token || !nextStop) return;
+    setActing(true);
+    setErr(null);
+    try {
+      if (nextStop.ref_type === 'BOOKING') {
+        if (nextStop.kind === 'PICKUP') {
+          await pickupBooking(token, nextStop.ref_id);
+        } else {
+          await dropoffBooking(token, nextStop.ref_id);
+        }
+      } else {
+        if (nextStop.kind === 'PICKUP') {
+          await pickupCargo(token, nextStop.ref_id);
+        } else {
+          await deliverCargo(token, nextStop.ref_id, {
+            cod_collected: (nextStop.cod_amount_vnd ?? 0) > 0,
+          });
+        }
+      }
+      await load();
+    } catch (e) {
+      setErr(
+        e instanceof Error
+          ? e.message
+          : 'Không cập nhật được trạng thái điểm dừng',
+      );
+    } finally {
+      setActing(false);
+    }
+  };
+
+  const onNoShow = async () => {
+    if (!token || !nextStop || nextStop.ref_type !== 'BOOKING') return;
+    setActing(true);
+    setErr(null);
+    try {
+      await markNoShowBooking(
+        token,
+        nextStop.ref_id,
+        'Không liên hệ được khách tại điểm đón',
+      );
+      await load();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Không đánh dấu được vắng mặt');
+    } finally {
+      setActing(false);
+    }
+  };
+
+  const onFinishRun = async () => {
+    if (!token) return;
+    setActing(true);
+    setErr(null);
+    try {
+      await finishRun(token, runId);
+      navigation.goBack();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Không kết thúc được chuyến');
+    } finally {
+      setActing(false);
+    }
+  };
+
   return (
     <ScreenShell edges={['left', 'right']} noInnerPadding style={styles.shell}>
       <View style={styles.mapBlock}>
         <ImageBackground source={MAP} style={styles.mapImg} resizeMode="cover">
           <View style={styles.tint} />
           <View style={styles.topBar}>
-            <Text style={styles.topTitle}>Đang lái</Text>
-            <Text style={styles.topSub}>ETA ~ 12 phút</Text>
-          </View>
-          <View style={styles.searchFake}>
-            <Text style={styles.searchTxt}>Tìm điểm đón…</Text>
+            <View>
+              <Text style={styles.topTitle}>
+                {detail?.trip?.route?.name ?? 'Đang dẫn đường'}
+              </Text>
+              <Text style={styles.topSub}>
+                {etaInfo
+                  ? `ETA ~ ${etaInfo.min} phút (${etaInfo.distKm} km)`
+                  : detail?.status === 'FINISHED'
+                    ? 'Chuyến đã hoàn thành'
+                    : 'Đang định vị GPS…'}
+              </Text>
+            </View>
+            <Pressable
+              style={styles.sosChip}
+              onPress={() => navigation.navigate('Sos', { runId })}
+            >
+              <Text style={styles.sosChipTxt}>SOS</Text>
+            </Pressable>
           </View>
           <Svg width="100%" height={200} style={styles.svg}>
             <Path
@@ -40,27 +224,82 @@ export function ActiveNavigationScreen({ navigation: _nav }: Props) {
               strokeLinejoin="round"
             />
           </Svg>
-          <View style={styles.pulse} />
           <View style={styles.carDot} />
         </ImageBackground>
       </View>
 
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <Text style={styles.lbl}>ĐÓN TIẾP THEO</Text>
-        <Text style={styles.name}>Trần Thị Mai</Text>
-        <Text style={styles.addr}>
-          Đón: Ngõ 7 phố Huế, Hàng Bài, Hoàn Kiếm, HN — cổng nhà 12 (biển NovaLimo)
-        </Text>
-        <Pressable style={styles.dirBtn}>
-          <Text style={styles.dirTxt}>Mở chỉ đường</Text>
-        </Pressable>
-        <View style={styles.swipe}>
-          <Text style={styles.swipeTxt}>Vuốt để xác nhận đã đón</Text>
-        </View>
-        <Pressable style={styles.noContact}>
-          <Text style={styles.noContactTxt}>Không liên hệ được khách</Text>
-        </Pressable>
+        {loading ? <ActivityIndicator color={C.gold} /> : null}
+        {err ? <Text style={styles.err}>{err}</Text> : null}
+
+        {nextStop ? (
+          <>
+            <Text style={styles.lbl}>
+              {nextStop.kind === 'PICKUP'
+                ? 'ĐIỂM ĐÓN TIẾP THEO'
+                : 'ĐIỂM TRẢ TIẾP THEO'}{' '}
+              ·{' '}
+              {nextStop.ref_type === 'CARGO'
+                ? 'KIỆN HÀNG'
+                : `GHẾ ${nextStop.seats.join(', ')}`}
+            </Text>
+            <Text style={styles.name}>{nextStop.name}</Text>
+            <Text style={styles.addr}>{nextStop.address}</Text>
+
+            <View style={styles.actionRow}>
+              <Pressable
+                style={[styles.dirBtn, { flex: 1 }]}
+                onPress={onOpenDirections}
+              >
+                <Text style={styles.dirTxt}>Mở chỉ đường</Text>
+              </Pressable>
+              <Pressable style={styles.callBtn} onPress={onCallStop}>
+                <Text style={styles.callTxt}>Gọi {nextStop.phone}</Text>
+              </Pressable>
+            </View>
+
+            <SwipeToConfirm
+              label={
+                nextStop.kind === 'PICKUP'
+                  ? 'Vuốt để xác nhận ĐÃ ĐÓN'
+                  : 'Vuốt để xác nhận ĐÃ TRẢ'
+              }
+              onConfirm={() => void onConfirmStop()}
+              disabled={acting}
+            />
+
+            {nextStop.ref_type === 'BOOKING' && nextStop.kind === 'PICKUP' ? (
+              <Pressable
+                style={styles.noContact}
+                onPress={() => void onNoShow()}
+                disabled={acting}
+              >
+                <Text style={styles.noContactTxt}>
+                  Không liên hệ được khách (Đánh dấu No-show)
+                </Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : !loading ? (
+          <View style={{ gap: 12, paddingVertical: 12 }}>
+            <Text style={styles.name}>Đã hoàn thành tất cả điểm dừng</Text>
+            <Text style={styles.addr}>
+              Mọi hành khách và kiện hàng trên chuyến đã được xử lý xong.
+            </Text>
+            {detail?.status !== 'FINISHED' ? (
+              <Pressable
+                style={styles.dirBtn}
+                onPress={() => void onFinishRun()}
+                disabled={acting}
+              >
+                <Text style={styles.dirTxt}>
+                  {acting ? 'Đang kết thúc…' : 'Hoàn tất chuyến xe'}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
       </View>
     </ScreenShell>
   );
@@ -68,45 +307,36 @@ export function ActiveNavigationScreen({ navigation: _nav }: Props) {
 
 const styles = StyleSheet.create({
   shell: { flex: 1, paddingHorizontal: 0 },
-  mapBlock: { height: 320 },
+  mapBlock: { height: 290 },
   mapImg: { flex: 1, width: '100%' },
   tint: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#0B1220',
-    opacity: 0.35,
+    backgroundColor: C.mapTint,
   },
   topBar: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    paddingHorizontal: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 14,
     paddingVertical: 10,
     backgroundColor: C.mapTopBar,
   },
   topTitle: { fontFamily: FONT.semibold, color: C.text, fontSize: 15 },
   topSub: { fontFamily: FONT.regular, color: C.muted, fontSize: 12 },
-  searchFake: {
-    position: 'absolute',
-    top: 52,
-    left: 16,
-    right: 16,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+  sosChip: {
+    backgroundColor: C.sosRed,
     borderRadius: 999,
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderWidth: 1,
+    borderColor: C.sosStroke,
   },
-  searchTxt: { color: '#64748b', fontFamily: FONT.regular, fontSize: 14 },
+  sosChipTxt: { fontFamily: FONT.bold, color: C.white, fontSize: 12 },
   svg: { position: 'absolute', left: 0, right: 0, bottom: 40 },
-  pulse: {
-    position: 'absolute',
-    bottom: 36,
-    left: 20,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(37,99,235,0.2)',
-  },
   carDot: {
     position: 'absolute',
     bottom: 44,
@@ -114,7 +344,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#fff',
+    backgroundColor: C.white,
     borderWidth: 4,
     borderColor: C.ctaBlue,
   },
@@ -124,11 +354,11 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 22,
     borderTopRightRadius: 22,
     borderWidth: 1,
-    borderColor: '#1E293B',
+    borderColor: C.slate800,
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 24,
-    gap: 8,
+    gap: 10,
   },
   grab: {
     alignSelf: 'center',
@@ -138,32 +368,42 @@ const styles = StyleSheet.create({
     backgroundColor: C.stroke,
     marginBottom: 4,
   },
+  err: { fontFamily: FONT.regular, fontSize: 12, color: C.error },
   lbl: {
-    fontFamily: FONT.regular,
+    fontFamily: FONT.semibold,
     fontSize: 11,
-    letterSpacing: 1.2,
-    color: C.muted,
+    letterSpacing: 1.1,
+    color: C.gold,
   },
-  name: { fontFamily: FONT.regular, fontSize: 26, color: C.text },
-  addr: { fontFamily: FONT.regular, fontSize: 17, color: '#E2E8F0', lineHeight: 22 },
+  name: { fontFamily: FONT.bold, fontSize: 22, color: C.text },
+  addr: {
+    fontFamily: FONT.regular,
+    fontSize: 15,
+    color: C.slate200,
+    lineHeight: 21,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 2,
+  },
   dirBtn: {
     backgroundColor: C.ctaBlue,
     borderRadius: 16,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  dirTxt: { fontFamily: FONT.semibold, color: '#fff', fontSize: 16 },
-  swipe: {
-    borderRadius: 999,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    backgroundColor: C.swipeTrack,
-    borderWidth: 2,
-    borderColor: C.swipeStroke,
+    paddingVertical: 13,
     alignItems: 'center',
   },
-  swipeTxt: { color: C.success, fontFamily: FONT.semibold, fontSize: 14 },
+  dirTxt: { fontFamily: FONT.semibold, color: C.white, fontSize: 15 },
+  callBtn: {
+    backgroundColor: C.card,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: C.stroke,
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  callTxt: { fontFamily: FONT.semibold, color: C.gold, fontSize: 14 },
   noContact: {
     borderRadius: 12,
     paddingVertical: 10,
@@ -172,5 +412,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.noContactStroke,
   },
-  noContactTxt: { color: '#fecaca', fontFamily: FONT.regular, fontSize: 13 },
+  noContactTxt: {
+    color: C.noContactText,
+    fontFamily: FONT.regular,
+    fontSize: 13,
+  },
 });

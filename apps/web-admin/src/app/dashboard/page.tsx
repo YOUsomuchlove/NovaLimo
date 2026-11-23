@@ -1,16 +1,16 @@
-'use client';
-
-import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
-import { AdminConsoleHeaderExtras } from '../../components/AdminConsoleHeaderExtras';
+import type { Metadata } from 'next';
 import { DashboardConsoleView } from '../../components/dashboard/DashboardConsoleView';
+import { AdminShell } from '../../components/shell/AdminShell';
+
+export const metadata: Metadata = {
+  title: 'Bảng điều khiển',
+};
 
 export default function DashboardPage() {
   return (
     <AdminShell
       title="Bảng điều khiển"
       subtitle="Tổng quan doanh thu & vận hành trong ngày"
-      consoleChrome
-      headerExtra={<AdminConsoleHeaderExtras />}
     >
       <DashboardConsoleView />
     </AdminShell>

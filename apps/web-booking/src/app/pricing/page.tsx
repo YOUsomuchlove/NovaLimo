@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Container, PageHero } from '../../components/site/Section';
 import { DEFAULT_SETTINGS, publicApi, safe } from '../../lib/api';
+import { DEMO_ROUTES } from '../../lib/demo-data';
 
 export const metadata: Metadata = {
   title: 'Bảng giá vé limousine',
@@ -15,10 +16,11 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function PricingPage() {
-  const [routes, settings] = await Promise.all([
+  const [liveRoutes, settings] = await Promise.all([
     safe(publicApi.routes(), []),
     safe(publicApi.settings(), DEFAULT_SETTINGS),
   ]);
+  const routes = liveRoutes.length ? liveRoutes : DEMO_ROUTES;
   const p = settings.booking;
   return (
     <>
@@ -63,7 +65,10 @@ export default async function PricingPage() {
             </thead>
             <tbody>
               {routes.map((r) => (
-                <tr key={r.id} className="border-t border-border-subtle">
+                <tr
+                  key={r.id}
+                  className="border-t border-border-subtle transition-colors hover:bg-canvas/70"
+                >
                   <th scope="row" className="px-5 py-5 font-medium text-fg">
                     {r.name}
                     {r.distance_km ? (

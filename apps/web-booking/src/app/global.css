@@ -9,10 +9,35 @@
 @source '../**/*.{ts,tsx}';
 @source '../../../../libs/shared-ui/src/ds/**/*.{ts,tsx}';
 
+/* Editorial warm-alabaster hospitality palette overrides for customer booking site */
+[data-theme='light'] {
+  --nl-canvas: #faf8f5;
+  --nl-surface-1: #ffffff;
+  --nl-surface-2: #f3efe8;
+  --nl-surface-3: #e8e2d7;
+  --nl-border-subtle: rgba(24, 24, 27, 0.08);
+  --nl-border-default: rgba(24, 24, 27, 0.14);
+  --nl-border-strong: rgba(24, 24, 27, 0.24);
+  --nl-fg: #141619;
+  --nl-fg-secondary: #3b3a36;
+  --nl-fg-muted: #6b6760;
+  --nl-brand: #c59b38;
+  --nl-brand-hover: #af8628;
+  --nl-brand-active: #946f1d;
+  --nl-brand-subtle: rgba(197, 155, 56, 0.11);
+  --nl-brand-fg: #7b5d16;
+  --nl-on-brand: #141619;
+  --nl-shadow-e1:
+    0 1px 2px rgba(20, 22, 25, 0.04), 0 1px 1px rgba(20, 22, 25, 0.03);
+  --nl-shadow-e2: 0 12px 32px -12px rgba(20, 22, 25, 0.12);
+  --nl-shadow-e3: 0 28px 60px -18px rgba(20, 22, 25, 0.16);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    accent-color: var(--nl-brand);
   }
   body {
     background: var(--nl-canvas);
@@ -21,15 +46,24 @@
   }
 }
 
+/* Editorial serif display voice for monumental headings & pull quotes */
+.font-display {
+  font-family: var(--font-display), Georgia, 'Times New Roman', serif;
+  font-feature-settings:
+    'liga' 1,
+    'kern' 1;
+}
+
 /* Long-form text (legal pages, FAQ answers) */
 .nl-prose {
   color: var(--nl-fg-secondary);
-  line-height: 1.75;
+  line-height: 1.8;
 }
 .nl-prose h2 {
   margin: 2.5rem 0 0.75rem;
   color: var(--nl-fg);
-  font-size: 1.25rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 1.65rem;
   font-weight: 600;
 }
 .nl-prose h3 {
@@ -54,15 +88,39 @@
   text-underline-offset: 3px;
 }
 
-/* Gold hairline used under section eyebrows and on hero cards */
+/* Subtle architectural brass hairline */
 .nl-gold-rule {
   background: linear-gradient(90deg, transparent, var(--nl-brand), transparent);
   height: 1px;
 }
 
-/* Soft radial glow behind heroes */
-.nl-glow {
-  background:
-    radial-gradient(60% 50% at 20% 0%, rgb(212 175 55 / 0.14), transparent 70%),
-    radial-gradient(50% 50% at 90% 10%, rgb(96 165 250 / 0.08), transparent 70%);
+/* Tactile hospitality surfaces — quiet, warm, architectural, zero neon/AI noise */
+.nl-surface-paper {
+  background-color: #faf8f5;
+}
+
+.nl-surface-linen {
+  background-color: #f2ede4;
+}
+
+.nl-surface-espresso {
+  background-color: #15171c;
+}
+
+/* Inner page editorial header surfaces */
+.nl-glow,
+.nl-hero-sky,
+.nl-hero-emerald,
+.nl-hero-warm,
+.nl-hero-indigo {
+  background-color: #f4efe6;
+  background-image: linear-gradient(180deg, #f3ede3 0%, #faf8f5 100%);
+}
+
+@media (forced-colors: active) {
+  .nl-gold-rule {
+    background: none;
+    border-top: 1px solid GrayText;
+    height: 0;
+  }
 }

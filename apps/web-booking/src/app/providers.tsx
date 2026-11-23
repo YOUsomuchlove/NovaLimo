@@ -8,5 +8,5 @@ import type { ReactNode } from 'react';
 dayjs.locale('vi');
 
 export function Providers({ children }: { children: ReactNode }) {
-  return <NovaThemeProvider mode="dark">{children}</NovaThemeProvider>;
+  return <NovaThemeProvider mode="light">{children}</NovaThemeProvider>;
 }

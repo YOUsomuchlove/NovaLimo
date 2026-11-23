@@ -1,4 +1,4 @@
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Location from 'expo-location';
 import React, {
   useCallback,
@@ -15,8 +15,9 @@ import {
   Text,
   View,
 } from 'react-native';
-import type { TripRunStatus } from '@limousine-workspace/shared-types/legacy';
+import type { TripRunDto } from '@limousine-workspace/shared-types';
 import {
+  type DriverRunScope,
   fetchCurrentShift,
   fetchMyRuns,
   postDriverLocation,
@@ -32,24 +33,24 @@ import { C, FONT } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<TripsStackParamList, 'Home'>;
 
-const TABS: { key: TripRunStatus; label: string }[] = [
-  { key: 'PENDING', label: 'Chờ xuất bến' },
-  { key: 'IN_PROGRESS', label: 'Đang chạy' },
-  { key: 'FINISHED', label: 'Lịch sử' },
+const TABS: { key: DriverRunScope; label: string }[] = [
+  { key: 'upcoming', label: 'Chờ xuất bến' },
+  { key: 'active', label: 'Đang chạy' },
+  { key: 'done', label: 'Lịch sử' },
 ];
 
 export function HomeScreen({ navigation }: Props) {
-  const { token, logout: clearToken } = useAuth();
-  const [tab, setTab] = useState<TripRunStatus>('PENDING');
-  const [runs, setRuns] = useState<Awaited<ReturnType<typeof fetchMyRuns>>>([]);
+  const { token, driver, refreshProfile, logout: clearToken } = useAuth();
+  const [tab, setTab] = useState<DriverRunScope>('upcoming');
+  const [runs, setRuns] = useState<TripRunDto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shiftStarted, setShiftStarted] = useState(false);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     clearToken();
     rootNavigationRef.reset({ index: 0, routes: [{ name: 'Login' }] });
-  };
+  }, [clearToken]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -59,13 +60,17 @@ export function HomeScreen({ navigation }: Props) {
         </View>
       ),
     });
-  }, [navigation]);
+  }, [navigation, logout]);
 
   useEffect(() => {
     if (!token) return;
     void (async () => {
-      const s = await fetchCurrentShift(token);
-      setShiftStarted(!!s);
+      try {
+        const s = await fetchCurrentShift(token);
+        setShiftStarted(!!s);
+      } catch {
+        /* ignore */
+      }
     })();
   }, [token]);
 
@@ -73,26 +78,43 @@ export function HomeScreen({ navigation }: Props) {
     if (!shiftStarted || !token) return;
     let sub: Location.LocationSubscription | undefined;
     void (async () => {
-      const { status } = await Location.getForegroundPermissionsAsync();
-      if (status !== 'granted') return;
-      sub = await Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.Balanced,
-          distanceInterval: 80,
-          timeInterval: 25000,
-        },
-        async (loc) => {
-          try {
-            await postDriverLocation(
-              token,
-              loc.coords.latitude,
-              loc.coords.longitude,
-            );
-          } catch {
-            /* ignore */
-          }
-        },
-      );
+      try {
+        const { status } = await Location.getForegroundPermissionsAsync();
+        if (status !== 'granted') return;
+        sub = await Location.watchPositionAsync(
+          {
+            accuracy: Location.Accuracy.Balanced,
+            distanceInterval: 80,
+            timeInterval: 25000,
+          },
+          async (loc) => {
+            try {
+              const speedKmh =
+                loc.coords.speed != null && loc.coords.speed >= 0
+                  ? Math.round(loc.coords.speed * 3.6)
+                  : undefined;
+              const heading =
+                loc.coords.heading != null && loc.coords.heading >= 0
+                  ? Math.round(loc.coords.heading)
+                  : undefined;
+              await postDriverLocation(
+                token,
+                loc.coords.latitude,
+                loc.coords.longitude,
+                {
+                  speed_kmh: speedKmh,
+                  heading,
+                  accuracy_m: loc.coords.accuracy ?? undefined,
+                },
+              );
+            } catch {
+              /* ignore transient telemetry failures */
+            }
+          },
+        );
+      } catch {
+        /* ignore */
+      }
     })();
     return () => {
       sub?.remove();
@@ -120,9 +142,21 @@ export function HomeScreen({ navigation }: Props) {
   const onStartShift = async () => {
     if (!token) return;
     setLoading(true);
+    setError(null);
     try {
-      await startShift(token);
+      let coords: { lat: number; lng: number } | undefined;
+      try {
+        const perm = await Location.getForegroundPermissionsAsync();
+        if (perm.status === 'granted') {
+          const cur = await Location.getCurrentPositionAsync({});
+          coords = { lat: cur.coords.latitude, lng: cur.coords.longitude };
+        }
+      } catch {
+        /* ignore */
+      }
+      await startShift(token, coords);
       setShiftStarted(true);
+      await refreshProfile();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Không bắt đầu được ca');
     } finally {
@@ -134,15 +168,23 @@ export function HomeScreen({ navigation }: Props) {
     <ScreenShell underStackHeader style={styles.shell}>
       <View style={styles.topRow}>
         <View>
-          <Text style={styles.screenTitle}>Chuyến của bạn</Text>
-          <Text style={styles.screenSub}>NovaLimo Driver</Text>
+          <Text style={styles.screenTitle}>
+            {driver?.full_name
+              ? `Xin chào, ${driver.full_name}`
+              : 'Chuyến của bạn'}
+          </Text>
+          <Text style={styles.screenSub}>
+            {driver?.vehicle?.license_plate
+              ? `Xe phân công: ${driver.vehicle.license_plate} · ${shiftStarted ? 'Đang trong ca' : 'Chưa vào ca'}`
+              : 'NovaLimo Driver'}
+          </Text>
         </View>
       </View>
 
       {!shiftStarted ? (
         <View style={styles.box}>
           <Text style={styles.hint}>
-            Bấm bắt đầu ca để gửi tín hiệu định vị (sau khi đã cấp quyền).
+            Bấm bắt đầu ca để gửi tín hiệu định vị GPS và nhận lệnh điều hành.
           </Text>
           <Button
             title="Bắt đầu ca làm việc"
@@ -154,7 +196,9 @@ export function HomeScreen({ navigation }: Props) {
 
       <SegmentedTripTabs tabs={TABS} active={tab} onChange={setTab} />
 
-      {loading ? <ActivityIndicator color={C.gold} /> : null}
+      {loading ? (
+        <ActivityIndicator color={C.gold} style={{ marginTop: 8 }} />
+      ) : null}
       {error ? <Text style={styles.err}>{error}</Text> : null}
 
       <FlatList
@@ -162,6 +206,7 @@ export function HomeScreen({ navigation }: Props) {
         keyExtractor={(item) => item.id}
         refreshing={loading}
         onRefresh={() => void load()}
+        style={{ marginTop: 12 }}
         ListFooterComponent={
           <View style={styles.backlog}>
             <Text style={styles.backlogTitle}>Lối tắt</Text>
@@ -170,7 +215,7 @@ export function HomeScreen({ navigation }: Props) {
                 style={styles.backlogBtn}
                 onPress={() => navigation.navigate('Sos')}
               >
-                <Text style={styles.backlogBtnText}>SOS</Text>
+                <Text style={styles.backlogBtnText}>SOS / Sự cố</Text>
               </Pressable>
               <Pressable
                 style={styles.backlogBtn}
@@ -198,20 +243,25 @@ export function HomeScreen({ navigation }: Props) {
         }
         renderItem={({ item }) => (
           <Pressable
-            onPress={() => navigation.navigate('TripDetail', { run: item })}
+            onPress={() =>
+              navigation.navigate('TripDetail', { runId: item.id, run: item })
+            }
           >
             <ListCard
-              title={item.route_name || '—'}
-              subtitle={`${item.license_plate} · ${item.status}`}
+              title={`Lệnh ${item.code}`}
+              subtitle={`${item.vehicle.license_plate} (${item.vehicle.capacity} chỗ) · ${item.status}`}
             >
               <Text style={styles.muted}>
-                Xuất bến:{' '}
-                {item.departure_time
-                  ? new Date(item.departure_time).toLocaleString()
+                Xuất lệnh:{' '}
+                {item.dispatched_at
+                  ? new Date(item.dispatched_at).toLocaleString('vi-VN')
                   : '—'}
               </Text>
               <Text style={styles.muted}>
-                Khách: {item.passenger_count} · Hàng: {item.cargo_count}
+                Khách: {item.passenger_count} · Kiện hàng: {item.cargo_count}
+                {item.planned_distance_km != null
+                  ? ` · Lộ trình: ${item.planned_distance_km} km`
+                  : ''}
               </Text>
             </ListCard>
           </Pressable>
@@ -238,7 +288,12 @@ const styles = StyleSheet.create({
   },
   box: { marginBottom: 12 },
   hint: { marginBottom: 8, color: C.muted, fontFamily: FONT.regular },
-  err: { color: C.error, marginBottom: 8, fontFamily: FONT.regular },
+  err: {
+    color: C.error,
+    marginTop: 6,
+    marginBottom: 8,
+    fontFamily: FONT.regular,
+  },
   headerBtns: { flexDirection: 'row', gap: 4 },
   backlog: {
     marginTop: 16,

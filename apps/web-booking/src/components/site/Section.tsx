@@ -42,13 +42,12 @@ export function Section({
           <div className="mb-10 flex flex-col gap-4 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl">
               {eyebrow && (
-                <p className="mb-3 inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-fg">
-                  <span className="h-px w-8 bg-brand" aria-hidden />
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-fg">
                   {eyebrow}
                 </p>
               )}
               {title && (
-                <h2 className="text-3xl font-semibold tracking-tight text-fg sm:text-4xl">
+                <h2 className="font-display text-3xl font-semibold leading-[1.12] tracking-tight text-fg sm:text-[2.65rem]">
                   {title}
                 </h2>
               )}
@@ -67,31 +66,46 @@ export function Section({
   );
 }
 
-/** Compact page hero for inner pages. */
+const HERO_TONE = {
+  brand: 'nl-glow',
+  sky: 'nl-hero-sky',
+  emerald: 'nl-hero-emerald',
+  warm: 'nl-hero-warm',
+  indigo: 'nl-hero-indigo',
+} as const;
+
+/** Compact page hero for inner pages with distinct vibrant tone per page. */
 export function PageHero({
   eyebrow,
   title,
   lead,
+  tone = 'brand',
   children,
 }: {
   eyebrow?: string;
   title: ReactNode;
   lead?: ReactNode;
+  tone?: keyof typeof HERO_TONE;
   children?: ReactNode;
 }) {
   return (
-    <div className="nl-glow relative overflow-hidden border-b border-border-subtle">
+    <div
+      className={cn(
+        HERO_TONE[tone],
+        'relative overflow-hidden border-b border-border-subtle',
+      )}
+    >
       <Container className="py-14 sm:py-20">
         {eyebrow && (
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-brand-fg">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-fg">
             {eyebrow}
           </p>
         )}
-        <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-fg sm:text-5xl">
+        <h1 className="font-display max-w-3xl text-4xl font-semibold leading-[1.08] tracking-tight text-fg sm:text-5xl lg:text-[3.5rem]">
           {title}
         </h1>
         {lead && (
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-muted sm:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-fg-secondary sm:text-lg">
             {lead}
           </p>
         )}

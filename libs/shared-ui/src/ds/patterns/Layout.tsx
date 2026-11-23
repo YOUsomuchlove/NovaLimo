@@ -200,7 +200,7 @@ export interface TimelineItem {
   title: ReactNode;
   time?: ReactNode;
   description?: ReactNode;
-  tone?: 'brand' | 'success' | 'warning' | 'danger' | 'neutral';
+  tone?: 'brand' | 'success' | 'warning' | 'danger' | 'info' | 'neutral';
   icon?: ReactNode;
 }
 
@@ -209,6 +209,7 @@ const timelineDot = {
   success: 'bg-success-solid ring-success-bg',
   warning: 'bg-warning-solid ring-warning-bg',
   danger: 'bg-danger-solid ring-danger-bg',
+  info: 'bg-info-solid ring-info-bg',
   neutral: 'bg-fg-disabled ring-surface-3',
 };
 

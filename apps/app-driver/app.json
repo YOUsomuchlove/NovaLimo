@@ -2,35 +2,49 @@
   "expo": {
     "name": "NovaLimo Driver",
     "slug": "novalimo-driver",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "scheme": "novalimo-driver",
     "userInterfaceStyle": "dark",
     "icon": "./assets/images/osm-tile-nav.png",
     "splash": {
       "resizeMode": "contain",
-      "backgroundColor": "#020617"
+      "backgroundColor": "#05070F"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.novalimo.driver"
+      "bundleIdentifier": "vn.novalimo.driver",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "NovaLimo cần định vị GPS để dẫn đường đón/trả khách và cập nhật vị trí xe về trung tâm điều hành.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "NovaLimo cần định vị nền khi bạn đang trong ca làm việc để điều hành giám sát lộ trình.",
+        "NSCameraUsageDescription": "NovaLimo cần quyền Camera để quét mã QR vận đơn hàng ký gửi và chụp ảnh biên nhận giao hàng (POD)."
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#020617"
+        "backgroundColor": "#05070F"
       },
-      "package": "com.novalimo.driver"
+      "package": "vn.novalimo.driver",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "VIBRATE"
+      ]
     },
     "plugins": [
       "expo-font",
-      "expo-location",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Cho phép NovaLimo sử dụng vị trí của bạn khi đang chạy ca để điều phối và dẫn đường."
+        }
+      ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Quét QR chứng từ hàng hóa."
+          "cameraPermission": "Quét QR chứng từ hàng hóa và chụp ảnh POD xác nhận giao hàng."
         }
       ],
       "expo-notifications"

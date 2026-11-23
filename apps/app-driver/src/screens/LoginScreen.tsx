@@ -15,20 +15,26 @@ import { C, FONT, RADIUS } from '../theme/tokens';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-/** mbDrvLogin — nền #020617, form + bắt đầu ca */
+/** mbDrvLogin — nền tối, form đăng nhập SĐT + mật khẩu */
 export function LoginScreen({ navigation }: Props) {
   const { setToken } = useAuth();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const onSubmit = async () => {
+    const trimmedPhone = phone.trim();
+    if (!trimmedPhone || !password) {
+      setErr('Vui lòng nhập số điện thoại và mật khẩu');
+      return;
+    }
     setErr(null);
     setLoading(true);
     try {
-      const { access_token } = await loginDriver(phone.trim(), password);
-      setToken(access_token);
+      const tokens = await loginDriver(trimmedPhone, password);
+      setToken(tokens.access_token, tokens.refresh_token);
       navigation.reset({ index: 0, routes: [{ name: 'Permissions' }] });
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Đăng nhập thất bại');
@@ -49,21 +55,29 @@ export function LoginScreen({ navigation }: Props) {
         <TextInput
           value={phone}
           onChangeText={setPhone}
-          placeholder="0xxxxxxxxx"
+          placeholder="09xxxxxxxx"
           placeholderTextColor={C.muted}
           keyboardType="phone-pad"
           autoCapitalize="none"
           style={styles.input}
         />
         <Text style={styles.label}>Mật khẩu</Text>
-        <TextInput
-          value={password}
-          onChangeText={setPassword}
-          placeholder="••••••••"
-          placeholderTextColor={C.muted}
-          secureTextEntry
-          style={styles.input}
-        />
+        <View style={styles.pwdWrap}>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="••••••••"
+            placeholderTextColor={C.muted}
+            secureTextEntry={!showPwd}
+            style={[styles.input, styles.pwdInput]}
+          />
+          <Pressable
+            style={styles.pwdToggle}
+            onPress={() => setShowPwd((v) => !v)}
+          >
+            <Text style={styles.pwdToggleTxt}>{showPwd ? 'Ẩn' : 'Hiện'}</Text>
+          </Pressable>
+        </View>
         {err ? <Text style={styles.err}>{err}</Text> : null}
         <Pressable
           style={[styles.primary, loading && styles.disabled]}
@@ -80,7 +94,8 @@ export function LoginScreen({ navigation }: Props) {
 
       <View style={styles.startSection}>
         <Text style={styles.hint}>
-          Sau khi đăng nhập, bạn sẽ được xin quyền vị trí & thông báo để điều hành theo ca.
+          Sau khi đăng nhập, bạn sẽ được xin quyền vị trí, thông báo & camera để
+          điều hành theo ca.
         </Text>
       </View>
     </View>
@@ -113,6 +128,23 @@ const styles = StyleSheet.create({
     fontFamily: FONT.regular,
     backgroundColor: C.card,
   },
+  pwdWrap: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  pwdInput: {
+    paddingRight: 58,
+  },
+  pwdToggle: {
+    position: 'absolute',
+    right: 14,
+    paddingVertical: 6,
+  },
+  pwdToggleTxt: {
+    fontFamily: FONT.semibold,
+    fontSize: 12,
+    color: C.gold,
+  },
   err: { color: C.error, fontFamily: FONT.regular, fontSize: 12 },
   primary: {
     marginTop: 12,
@@ -124,5 +156,10 @@ const styles = StyleSheet.create({
   primaryTxt: { fontFamily: FONT.semibold, color: C.bg, fontSize: 16 },
   disabled: { opacity: 0.7 },
   startSection: { marginTop: 28 },
-  hint: { color: C.muted, fontFamily: FONT.regular, fontSize: 12, lineHeight: 18 },
+  hint: {
+    color: C.muted,
+    fontFamily: FONT.regular,
+    fontSize: 12,
+    lineHeight: 18,
+  },
 });

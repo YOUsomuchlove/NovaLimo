@@ -52,6 +52,7 @@ export default async function CargoLandingPage() {
   return (
     <>
       <PageHero
+        tone="warm"
         eyebrow="Ký gửi hàng"
         title="Gửi hàng nhanh như đặt một chiếc ghế"
         lead="Kiện hàng của bạn đi cùng chuyến limousine gần nhất, được tài xế giao tận tay người nhận."
@@ -102,7 +103,7 @@ export default async function CargoLandingPage() {
         </ol>
       </Section>
       <Container className="pb-20">
-        <div className="flex flex-col items-start justify-between gap-6 rounded-sheet border border-brand/25 bg-brand-subtle p-8 sm:flex-row sm:items-center sm:p-10">
+        <div className="flex flex-col items-start justify-between gap-6 rounded-sheet border border-brand/30 bg-gradient-to-br from-gold-50 via-surface-1 to-gold-100/60 p-8 shadow-e1 sm:flex-row sm:items-center sm:p-10">
           <div className="flex items-center gap-4">
             <PackageCheck className="size-10 shrink-0 text-brand-fg" />
             <div>

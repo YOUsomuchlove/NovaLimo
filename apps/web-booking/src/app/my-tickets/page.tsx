@@ -13,6 +13,7 @@ export default function MyTicketsPage() {
   return (
     <>
       <PageHero
+        tone="indigo"
         eyebrow="Tra cứu vé"
         title="Vé của bạn, mọi lúc"
         lead="Một số điện thoại cho đặt vé, tra cứu và hỗ trợ. Không cần tạo tài khoản."

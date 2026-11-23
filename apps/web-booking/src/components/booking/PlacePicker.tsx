@@ -47,7 +47,7 @@ export function PlacePicker({
                 'flex items-start gap-3 rounded-card border p-3 text-left transition-colors',
                 active
                   ? 'border-brand bg-brand-subtle'
-                  : 'border-border-default bg-surface-2 hover:border-border-strong',
+                  : 'border-border-default bg-surface-1 hover:border-border-strong hover:bg-surface-2/60',
               )}
             >
               <span
@@ -83,7 +83,7 @@ export function PlacePicker({
             'flex items-center gap-3 rounded-card border p-3 text-left transition-colors',
             custom
               ? 'border-brand bg-brand-subtle'
-              : 'border-border-default bg-surface-2 hover:border-border-strong',
+              : 'border-border-default bg-surface-1 hover:border-border-strong hover:bg-surface-2/60',
           )}
         >
           <span

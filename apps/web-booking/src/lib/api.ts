@@ -15,11 +15,17 @@ import type {
 } from '@limousine-workspace/shared-types';
 
 /** REST base, ends with /api. Server components may use an internal URL (Docker network). */
-export const API_URL = (
-  (typeof window === 'undefined' ? process.env.API_INTERNAL_URL : undefined) ??
-  process.env.NEXT_PUBLIC_API_URL ??
-  'http://localhost:3000/api'
-).replace(/\/$/, '');
+export function getApiUrl(): string {
+  const internal =
+    typeof window === 'undefined' ? process.env['API_INTERNAL_URL'] : undefined;
+  return (
+    internal ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    'http://localhost:3000/api'
+  ).replace(/\/$/, '');
+}
+
+export const API_URL = getApiUrl();
 
 export class ApiError extends Error {
   constructor(
@@ -45,7 +51,7 @@ export async function api<T>(
 ): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, {
+    res = await fetch(`${getApiUrl()}${path}`, {
       ...init,
       headers: {
         Accept: 'application/json',
@@ -124,8 +130,8 @@ export interface CreateCargoRequest extends CargoQuoteRequest {
 
 /** Typed endpoints of the public API (docs/api-surface.md). */
 export const publicApi = {
-  settings: () => api<PublicSettings>('/public/settings', { revalidate: 300 }),
-  routes: () => api<RouteDto[]>('/public/routes', { revalidate: 300 }),
+  settings: () => api<PublicSettings>('/public/settings'),
+  routes: () => api<RouteDto[]>('/public/routes'),
   trips: (p: { route_id: string; date: string; seats?: number }) =>
     api<TripBatchDto[]>(`/public/trips?${qs(p)}`),
   trip: (id: string) => api<TripBatchDto>(`/public/trips/${id}`),

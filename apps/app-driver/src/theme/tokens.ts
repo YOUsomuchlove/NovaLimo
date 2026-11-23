@@ -1,25 +1,26 @@
 /**
- * @deprecated Import colors from @limousine-workspace/utils-core (NOVA_DRIVER, NOVA_BRAND)
- * — file giữ alias Expo font names cho tương thích ngược.
- *
- * Bản đồ Pen frame → màn hình (app-mobile.pen):
+ * Bản đồ Pen frame → màn hình (app-mobile.pen & app-mobile-chat-shift.pen):
  * mbDrvLogin → LoginScreen · mbDrvPermOverlay → PermissionsScreen · mbDrvHomeTrips → HomeScreen
  * mbDrvTripDetail → TripDetailScreen · mbDrvNavPickup → ActiveNavigationScreen · mbDrvPaxList → PassengersScreen
  * mbDrvCargoMng → CargoPickScreen · mbDrvCargoItem → CargoScreen · mbDrvCargoScan → CargoScanScreen
  * mbDrvCargoCod → CargoCodScreen · mbDrvCargoTransfer → CargoTransferScreen · mbDrvChat → ChatScreen
  * mbDrvIncident → SosScreen · mbDrvShiftEnd → EndShiftScreen · mbDrvNotif → NotificationsScreen
  * mbDrvEarn → IncomeScreen · mbDrvProfile → ProfileScreen
- *
- * QA thủ công (p8): export PNG từ Pencil (export_nodes / get_screenshot) và so khớp Simulator
- * cùng khung 390×844 — chỉnh spacing/font nếu lệch.
  */
-import { NOVA_BRAND, NOVA_DRIVER, NOVA_RADIUS } from '@limousine-workspace/utils-core';
+import { alpha, palette, rnTheme } from '@limousine-workspace/design-tokens';
+import {
+  NOVA_BRAND,
+  NOVA_DRIVER,
+  NOVA_RADIUS,
+} from '@limousine-workspace/utils-core';
+
+const c = rnTheme.color;
 
 /** @see app-mobile.pen — dark surfaces + CTA */
 export const C = {
   bg: NOVA_DRIVER.bg,
   card: NOVA_DRIVER.card,
-  cardElevated: '#111827',
+  cardElevated: c.surface2,
   stroke: NOVA_BRAND.stroke,
   text: NOVA_BRAND.textOnDark,
   muted: NOVA_BRAND.muted,
@@ -28,27 +29,36 @@ export const C = {
   error: NOVA_BRAND.error,
   success: NOVA_BRAND.success,
   tabBar: NOVA_DRIVER.tabBar,
-  tabActive: '#111827',
+  tabActive: c.surface2,
   overlay: NOVA_DRIVER.overlay,
   /** mbNavSheet, sheet đón khách */
-  sheetBg: '#05080D',
+  sheetBg: c.canvas,
   /** mbNavMapTint */
-  mapTint: 'rgba(11, 18, 32, 0.35)',
-  mapTopBar: 'rgba(15, 23, 42, 0.8)',
+  mapTint: alpha(palette.navy[800], 0.35),
+  mapTopBar: alpha(palette.slate[900], 0.85),
   ctaBlue: NOVA_BRAND.info,
-  swipeTrack: '#022C22',
+  swipeTrack: c.success.bg,
   swipeStroke: NOVA_BRAND.success,
-  noContactBg: '#2A1E1E',
-  noContactStroke: '#7F1D1D',
-  sosRed: '#DC2626',
-  sosStroke: '#FCA5A5',
-  shiftOrange: '#EA580C',
-  shiftOrangeStroke: '#FB923C',
-  fabBlue: '#2563EB',
-  fabBlueStroke: '#93C5FD',
-  permDialogBg: '#F8FAFC',
-  permScrim: 'rgba(0,0,0,0.5)',
-  bottomNavWrap: '#0B1020',
+  noContactBg: c.danger.bg,
+  noContactStroke: c.danger.border,
+  noContactText: c.danger.fg,
+  sosRed: palette.red[600],
+  sosStroke: palette.red[400],
+  shiftOrange: palette.amber[600],
+  shiftOrangeStroke: palette.amber[400],
+  fabBlue: palette.blue[600],
+  fabBlueStroke: palette.blue[400],
+  permDialogBg: palette.slate[50],
+  permDialogTitle: palette.slate[900],
+  permDialogText: palette.slate[600],
+  permDialogMuted: palette.slate[500],
+  permScrim: c.scrim,
+  bottomNavWrap: palette.navy[800],
+  white: palette.white,
+  black: palette.black,
+  slate200: palette.slate[200],
+  slate800: palette.slate[800],
+  slate900: palette.slate[900],
 } as const;
 
 export const RADIUS = {
@@ -60,7 +70,8 @@ export const RADIUS = {
 
 /** Expo Google Fonts — tên sau khi loadFonts */
 export const FONT = {
-  regular: 'Inter_400Regular',
-  semibold: 'Inter_600SemiBold',
-  bold: 'Inter_700Bold',
+  regular: rnTheme.fontFamily.regular,
+  medium: rnTheme.fontFamily.medium,
+  semibold: rnTheme.fontFamily.semibold,
+  bold: rnTheme.fontFamily.bold,
 } as const;

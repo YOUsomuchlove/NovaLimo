@@ -1,28 +1,19 @@
-'use client';
+import type { Metadata } from 'next';
+import { SmartDispatchBoard } from '../../components/dispatch/SmartDispatchBoard';
+import { AdminShell } from '../../components/shell/AdminShell';
 
-import { Card, Typography } from 'antd';
-import { AdminShell } from '@limousine-workspace/shared-ui/legacy';
-import { AdminPenMeta } from '../../components/AdminPenMeta';
-import { DispatchDndDemo } from '../../components/DispatchDndDemo';
+export const metadata: Metadata = {
+  title: 'Điều phối Thông minh (Smart Dispatching)',
+};
 
 export default function DispatchPage() {
   return (
-    <AdminShell title="Điều phối">
-      <AdminPenMeta
-        id="nvSmartDispPage"
-        name="NovaLimo Admin · Điều phối Thông minh (Smart Dispatching)"
-      />
-      <Card
-        className="border-slate-200"
-        title="Điều phối · rổ chờ → xe (dnd-kit)"
-      >
-        <Typography.Paragraph type="secondary" className="!mb-4">
-          Kéo thả ghế/booking vào xe —{' '}
-          <Typography.Text code>@dnd-kit/core</Typography.Text>; bám vùng Main
-          column trong pen khi có frame chi tiết.
-        </Typography.Paragraph>
-        <DispatchDndDemo />
-      </Card>
+    <AdminShell
+      title="Smart Dispatching"
+      subtitle="Trip_Batches · Drag & Drop Trip_Runs · Xuất lệnh đến Mobile App"
+      breadcrumbs={[{ label: 'Điều phối' }, { label: 'Smart Dispatching' }]}
+    >
+      <SmartDispatchBoard />
     </AdminShell>
   );
 }

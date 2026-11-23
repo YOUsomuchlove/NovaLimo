@@ -67,37 +67,43 @@ const control =
 export interface InputProps extends Omit<ComponentProps<'input'>, 'size'> {
   leading?: ReactNode;
   trailing?: ReactNode;
+  leftIcon?: ReactNode;
+  rightSlot?: ReactNode;
   inputSize?: 'sm' | 'md' | 'lg';
 }
 
 export function Input({
   leading,
   trailing,
+  leftIcon,
+  rightSlot,
   inputSize = 'md',
   className,
   ...rest
 }: InputProps) {
+  const lead = leading ?? leftIcon;
+  const trail = trailing ?? rightSlot;
   const h = { sm: 'h-8 text-ui', md: 'h-10', lg: 'h-12 text-base' }[inputSize];
-  if (!leading && !trailing)
+  if (!lead && !trail)
     return <input className={cn(control, h, 'px-3.5', className)} {...rest} />;
   return (
     <div className={cn('relative flex items-center', className)}>
-      {leading && (
+      {lead && (
         <span className="pointer-events-none absolute left-3.5 flex text-fg-muted">
-          {leading}
+          {lead}
         </span>
       )}
       <input
         className={cn(
           control,
           h,
-          leading ? 'pl-10' : 'pl-3.5',
-          trailing ? 'pr-10' : 'pr-3.5',
+          lead ? 'pl-10' : 'pl-3.5',
+          trail ? 'pr-10' : 'pr-3.5',
         )}
         {...rest}
       />
-      {trailing && (
-        <span className="absolute right-3 flex text-fg-muted">{trailing}</span>
+      {trail && (
+        <span className="absolute right-3 flex text-fg-muted">{trail}</span>
       )}
     </div>
   );

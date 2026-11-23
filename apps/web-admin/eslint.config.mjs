@@ -1,6 +1,9 @@
 import nx from '@nx/eslint-plugin';
 import nextPlugin from '@next/eslint-plugin-next';
-import baseConfig, { designTokenGuard } from '../../eslint.config.mjs';
+import baseConfig, {
+  designTokenGuard,
+  legacyOverrides,
+} from '../../eslint.config.mjs';
 
 export default [
   ...baseConfig,
@@ -17,4 +20,5 @@ export default [
   },
   { ignores: ['.next/**', 'next-env.d.ts'] },
   designTokenGuard,
+  legacyOverrides,
 ];

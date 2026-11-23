@@ -297,6 +297,7 @@ export function InfoStep() {
             />
           </div>
           <MapView
+            theme="light"
             markers={markers}
             className="h-72 xl:h-full xl:min-h-[420px]"
           />

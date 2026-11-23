@@ -116,6 +116,7 @@ export default async function FaqPage() {
   return (
     <>
       <PageHero
+        tone="sky"
         eyebrow="Hỗ trợ"
         title="Câu hỏi thường gặp"
         lead="Không tìm thấy câu trả lời? Gọi hotline hoặc gửi lời nhắn ở trang Liên hệ."
@@ -131,7 +132,7 @@ export default async function FaqPage() {
                 {g.items.map(([q, a]) => (
                   <details
                     key={q}
-                    className="group rounded-card border border-border-subtle bg-surface-1 open:border-border-default open:bg-surface-2"
+                    className="group rounded-card border border-border-subtle bg-surface-1 transition-colors open:border-brand/40 open:shadow-e1"
                   >
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-medium text-fg [&::-webkit-details-marker]:hidden">
                       {q}

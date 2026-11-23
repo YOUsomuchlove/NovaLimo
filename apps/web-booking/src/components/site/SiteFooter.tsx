@@ -36,7 +36,7 @@ export function SiteFooter({
   company: PublicSettings['company'];
 }) {
   return (
-    <footer className="border-t border-border-subtle bg-surface-1/40">
+    <footer className="border-t border-border-subtle bg-surface-1">
       <div className="mx-auto grid max-w-[1280px] gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="flex flex-col gap-5">
           <Logo />
@@ -90,7 +90,7 @@ export function SiteFooter({
           </nav>
         ))}
       </div>
-      <div className="border-t border-border-subtle">
+      <div className="border-t border-border-subtle bg-canvas/70">
         <div className="mx-auto flex max-w-[1280px] flex-col gap-2 px-4 py-5 text-xs text-fg-muted sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p>
             © {new Date().getFullYear()} {company.name}. Bảo lưu mọi quyền.

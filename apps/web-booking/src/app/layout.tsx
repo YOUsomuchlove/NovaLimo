@@ -2,24 +2,32 @@ import './global.css';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { palette } from '@limousine-workspace/design-tokens';
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
 import type { ReactNode } from 'react';
 import { SiteFooter } from '../components/site/SiteFooter';
 import { SiteHeader } from '../components/site/SiteHeader';
 import { DEFAULT_SETTINGS, SITE_URL, publicApi, safe } from '../lib/api';
 import { Providers } from './providers';
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin', 'vietnamese'],
   variable: '--font-inter',
+  display: 'swap',
+});
+
+const cormorant = Cormorant_Garamond({
+  subsets: ['latin', 'vietnamese'],
+  weight: ['500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-display',
   display: 'swap',
 });
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: palette.navy[900],
-  colorScheme: 'dark',
+  themeColor: palette.slate[50],
+  colorScheme: 'light',
 };
 
 export const metadata: Metadata = {
@@ -49,7 +57,11 @@ export default async function RootLayout({
 }) {
   const settings = await safe(publicApi.settings(), DEFAULT_SETTINGS);
   return (
-    <html lang="vi" data-theme="dark" className={inter.variable}>
+    <html
+      lang="vi"
+      data-theme="light"
+      className={`${jakarta.variable} ${cormorant.variable}`}
+    >
       <body className="min-h-dvh font-sans antialiased">
         <a
           href="#main"

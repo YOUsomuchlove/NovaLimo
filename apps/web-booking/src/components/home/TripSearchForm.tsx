@@ -144,10 +144,10 @@ export function TripSearchForm({
         />
       </Field>
       <Field label="Số ghế" icon={<Users className="size-3.5" />}>
-        <div className="flex h-12 items-center justify-between gap-1 rounded-control border border-border-default bg-surface-2 px-1.5">
+        <div className="flex h-12 items-center justify-between gap-1 rounded-control border border-border-default bg-surface-1 px-1.5">
           <button
             type="button"
-            className="flex size-9 items-center justify-center rounded-[8px] text-fg-secondary hover:bg-surface-3 disabled:opacity-30"
+            className="flex size-9 items-center justify-center rounded-[8px] text-fg-secondary transition-colors hover:bg-surface-2 disabled:opacity-30"
             onClick={() => setSeats((s) => Math.max(1, s - 1))}
             disabled={seats <= 1}
             aria-label="Bớt một ghế"
@@ -155,14 +155,14 @@ export function TripSearchForm({
             <Minus className="size-4" />
           </button>
           <span
-            className="w-6 text-center text-base font-semibold tabular-nums"
+            className="w-6 text-center text-base font-semibold tabular-nums text-fg"
             aria-live="polite"
           >
             {seats}
           </span>
           <button
             type="button"
-            className="flex size-9 items-center justify-center rounded-[8px] text-fg-secondary hover:bg-surface-3 disabled:opacity-30"
+            className="flex size-9 items-center justify-center rounded-[8px] text-fg-secondary transition-colors hover:bg-surface-2 disabled:opacity-30"
             onClick={() => setSeats((s) => Math.min(6, s + 1))}
             disabled={seats >= 6}
             aria-label="Thêm một ghế"

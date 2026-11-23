@@ -1,7 +1,11 @@
 import type {
   BookingStatus,
   CargoStatus,
+  CodSettlementStatus,
+  FinanceKind,
+  IncidentStatus,
   PaymentStatus,
+  TicketStatus,
   TripBatchStatus,
   TripRunStatus,
   UserStatus,
@@ -62,6 +66,26 @@ export const STATUS_META = {
     INACTIVE: { label: 'Ngừng hoạt động', tone: 'neutral' },
     LOCKED: { label: 'Đã khóa', tone: 'danger' },
   } satisfies Record<UserStatus, StatusMeta>,
+  incident: {
+    OPEN: { label: 'Mới phát tín hiệu SOS', tone: 'danger', pulse: true },
+    ACKNOWLEDGED: { label: 'Đang xử lý', tone: 'warning' },
+    RESOLVED: { label: 'Đã giải quyết', tone: 'success' },
+  } satisfies Record<IncidentStatus, StatusMeta>,
+  ticket: {
+    NEW: { label: 'Mới tiếp nhận', tone: 'warning' },
+    IN_PROGRESS: { label: 'Đang xử lý', tone: 'info' },
+    RESOLVED: { label: 'Đã giải quyết', tone: 'success' },
+    CLOSED: { label: 'Đã đóng', tone: 'neutral' },
+  } satisfies Record<TicketStatus, StatusMeta>,
+  finance: {
+    INCOME: { label: 'Thu (+)', tone: 'success' },
+    EXPENSE: { label: 'Chi (-)', tone: 'danger' },
+  } satisfies Record<FinanceKind, StatusMeta>,
+  codSettlement: {
+    PENDING: { label: 'Chờ xác nhận', tone: 'warning' },
+    CONFIRMED: { label: 'Đã đối soát', tone: 'success' },
+    REJECTED: { label: 'Từ chối', tone: 'danger' },
+  } satisfies Record<CodSettlementStatus, StatusMeta>,
 } as const;
 
 type Domain = keyof typeof STATUS_META;

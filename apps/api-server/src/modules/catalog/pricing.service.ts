@@ -66,13 +66,14 @@ export class PricingService {
   ): Promise<Map<string, { base: number; vip: number }>> {
     const rows = await this.rules
       .createQueryBuilder('p')
-      .select('DISTINCT ON (p.route_id) p.route_id', 'route_id')
+      .distinctOn(['p.route_id'])
+      .select('p.route_id', 'route_id')
       .addSelect('p.base_price_vnd', 'base')
       .addSelect('p.vip_surcharge_vnd', 'vip')
       .where('p.is_active')
       .andWhere('(p.valid_from IS NULL OR p.valid_from <= :date)', { date })
       .andWhere('(p.valid_to IS NULL OR p.valid_to >= :date)', { date })
-      .orderBy('p.route_id')
+      .orderBy('p.route_id', 'ASC')
       .addOrderBy('p.base_price_vnd', 'ASC')
       .getRawMany<{ route_id: string; base: number; vip: number }>();
     return new Map(

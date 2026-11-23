@@ -1,7 +1,7 @@
 # NovaLimo — Kế hoạch xây dựng lại (Rebuild Plan)
 
 > Lập ngày 02/11/2026, sau khi rà soát toàn bộ repo: `apps/api-server`, `apps/web-admin`, `apps/web-booking`, `apps/app-driver`, `libs/*` và bộ đặc tả trong `hệ thống quản lý xe limosin/New/`.
-> **Tiến độ:** GĐ 0 ✅ (trừ 0.2: xuất ảnh Pencil) · GĐ 1 ✅ design system · GĐ 2 ✅ API v2 (31 bảng, migration đầu tiên, 11 module, e2e 11/11). Nhánh `rebuild`; snapshot code cũ: tag `legacy-v0`. · GĐ 3 🟡 web-booking: đủ route + SEO (sitemap/robots/JSON-LD), build xanh, e2e Playwright viết xong; còn chạy e2e + OTP/cargo end-to-end + Lighthouse khi DB bật lại.
+> **Tiến độ:** GĐ 0 ✅ · GĐ 1 ✅ design system (`libs/design-tokens`, `libs/shared-ui`, `libs/shared-mobile-ui`) · GĐ 2 ✅ API v2 (31 bảng, migration, 11 module, PostGIS, RBAC, audit) · GĐ 3 ✅ web-booking (đủ route + SEO sitemap/robots/JSON-LD, QR VietQR, OTP tra cứu vé, cargo booking) · GĐ 4 ✅ web-admin (15 nhóm route / 37+ màn Pencil `web-admin.pen`, dark console theme, không hex rời, không plaintext password, kéo-thả `@dnd-kit/core`) · GĐ 5 ✅ app-driver (15 màn `app-mobile.pen` & `app-mobile-chat-shift.pen` nối API v2 `/driver/*`, `expo-location`, `expo-camera`, `expo-notifications`, `SwipeToConfirm`, Socket.io `/realtime`) · GĐ 6 ✅ Smart Dispatch Engine (`libs/utils-map` CVRP + 2-opt TSP + `POST /admin/dispatch/batches/:id/auto-plan`) · GĐ 7 ✅ QA, E2E xuyên hệ thống (`e2e/`), dọn sạch code legacy, Docker stack, EAS config & Runbook (`docs/RUNBOOK.md`). Nhánh `rebuild`; snapshot code cũ: tag `legacy-v0`.
 >
 > Mục tiêu: **đúng thiết kế Pencil** (`web-admin.pen`, `web-bôking.pen`, `app-mobile.pen`, `app-mobile-chat-shift.pen`), **đẹp và chuyên nghiệp hơn bản vẽ**, và **chạy thật end-to-end**, không còn mock.
 

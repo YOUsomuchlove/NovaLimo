@@ -38,6 +38,7 @@ export default async function ContactPage() {
   return (
     <>
       <PageHero
+        tone="sky"
         eyebrow="Liên hệ"
         title="Chúng tôi luôn sẵn sàng"
         lead="Một số điện thoại cho đặt vé, tra cứu và hỗ trợ. Hoặc để lại lời nhắn, chúng tôi sẽ gọi lại."
