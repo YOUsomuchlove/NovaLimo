@@ -22,12 +22,12 @@ Tài liệu này giúp **khách hàng / đối tác / đội vận hành** nắm
 
 Trong monorepo, thư mục **`apps/`** chứa **bốn project** (mỗi cái là một “app” hoặc service có thể build/chạy riêng trong Nx):
 
-| Thư mục (tên project Nx) | Công nghệ | Đối tượng sử dụng | Vai trò |
-|--------------------------|-----------|-------------------|---------|
-| **`api-server`** | NestJS | Hệ thống, các client, tích hợp khác | **Backend API:** REST (prefix `/api`), **Socket.io** realtime, nghiệp vụ lõi, database, xác thực — **không** phải màn hình người dùng, nhưng là **trung tâm** mọi ứng dụng phía dưới. |
-| **`web-booking`** | Next.js | Khách / người đặt vé | **Ứng dụng web đặt vé:** chọn lô chuyến, đặt chỗ, điểm đón/trả, ghế (nếu có). |
-| **`web-admin`** | Next.js | Điều hành, quản trị viên | **Ứng dụng web quản trị:** lô chuyến, booking, điều phối, theo dõi vận hành. |
-| **`app-driver`** | Expo (React Native) | Tài xế | **Ứng dụng mobile (iOS/Android):** ca làm việc, chuyến được gán, cập nhật trạng thái / vị trí (theo tính năng hiện có trong code). |
+| Thư mục (tên project Nx) | Công nghệ           | Đối tượng sử dụng                   | Vai trò                                                                                                                                                                               |
+| ------------------------ | ------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`api-server`**         | NestJS              | Hệ thống, các client, tích hợp khác | **Backend API:** REST (prefix `/api`), **Socket.io** realtime, nghiệp vụ lõi, database, xác thực — **không** phải màn hình người dùng, nhưng là **trung tâm** mọi ứng dụng phía dưới. |
+| **`web-booking`**        | Next.js             | Khách / người đặt vé                | **Ứng dụng web đặt vé:** chọn lô chuyến, đặt chỗ, điểm đón/trả, ghế (nếu có).                                                                                                         |
+| **`web-admin`**          | Next.js             | Điều hành, quản trị viên            | **Ứng dụng web quản trị:** lô chuyến, booking, điều phối, theo dõi vận hành.                                                                                                          |
+| **`app-driver`**         | Expo (React Native) | Tài xế                              | **Ứng dụng mobile (iOS/Android):** ca làm việc, chuyến được gán, cập nhật trạng thái / vị trí (theo tính năng hiện có trong code).                                                    |
 
 **Tóm lại:** **ba app giao diện người dùng** (`web-booking`, `web-admin`, `app-driver`) + **một backend** (`api-server`). Các thư viện dùng chung nằm ở **`libs/`** (kiểu dữ liệu, tiện ích bản đồ, UI chung, …).
 
@@ -35,11 +35,11 @@ Trong monorepo, thư mục **`apps/`** chứa **bốn project** (mỗi cái là 
 
 ## 1. Tổng quan thành phần kỹ thuật (API, CSDL, OSRM)
 
-| Thành phần | Vai trò |
-|------------|---------|
-| **API (`api-server`)** | Nghiệp vụ lõi: lô chuyến, đặt vé, điều phối, chuyến chạy, xe, người dùng, hàng hóa (cargo), geocode; xác thực JWT; realtime **Socket.io**. |
-| **PostgreSQL + PostGIS** | Lưu trữ; trường địa lý (geom) phục vụ khoảng cách và **gom cụm điều phối** (`DISPATCH_CLUSTER_MODE=postgres`). |
-| **OSRM** (tuỳ chọn) | Ma trận khoảng cách / tuyến đường thực tế; nếu không có, hệ thống có thể dùng tính toán thay thế (ví dụ Haversine) tùy luồng code. |
+| Thành phần               | Vai trò                                                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **API (`api-server`)**   | Nghiệp vụ lõi: lô chuyến, đặt vé, điều phối, chuyến chạy, xe, người dùng, hàng hóa (cargo), geocode; xác thực JWT; realtime **Socket.io**. |
+| **PostgreSQL + PostGIS** | Lưu trữ; trường địa lý (geom) phục vụ khoảng cách và **gom cụm điều phối** (`DISPATCH_CLUSTER_MODE=postgres`).                             |
+| **OSRM** (tuỳ chọn)      | Ma trận khoảng cách / tuyến đường thực tế; nếu không có, hệ thống có thể dùng tính toán thay thế (ví dụ Haversine) tùy luồng code.         |
 
 **Hai kênh giao tiếp cần phân biệt:**
 
@@ -58,11 +58,11 @@ Các khái niệm chính trong codebase hiện tại:
 
 Một **lô** gom nhiều booking cùng tuyến / khung giờ khởi hành.
 
-| Trạng thái | Ý nghĩa gợi ý |
-|------------|----------------|
-| **OPEN** | Cho phép **đặt vé** và (khi đủ điều kiện) chạy **điều phối** gom cụm. |
-| **CLUSTERED** | Đã qua bước gom cụm / gán chuyến (theo luồng nghiệp vụ). |
-| **COMPLETED** | Kết thúc lô. |
+| Trạng thái    | Ý nghĩa gợi ý                                                         |
+| ------------- | --------------------------------------------------------------------- |
+| **OPEN**      | Cho phép **đặt vé** và (khi đủ điều kiện) chạy **điều phối** gom cụm. |
+| **CLUSTERED** | Đã qua bước gom cụm / gán chuyến (theo luồng nghiệp vụ).              |
+| **COMPLETED** | Kết thúc lô.                                                          |
 
 Đặt vé chỉ hợp lệ khi lô đang **OPEN** (API từ chối nếu khác).
 
@@ -163,15 +163,15 @@ docs/             # Tài liệu kỹ thuật bổ sung
 
 ### 4.1. Một bảng “một sự thật” cho URL
 
-| Biến / chỗ dùng | Ai đọc | Ghi chú quan trọng |
-|-----------------|--------|---------------------|
-| **`DATABASE_URL`** | API | Phải trỏ đúng host/port/DB/user — **sai là mất hoặc ghi nhầm DB**. |
-| **`NEXT_PUBLIC_API_URL`** | Next (booking, admin) | Embed **lúc build** — đổi URL API cần **build lại** hoặc restart dev với env mới. |
-| **`EXPO_PUBLIC_API_URL`** | Expo app-driver | Tương tự build-time; **Android emulator** thường dùng `http://10.0.2.2:3000/api` thay cho `localhost`. |
-| **`PORT`** | API | Mặc định 3000; **phải khớp** phần host trong `NEXT_PUBLIC_API_URL` (ví dụ cùng cổng 3000). |
-| **`JWT_SECRET`** | API | Đổi secret làm **token cũ vô hiệu** — cần đăng nhập lại; production **không** dùng giá trị mẫu. |
-| **`OSRM_BASE_URL`** | API (routing) | OSRM không chạy hoặc URL sai → ma trận khoảng cách / dispatch có thể lỗi hoặc lệ thuộc fallback (kiểm tra log). |
-| **`DISPATCH_CLUSTER_MODE`** | API | `postgres` cần **PostGIS** và geom hợp lệ; `kmeans` là đường khác, không cần PostGIS cho bước cluster đó. |
+| Biến / chỗ dùng             | Ai đọc                | Ghi chú quan trọng                                                                                              |
+| --------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **`DATABASE_URL`**          | API                   | Phải trỏ đúng host/port/DB/user — **sai là mất hoặc ghi nhầm DB**.                                              |
+| **`NEXT_PUBLIC_API_URL`**   | Next (booking, admin) | Embed **lúc build** — đổi URL API cần **build lại** hoặc restart dev với env mới.                               |
+| **`EXPO_PUBLIC_API_URL`**   | Expo app-driver       | Tương tự build-time; **Android emulator** thường dùng `http://10.0.2.2:3000/api` thay cho `localhost`.          |
+| **`PORT`**                  | API                   | Mặc định 3000; **phải khớp** phần host trong `NEXT_PUBLIC_API_URL` (ví dụ cùng cổng 3000).                      |
+| **`JWT_SECRET`**            | API                   | Đổi secret làm **token cũ vô hiệu** — cần đăng nhập lại; production **không** dùng giá trị mẫu.                 |
+| **`OSRM_BASE_URL`**         | API (routing)         | OSRM không chạy hoặc URL sai → ma trận khoảng cách / dispatch có thể lỗi hoặc lệ thuộc fallback (kiểm tra log). |
+| **`DISPATCH_CLUSTER_MODE`** | API                   | `postgres` cần **PostGIS** và geom hợp lệ; `kmeans` là đường khác, không cần PostGIS cho bước cluster đó.       |
 
 ### 4.2. Cổng dịch vụ (dev)
 
@@ -221,11 +221,11 @@ Chỉnh `.env` theo môi trường (đặc biệt production: **JWT**, **DATABAS
 docker compose up -d
 ```
 
-| Thông số mặc định | Giá trị |
-|-------------------|---------|
-| User / database | `novalimo` |
-| Mật khẩu | `novalimo` |
-| Cổng | `5432` |
+| Thông số mặc định | Giá trị    |
+| ----------------- | ---------- |
+| User / database   | `novalimo` |
+| Mật khẩu          | `novalimo` |
+| Cổng              | `5432`     |
 
 **OSRM (tuỳ chọn):** chuẩn bị file `.osrm` trong `tools/osrm-data/`, sau đó:
 
@@ -239,12 +239,12 @@ docker compose --profile osrm up -d
 
 Có thể **build image** cho backend và cả hai web Next trong Docker, rồi dựng cùng PostgreSQL bằng Compose (file **`docker-compose.stack.yml`** + **`docker-compose.yml`**).
 
-| File | Vai trò |
-|------|---------|
-| `docker/Dockerfile.api` | Multi-stage: `npm ci` → `nx build api-server` → image chạy `node main.js` (cổng 3000). |
-| `docker/Dockerfile.next` | Build-arg `NX_APP` = `web-booking` hoặc `web-admin`; dùng **`output: 'standalone'`** của Next.js. |
-| `docker-compose.stack.yml` | Service `api`, `web-booking`, `web-admin` nối với `postgres` từ compose gốc. |
-| `.dockerignore` | Giảm context build (bỏ `node_modules`, `.next`, …). |
+| File                       | Vai trò                                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
+| `docker/Dockerfile.api`    | Multi-stage: `npm ci` → `nx build api-server` → image chạy `node main.js` (cổng 3000).            |
+| `docker/Dockerfile.next`   | Build-arg `NX_APP` = `web-booking` hoặc `web-admin`; dùng **`output: 'standalone'`** của Next.js. |
+| `docker-compose.stack.yml` | Service `api`, `web-booking`, `web-admin` nối với `postgres` từ compose gốc.                      |
+| `.dockerignore`            | Giảm context build (bỏ `node_modules`, `.next`, …).                                               |
 
 **Chạy full stack (cần Docker Desktop / Engine):**
 
@@ -260,11 +260,11 @@ docker compose -f docker-compose.yml -f docker-compose.stack.yml up --build
 
 **Cổng mặc định sau khi lên:**
 
-| Dịch vụ | URL |
-|---------|-----|
-| API | `http://localhost:3000/api` |
-| Web đặt vé | `http://localhost:3001` |
-| Web quản trị | `http://localhost:3002` |
+| Dịch vụ      | URL                         |
+| ------------ | --------------------------- |
+| API          | `http://localhost:3000/api` |
+| Web đặt vé   | `http://localhost:3001`     |
+| Web quản trị | `http://localhost:3002`     |
 
 **Lưu ý quan trọng:** `NEXT_PUBLIC_API_URL` được **nhúng lúc build** image Next. Giá trị mặc định là `http://localhost:3000/api` (trình duyệt trên máy bạn gọi API qua localhost). Khi deploy ra **domain / HTTPS**, cần build lại image với biến môi trường (ví dụ file `.env` cùng thư mục compose: `NEXT_PUBLIC_API_URL=https://api.cua-ban.com/api`). API trong stack dùng `DATABASE_URL` trỏ tới service Docker `postgres`.
 
@@ -276,14 +276,14 @@ Chi tiết thêm: **`docker/README.md`**.
 
 ## 8. Chạy ứng dụng (development)
 
-| Lệnh | Mục đích |
-|------|----------|
-| `npm run dev:api` | API |
-| `npm run dev:booking` | Web đặt vé |
-| `npm run dev:admin` | Web quản trị |
-| `npm run dev:all` | API + web-admin + web-booking |
-| `npm run build:all` | Build các project có target build |
-| `npm run lint:all` | Lint workspace |
+| Lệnh                         | Mục đích                               |
+| ---------------------------- | -------------------------------------- |
+| `npm run dev:api`            | API                                    |
+| `npm run dev:booking`        | Web đặt vé                             |
+| `npm run dev:admin`          | Web quản trị                           |
+| `npm run dev:all`            | API + web-admin + web-booking          |
+| `npm run build:all`          | Build các project có target build      |
+| `npm run lint:all`           | Lint workspace                         |
 | `npm run verify:integration` | Kiểm tra tích hợp (API phải đang chạy) |
 
 **Gợi ý:** API cổng 3000; Next chạy cổng khác, ví dụ:
@@ -328,4 +328,16 @@ Workspace dùng [Nx](https://nx.dev) để cache task, quản lý phụ thuộc 
 
 ---
 
-*Tài liệu phản ánh kiến trúc và nghiệp vụ trong mã nguồn hiện tại. Triển khai production cần thêm: HTTPS, backup định kỳ, giám sát, phân quyền vận hành và quy trình thay đổi schema có kiểm soát.*
+_Tài liệu phản ánh kiến trúc và nghiệp vụ trong mã nguồn hiện tại. Triển khai production cần thêm: HTTPS, backup định kỳ, giám sát, phân quyền vận hành và quy trình thay đổi schema có kiểm soát._
+
+---
+
+## Giấy phép (License)
+
+Dự án **phi thương mại**, phát hành theo giấy phép **[Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/)** — xem toàn văn tại [`LICENSE`](LICENSE).
+
+- ✅ Được **sao chép, chia sẻ, chỉnh sửa** và phát triển tiếp mã nguồn.
+- ✅ Phải **ghi nguồn** (tên dự án NovaLimo, tác giả, link repo) và nêu rõ nếu có thay đổi.
+- ❌ **Không được sử dụng cho mục đích thương mại.**
+
+Muốn sử dụng cho mục đích thương mại, vui lòng liên hệ tác giả qua GitHub.

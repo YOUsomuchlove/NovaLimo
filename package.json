@@ -1,7 +1,7 @@
 {
   "name": "@limousine-workspace/source",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "CC-BY-NC-4.0",
   "scripts": {
     "dev:all": "nx run-many --targets=serve,dev --projects=api-server,web-admin,web-booking --parallel=3",
     "dev:api": "nx serve api-server",
